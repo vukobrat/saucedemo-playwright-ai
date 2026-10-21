@@ -102,6 +102,11 @@ export const KNOWN_BUGS = {
     id: 'SD-402',
     summary: 'visual_user: the Sauce Labs Backpack image is the broken "sl-404" image',
   },
+  visualLayoutDiffers: {
+    id: 'SD-403',
+    summary:
+      'visual_user: inventory page differs from the reference rendering (cart icon position)',
+  },
 
   // accessibility best practices (axe "best-practice" rules; WCAG 2.2 AA itself passes)
   a11yNoLevelOneHeading: {
