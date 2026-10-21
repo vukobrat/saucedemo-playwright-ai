@@ -45,10 +45,10 @@ Deep links to any route except `/` return **HTTP 404** but the SPA still renders
 The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'data-test'` and use `getByTestId`.
 
 - **Login:** `username`, `password`, `login-button`, `error` (`<h3 role="alert">`), `error-button` (dismiss, accessible name "Dismiss error"). Inputs get class `error` while an error is shown.
-- **Header:** `primary-header`, `open-menu`, `close-menu`, `shopping-cart-link` (`role="button"`, `aria-label` "Cart, empty" or "Cart, 2 items"), `shopping-cart-badge` (absent when the cart is empty), `title`.
-- **Side menu:** `inventory-sidebar-link`, `dynamic-catalog-sidebar-link`, `about-sidebar-link` (href `https://saucelabs.com/`), `logout-sidebar-link`, `reset-sidebar-link`.
-- **Inventory:** `product-sort-container` (`<select>`), `active-option`, `inventory-list`, `inventory-item` (x6), `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `item-<id>-title-link`, `item-<id>-img-link`, `add-to-cart-<slug>` / `remove-<slug>`.
-- **Product details:** `back-to-products`, `inventory-item`, `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `add-to-cart` / `remove` (no slug on this page).
+- **Header:** `primary-header` holds `open-menu`, `close-menu` and `shopping-cart-link` (`role="button"`, accessible name "Cart, empty", "Cart, 1 items", "Cart, 2 items", ...) with `shopping-cart-badge` (absent when the cart is empty). The page `title` sits in the secondary header, outside `header-container`; the product details page has no title.
+- **Side menu:** a `navigation` whose items are `<a role="button">`: `inventory-sidebar-link` ("All Items"), `dynamic-catalog-sidebar-link`, `logout-sidebar-link` ("Logout"), `reset-sidebar-link` ("Reset App State"). Only `about-sidebar-link` is a real link (href `https://saucelabs.com/`). Close button: role button "Close Menu".
+- **Inventory:** `product-sort-container` (`<select>`, `aria-label="Sort products"`, role combobox), `active-option`, `inventory-list`, `inventory-item` (x6), `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `item-<id>-title-link`, `item-<id>-img-link`, `add-to-cart-<slug>` / `remove-<slug>`. Both item links are `<a role="button" aria-label="View details for <name>">`.
+- **Product details:** `back-to-products` (button "Back to products"), `inventory-item`, `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `add-to-cart` / `remove` (no slug on this page).
 - **Cart:** `cart-list`, `inventory-item`, `item-quantity`, `inventory-item-name`, `inventory-item-price`, `remove-<slug>`, `continue-shopping`, `checkout`.
 - **Checkout information:** `firstName`, `lastName`, `postalCode` (placeholders "First Name", "Last Name", "Zip/Postal Code"), `cancel`, `continue`, `error`.
 - **Checkout overview:** `cart-list`, `payment-info-value` ("SauceCard #31337"), `shipping-info-value` ("Free Pony Express Delivery!"), `subtotal-label`, `tax-label`, `total-label`, `cancel`, `finish`.
@@ -57,8 +57,12 @@ The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'dat
 
 ### Selector traps
 
-1. `data-test="open-menu"` is on an `<img>` covered by the real button. Clicking it times out (pointer intercepted). Use `getByRole('button', { name: 'Open Menu' })`.
-2. The side menu wrapper keeps `aria-hidden="true"` even when open, so `getByRole('link', { name: 'Logout' })` matches nothing. Use the `*-sidebar-link` test ids. Likely also an axe finding.
+1. `data-test="open-menu"` and `data-test="close-menu"` are on `<img>` elements covered by the real buttons. Clicking them times out (pointer intercepted). Use `getByRole('button', { name: 'Open Menu' })` / `'Close Menu'`.
+2. Side menu items are `<a role="button">`, so `getByRole('link', { name: 'Logout' })` matches nothing; use `getByRole('button', { name: 'Logout' })`. The menu wrapper is `aria-hidden="true"` while closed and flips to `"false"` about 130 ms after opening, so role locators only match an open menu: clicks wait for it, and `toBeHidden()` means closed.
+3. Closed menu items sit off-screen (x = -276) but count as visible, so `getByTestId('logout-sidebar-link')` reports visible even when the menu is closed. Never use test ids to check whether the menu is open.
+4. Each product card has two `role="button"` elements named "View details for <name>" (image and title). Use the `item-<id>-title-link` test id for the title link.
+
+Correction (2026-10-21): an earlier version of this file blamed trap 2 on `aria-hidden` staying `"true"`. That reading was taken mid-animation; the real cause is `role="button"`. The observation (no link found) was right, the diagnosis was wrong.
 
 ## Messages (exact strings)
 
@@ -124,6 +128,7 @@ These are deliberate. Tests assert the correct behavior and mark these with `kno
 ### standard_user
 
 - Side menu "Reset App State" clears the cart badge and `cart-contents`, but product buttons keep showing "Remove" until the page reloads.
+- The cart button's accessible name is "Cart, 1 items" for a single item (grammar defect visible to screen reader users).
 
 ## Dynamic Catalog (currently untested)
 

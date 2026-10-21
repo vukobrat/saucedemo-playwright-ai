@@ -12,6 +12,9 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 
 - `nvm use` - selects Node 24 from `.nvmrc`. Why: CI and the Playwright Docker image run Node 24.
 - Setup: `cp .env.example .env` and fill in the values (a human does this; agents never read or write `.env`). `src/config/env.ts` validates it with zod at startup and names any missing or invalid variable. Shell and CI variables override `.env`.
+- Local browsers: Playwright 1.64 ships no browsers or ffmpeg for macOS 12. There, set `BROWSER_CHANNEL=chrome` and `RECORD_VIDEO=false` and run only `--project=chromium`; Firefox and WebKit run in CI (Linux). Why: the maintainer's machine is macOS 12, and a test run that cannot start is not a test failure.
+- `npm test` - all projects (CI, Docker). `npm run test:local` - chromium only, the default on a dev machine. `npm run test:smoke` / `test:regression` - by tag. `npm run test:headed`, `npm run test:ui`, `npm run report`. Pass Playwright flags after `--`, e.g. `npm run test:local -- tests/e2e/login.spec.ts`.
+- Every run starts with the `setup` project (logs in each persona, about 8 s), also under `--grep`. Never run specs with `--no-deps` unless `.auth/` is fresh (sessions expire after 10 minutes).
 - `npm run typecheck` - `tsc --noEmit`. Why: Playwright transpiles TypeScript without type checking, so type errors only surface here.
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier.
@@ -30,6 +33,7 @@ More scripts (lint, format, test suites) are added to this list as each framewor
 - `src/fixtures/` - fixtures that inject page objects, persona auth and API clients. Specs import `test` and `expect` from `@fixtures` only.
 - `src/api/` - DummyJSON clients and zod response schemas.
 - `src/utils/` - small pure helpers (pricing, known bugs, auth state paths).
+- Pages extend `BasePage` (routed screen, `expectLoaded()`) or `AppPage` (adds header, side menu, title). Test data with randomness comes from builders fed the per-test `faker` fixture, which is seeded from the test id. Import across folders through the tsconfig aliases (`@fixtures`, `@data/*`, `@pages/*`, `@components/*`, `@utils/*`, `@config/*`).
 - `tests/{setup,e2e,personas,a11y,visual,api}/` - specs only, no raw locators.
 
 Why: a predictable map prevents duplicate abstractions when several agents or people add code in parallel.
@@ -46,17 +50,18 @@ Priority: `getByRole` with an accessible name for interactive controls, then `ge
 
 Verified exceptions, do not "fix" these back:
 
-- Open menu: `getByRole('button', { name: 'Open Menu' })`. `data-test="open-menu"` sits on an `<img>` covered by the button, so clicking it times out.
-- Side menu links: `getByTestId('logout-sidebar-link')` and siblings. The menu wrapper keeps `aria-hidden="true"` while open, so role queries find nothing.
+- Open/close menu: `getByRole('button', { name: 'Open Menu' })` / `'Close Menu'`. The `open-menu` and `close-menu` test ids sit on `<img>` elements covered by the buttons, so clicking them times out.
+- Side menu items are `<a role="button">`: use `getByRole('button', { name: 'Logout' })`, not `link`. Role locators only match while the menu is open, which is what we want; the test ids report closed items as visible.
+- Product card "View details" links: both image and title are `role="button"` with the same name; use the `item-<id>-title-link` test id.
 - Products: address them by name through the product card component, not by slug-built ids such as `add-to-cart-sauce-labs-backpack`.
 
-Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`). Why: never assume a selector; this app already has two traps.
+Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`, `ariaSnapshot()`), and check the cause, not just the symptom. Why: never assume a selector; this app has several traps, and one of them was first documented with the wrong cause.
 
 ## Writing tests
 
 - Web-first assertions only (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no `force: true`, no manual `isVisible()` polling. Why: auto-retrying assertions are the main defence against flakiness.
 - Every test carries a suite tag: `@smoke` (critical path, PR gate), `@regression`, `@persona`, `@a11y`, `@visual` or `@api`. Why: CI selects suites by tag.
-- Logged-in tests reuse `storageState` through the `persona` fixture option. Only login specs log in through the UI. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
+- Logged-in tests reuse `storageState` through the `persona` fixture option (default `standard`; `test.use({ persona: 'problem' })`). Only login specs log in through the UI, with `test.use({ persona: null })`. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
 - Derive expected values from typed data (catalog prices, `pricing.ts`); never hardcode totals. Why: one fact, one place.
 - Tests are independent: no order dependencies, no shared mutable state. Why: `fullyParallel` and sharding run them in any order on any worker.
 - Deep links (`/inventory.html`, `/cart.html`) return HTTP 404 while the SPA renders correctly. Do not assert on the navigation response status.

@@ -124,3 +124,38 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 **Interview notes**
 
 - _How do you secure a GitHub Actions pipeline?_ Least-privilege `GITHUB_TOKEN` per workflow or job, SHA-pinned third-party actions kept current by Dependabot, secrets only in the jobs that need them, no secrets for pull requests from forks, timeouts and concurrency limits, and branch protection that requires the checks to pass.
+
+### 2026-10-21 - Step 6: page objects, components, fixtures and test data
+
+**Built** - Typed data layer (`users`, `products` in integer cents, `sort-options` with an expected-order function, verbatim `messages`, `CustomerBuilder`), helpers (`pricing`, `seed`), components (header, side menu, product card, cart item), seven page objects on `BasePage`/`AppPage`, and fixtures (`pages`, seeded `faker`) merged into one `test` exported from `@fixtures`. Plus a platform fix: `BROWSER_CHANNEL` and `RECORD_VIDEO`, because Playwright 1.64 ships no browsers or ffmpeg for macOS 12.
+
+**Concepts**
+
+- **Verify, then write.** Before writing a single page object, one batched MCP probe resolved every planned locator on the live app and returned match counts. It found four differences from the plan (product links are `role="button"`, the page title is outside the header, the close-menu trap, the sort `aria-label`).
+- **Observation is not diagnosis.** The probe also proved one of my own "verified" facts wrong: the side menu had no `link` roles because the items are `<a role="button">`, not because of `aria-hidden` (that reading was taken mid-animation). The original observation was correct; the explanation was not. Triage agents will make exactly this mistake, which is why the eval in Phase 1 scores the classification and reasoning, not just "it failed".
+- **Role locators carry state.** Because the closed menu is `aria-hidden`, `getByRole('button', { name: 'Logout' })` matches only an open menu: `click()` waits for it and `toBeHidden()` means closed. The test-id locator reports off-screen items as visible, so it would give false confidence.
+- **Prove the abstraction end to end.** A throwaway spec drove every page object through a full purchase in system Chrome and derived every expectation from the data layer (`sortProducts`, `orderTotals`), so the helpers were validated against the real app, not just type-checked. A second run confirmed the faker seed and generated customer are identical.
+- **Discover platform constraints early.** Installing browsers revealed that Playwright 1.64 dropped macOS 12. The fix is explicit configuration (`BROWSER_CHANNEL=chrome`, `RECORD_VIDEO=false`) instead of OS auto-detection, so CI behavior stays obvious.
+- **Guardrails apply to the agent too.** ESLint rejected an unnecessary `eslint-disable` I wrote (`reportUnusedDisableDirectives`).
+
+**Interview notes**
+
+- _`data-test` ids or role locators?_ Roles first for interactive controls, because they test what users and assistive tech see and they respect `aria-hidden` (the side menu example). Test ids for data and structure, and where the accessible name is ambiguous (two "View details" buttons per card). Never CSS classes or DOM position. Verify both kinds on the live app.
+- _How do you make random test data reproducible?_ A faker instance per test seeded from a stable hash of the test id, with the seed recorded as an annotation. Data differs across tests, but a rerun of the same test uses the same data.
+- _Where do assertions go in a page object model?_ In specs, so the intent of each test is readable. The one exception is a navigation guard (`expectLoaded()`), which every page transition needs and which carries no test-specific intent.
+
+### 2026-10-21 - Step 7: persona auth setup and login specs
+
+**Built** - `setup` project that logs in each persona through the UI and saves `storageState` to `.auth/`; a `persona` fixture option (`test.use({ persona: 'problem' })`, `null` for logged out) that overrides the built-in `storageState`; `login.spec.ts` (happy path, five data-driven rejections, dismissible error, protected-route redirect) and `session.spec.ts` (every persona's saved session, logout ends the session); npm test scripts.
+
+**Concepts**
+
+- **Authenticate once, reuse everywhere.** Five UI logins per run instead of one per test. Sessions are browser-independent, so the setup project runs in one browser and feeds all of them.
+- **Scope timeouts to where they are justified.** `performance_glitch_user` needs about 5.1 s to log in. Only the setup project gets a 15 s `expect` timeout; specs keep the default so slowness stays visible where it is a bug.
+- **Verify framework claims empirically.** The docs say dependencies run even under filters; a `--grep @smoke` run confirmed the setup project still runs. `--repeat-each=5` on the smoke tests found no flakiness (15/15).
+- **Configure the linter to understand the abstraction.** `expect-expect` did not recognise `inventoryPage.expectLoaded()` as an assertion; `assertFunctionPatterns: ['^expect']` teaches it the project convention instead of disabling the rule.
+
+**Interview notes**
+
+- _How do you handle authentication in a large Playwright suite?_ A setup project logs in once per role and saves `storageState`; a fixture option selects the role per test or describe block; login itself is tested by a small set of specs that start logged out. Mind session lifetime (here 10 minutes), so setup runs on every invocation and every CI shard.
+- _How do you test login negatives without duplicating code?_ A typed table of `{ scenario, username, password, error }` and one parametrised test; error strings come from a constants module copied verbatim from the app.
