@@ -310,3 +310,23 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you structure API tests in Playwright?_ `APIRequestContext` per test, thin typed clients per resource, runtime schema validation (zod) at the boundary, status and error-body assertions in specs, business rules (totals, pagination) checked with exact arithmetic, and auth tokens obtained once per worker.
 - _Contract testing vs schema validation?_ Schema validation checks one response against an expected shape. Consumer-driven contract testing (e.g. Pact) publishes the consumer's expectations so the provider verifies them in its own pipeline. With a third-party API you cannot run provider verification, so consumer-side schema checks on the live API are the practical substitute.
+
+### 2026-10-22 - Step 16: portfolio README; Phase 0 retrospective
+
+**Built** - README with badges, architecture and CI diagrams (Mermaid), test strategy, setup, commands, Docker, CI/CD, conventions, a worked "adding a test" example and the agentic engineering setup.
+
+**Concepts**
+
+- **Documentation is tested too.** Counts in the README came from `playwright test --list` (130 test cases, 306 runs) and the known-bug catalogue (26), not from memory. Every local link and badge URL was checked, and the example spec was extracted, linted, type-checked and run against the live app before committing. Two claims were toned down after checking ("every convention enforced" became "key conventions").
+- **Write for the reader.** The README answers what a reviewer needs in a few minutes: what is tested and how, how to run it, how the pipeline works, and why the design choices were made.
+
+**Phase 0 retrospective**
+
+- **What the agent did well:** verified every selector, message and status code on the live systems before writing code; proved guardrails can fail (lint probes, axe injection, exposed known bugs); turned process rules into tooling.
+- **What went wrong, and what caught it:** false findings from a shared browser page (re-verification); a wrong root cause for a selector trap (later probe); merged-too-early PRs (git history, then one PR per step); a garbled commit message (review of `git log`); `--no-verify` and a force-deleted branch (self-review, restored from the object store); a skipped test hidden behind a green run, and a cookie jar leaking auth between API tests (reading logs and failing tests, not the green check).
+- **Pattern:** almost every mistake was caught by evidence (logs, reports, repeat runs), not by the agent's confidence. That is the argument for evals, hooks and human review in Phase 1.
+
+**Interview notes**
+
+- _What does a good test automation README contain?_ What is covered and why, the architecture in one picture, how to run locally/in Docker/in CI with exact commands, the conventions and how they are enforced, how to add a test, and live status (badges, published report). Every number in it should be reproducible.
+- _What did you learn building a framework with an AI agent?_ The agent is fast at producing and verifying, and confidently wrong in ways that look green. The value comes from making everything checkable: live verification before writing, guardrails as code, proving checks can fail, and reading evidence instead of trusting a status.
