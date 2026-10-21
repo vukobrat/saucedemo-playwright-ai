@@ -1,0 +1,67 @@
+name: Visual baselines
+
+# Renders candidate visual baselines on Linux and uploads them as an artifact. It never commits:
+# a person downloads, inspects and commits new baselines, so every image change is reviewed.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - tests/visual/**
+      - .github/workflows/visual-baselines.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    name: Resolve Playwright image
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read image from Dockerfile
+        id: image
+        run: echo "image=$(sed -n 's/^FROM \(mcr\.microsoft\.com\/playwright:[^ ]*\).*/\1/p' Dockerfile)" >> "$GITHUB_OUTPUT"
+
+  render:
+    name: Render candidate baselines
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: ${{ needs.image.outputs.image }}
+      options: --ipc=host --init
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          HUSKY: '0'
+
+      - name: Render baselines
+        run: npm run test:visual:update
+        env:
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+
+      - name: Upload candidate baselines
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-baselines
+          path: tests/visual/__screenshots__
+          retention-days: 7
+          if-no-files-found: error

@@ -64,5 +64,14 @@ export default defineConfig({
       dependencies: ['setup'],
       use: chromium,
     },
+    {
+      // Bundled Chromium only (never BROWSER_CHANNEL): baselines must come from one renderer.
+      // No test or platform in the path, so visual_user compares against standard_user's image.
+      name: 'visual',
+      testMatch: /tests\/visual\/.*\.spec\.ts$/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] },
+      snapshotPathTemplate: '{testDir}/visual/__screenshots__/{arg}{ext}',
+    },
   ],
 });
