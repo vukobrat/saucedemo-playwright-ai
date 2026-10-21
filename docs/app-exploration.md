@@ -148,6 +148,12 @@ Side menu "Dynamic Catalog" expands a submenu (`dynamic-catalog-submenu`) with t
 
 Item-level selectors of these pages were not mapped yet.
 
+## Accessibility (axe 4.14, measured 2026-10-21)
+
+- WCAG 2.0, 2.1 and 2.2 A/AA: zero violations on login (also with an error), inventory (also with the menu open), product details, cart, checkout information, overview and complete.
+- axe best-practice rules: SD-501 `page-has-heading-one` fails on every page (no `<h1>`); SD-502 `region` fails on the login page.
+- Not detectable by axe: the "Cart, 1 items" accessible name (SD-002) is grammatically wrong but present, so automated scans pass it. Functional assertions on accessible names cover such cases.
+
 ## Environment noise (not product bugs)
 
 - Every page logs `401 (Unauthorized)` for `events.backtrace.io` telemetry, plus some `404` resource errors from deep-link navigations. Triage should ignore these.
@@ -155,6 +161,5 @@ Item-level selectors of these pages were not mapped yet.
 
 ## Not yet verified
 
-- Accessibility violations per page (to be measured with axe).
 - Visual differences of visual_user beyond the inventory page.
 - Behavior of problem_user and error_user on the product details page add/remove buttons.
