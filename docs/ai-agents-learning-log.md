@@ -184,3 +184,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _Why run Playwright in the official Docker image?_ Browsers and their OS dependencies are pinned to the exact Playwright version, so local, CI and teammates run identical binaries. It also removes the slow `playwright install --with-deps` step from CI.
 - _Root or non-root in the container?_ The Playwright docs accept root for trusted end-to-end targets; for crawling untrusted sites, use the image's `pwuser` and the seccomp profile. Decide by threat model, and document the choice where it is made.
+
+### 2026-10-21 - Step 9: sharded pipeline, merged report, Pages, nightly
+
+**Built** - `ci.yml`: quality job that also plans the run (suite, shard count, container image read from the Dockerfile); sharded test matrix in the Playwright container; "Playwright tests" gate job; report job that merges blob reports into one HTML report (artifact, 14 days) and publishes it to GitHub Pages from `main`; nightly schedule and manual dispatch with a suite choice. `dependabot.yml` for npm and GitHub Actions, with Playwright, TypeScript minors and `@types/node` majors excluded on purpose.
+
+**Concepts**
+
+- **Plan once, fan out.** One step decides suite, shards and image, and the matrix is built from its outputs with `fromJSON`. The plan logic was executed locally for all five triggers before the first push.
+- **Single source of truth, again.** The container image is parsed from the Dockerfile at run time, so CI, Docker and `npm run check:versions` can never silently diverge.
+- **Stable gate for dynamic jobs.** Shard job names change with the shard count, so branch protection requires one `if: always()` gate job that fails unless every shard succeeded. A skipped or cancelled matrix also fails the gate.
+- **Least privilege per job.** Only the test job sees `SAUCE_PASSWORD`; `merge-reports` was verified locally not to load the Playwright config, so the report job needs no secrets. Only the Pages job gets `pages: write` and `id-token: write`.
+- **Reports even when tests fail.** The report job runs on `!cancelled()`, so nightly failures are published with traces, which is exactly the input a triage agent will need.
+- **Dependabot has its own secret store.** Workflows triggered by Dependabot cannot read Actions secrets, so the password is also stored as a Dependabot secret; otherwise every dependency PR would fail at login.
+
+**Interview notes**
+
+- _How do you shard Playwright in CI and still get one report?_ `fullyParallel` for test-level balancing, `--shard=i/n` per matrix job, `blob` reporter per shard, then `merge-reports` in a final job that downloads all blobs. Publish the HTML report as an artifact and, for `main`, to Pages.
+- _How do you make a dynamic matrix a required check?_ Add a gate job with `needs: test` and `if: always()` that asserts `needs.test.result == 'success'`, and require the gate instead of the individual shards.
+- _What would you not let Dependabot upgrade automatically?_ Versions coupled to something outside the package manager: Playwright (Docker image), TypeScript (linter support), Node types (runtime major).

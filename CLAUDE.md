@@ -21,7 +21,8 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier.
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
-- CI (`.github/workflows/ci.yml`) runs exactly these npm scripts. Never put logic in a workflow that has no npm script equivalent. Why: anything CI checks must be reproducible locally with one command.
+- CI (`.github/workflows/ci.yml`) runs exactly these npm scripts. Never put checks in a workflow that have no npm script equivalent; the only workflow logic is planning which suite and shard count to run. Why: anything CI checks must be reproducible locally with one command.
+- Pipeline: quality job (lint, format, typecheck, versions, plan) then sharded tests in the Playwright container, a "Playwright tests" gate, merged HTML report (artifact), and Pages publishing from `main`. PRs and `main`: `@smoke` on chromium, 2 shards. Nightly 02:00 UTC and manual dispatch: everything, 4 shards. "Lint, format and typecheck" and "Playwright tests" are required checks on `main`; do not rename those jobs.
 - Actions are pinned to full commit SHAs with a `# vX.Y.Z` comment. Why: tags can be moved to malicious code; SHAs cannot.
 
 More scripts (lint, format, test suites) are added to this list as each framework step lands. Never invent a script that is not in `package.json`.
