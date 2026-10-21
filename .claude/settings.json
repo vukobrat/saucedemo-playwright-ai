@@ -9,7 +9,7 @@
       "Bash(npx eslint *)",
       "Bash(npx prettier *)"
     ],
-    "ask": ["Edit(/.github/workflows/**)", "Edit(/.claude/settings.json)"],
+    "ask": ["Edit(/.claude/settings.json)"],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
