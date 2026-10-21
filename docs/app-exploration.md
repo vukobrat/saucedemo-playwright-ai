@@ -154,6 +154,14 @@ Item-level selectors of these pages were not mapped yet.
 - axe best-practice rules: SD-501 `page-has-heading-one` fails on every page (no `<h1>`); SD-502 `region` fails on the login page.
 - Not detectable by axe: the "Cart, 1 items" accessible name (SD-002) is grammatically wrong but present, so automated scans pass it. Functional assertions on accessible names cover such cases.
 
+## API under test: DummyJSON (verified 2026-10-21)
+
+SauceDemo has no public API, so the API layer tests https://dummyjson.com with its public demo account.
+
+- Auth: `POST /auth/login` returns 200 with tokens and the user, and also sets `accessToken`/`refreshToken` HttpOnly cookies (so request contexts must not be shared between tests). Wrong password: 400 `Invalid credentials`; empty fields: 400 `Username and password required`. `GET /auth/me` without a token: 401 `Access Token is required`; with a malformed token: 500 `invalid token` (DJ-001). `POST /auth/refresh` returns new tokens.
+- Products: pagination by `limit`/`skip` in id order; `select` returns only `id` plus the selected fields; search matches title and description; unknown id (also non-numeric): 404 `Product with id '<id>' not found`; `/products/category-list` and `/products/category/<name>`.
+- Carts: `POST /carts/add` returns 201 with computed totals but stores nothing (`GET` of the new id is 404 `Cart with id '<id>' not found`); missing `userId`: 400 `User id is required`. Line field for the discounted amount differs by endpoint: `discountedPrice` (add) vs `discountedTotal` (get) (DJ-002).
+
 ## Environment noise (not product bugs)
 
 - Every page logs `401 (Unauthorized)` for `events.backtrace.io` telemetry, plus some `404` resource errors from deep-link navigations. Triage should ignore these.

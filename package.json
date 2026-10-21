@@ -20,6 +20,7 @@
     "test:regression": "playwright test --grep @regression",
     "test:persona": "playwright test --grep @persona",
     "test:a11y": "playwright test --project=a11y",
+    "test:api": "playwright test --project=api",
     "test:visual": "playwright test --project=visual",
     "test:visual:update": "playwright test --project=visual --update-snapshots=all",
     "test:headed": "playwright test --project=chromium --headed",

@@ -1,5 +1,6 @@
 /**
- * Catalogue of known SauceDemo defects (details in docs/app-exploration.md). Specs assert the
+ * Catalogue of known defects in the systems under test: SauceDemo (SD-xxx, details in
+ * docs/app-exploration.md) and the DummyJSON API (DJ-xxx). Specs assert the
  * correct behavior and reference an entry through `knownBug()`. The ids are stable: reports,
  * triage agents and evals refer to them.
  */
@@ -116,5 +117,16 @@ export const KNOWN_BUGS = {
   a11yLoginContentOutsideLandmarks: {
     id: 'SD-502',
     summary: 'Login page content is not inside landmarks (axe region)',
+  },
+
+  // DummyJSON API
+  apiMalformedTokenServerError: {
+    id: 'DJ-001',
+    summary: 'DummyJSON answers a malformed access token with HTTP 500 instead of 401',
+  },
+  apiCartLineFieldNames: {
+    id: 'DJ-002',
+    summary:
+      'Cart lines name the discounted amount "discountedPrice" in POST /carts/add but "discountedTotal" in GET /carts/{id}',
   },
 } as const satisfies Record<string, KnownBug>;

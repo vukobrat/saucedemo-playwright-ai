@@ -117,6 +117,8 @@ jobs:
           PLAYWRIGHT_ARGS: ${{ needs.quality.outputs.args }}
           SHARD: ${{ matrix.shard }}/${{ needs.quality.outputs.shard-total }}
           SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+          API_USERNAME: ${{ secrets.API_USERNAME }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
 
       - name: Upload blob report
         if: ${{ !cancelled() }}
