@@ -220,3 +220,18 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you keep known bugs from making the suite red without hiding them?_ Assert the correct behavior and mark the test as expected to fail with a reference to a catalogued defect. Playwright then flags the test when the bug is fixed ("expected to fail, but passed"), so the marker cannot rot. A switch turns the markers off to see the real failures.
 - _How do you choose what goes into the smoke suite?_ The few tests that prove the critical path works (login, product list, add to cart, cart contents, logout), fast enough to gate every PR in about a minute. Breadth goes into the nightly regression.
+
+### 2026-10-21 - Step 11: checkout validation and end-to-end purchase
+
+**Built** - `checkout.spec.ts` (end-to-end purchase with derived totals as `@smoke`, tax rounding on a full cart, cancel from both steps, cart emptied after the order, PDF download checked down to the `%PDF-` header, empty-cart checkout) and `checkout-validation.spec.ts` (each required field from a data table, empty form, dismissible error, whitespace-only name). Known bugs SD-003 (empty-cart checkout) and SD-004 (whitespace-only last name), both found by probing before writing the tests.
+
+**Concepts**
+
+- **Probing finds bugs, not just selectors.** Five unverified behaviors were checked on the live app before writing assertions; two of them turned out to be defects. Writing tests from assumptions would have encoded the bugs as "expected behavior".
+- **Known bugs need a stated expectation.** For an empty cart the app defines no correct behavior, so the test documents a product decision (Checkout disabled) next to the assertion. Triage of that test is a requirements question, not a code question.
+- **Keep the evidence.** One local repeat run reported 40 of 44 passing, but only the last two lines were kept and the next run overwrote `test-results/`. Fifteen targeted repeats could not reproduce it; the leading hypothesis is local load (simple tests take 9 to 16 s locally vs 1 to 4 s in CI, and the run was 0.8 min longer, consistent with timeouts). Without artifacts, that remains a hypothesis. Rule for later: never truncate a failing summary, and keep the JSON report or traces of any run that surprises you.
+
+**Interview notes**
+
+- _How do you investigate a flake you cannot reproduce?_ Preserve artifacts first (traces, JSON report, timings), compare environment signals (duration, load, parallelism), reproduce with targeted `--repeat-each` under the same parallelism, and let CI retries label flakes over time instead of concluding from one run. Do not "fix" it by adding waits or retries.
+- _What does a good end-to-end checkout test assert?_ The user-visible contract at each step: items carried over, payment and shipping info, subtotal/tax/total computed from the catalog (not copied from the screen), the confirmation, and side effects such as the emptied cart.

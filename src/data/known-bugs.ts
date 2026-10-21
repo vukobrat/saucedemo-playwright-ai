@@ -17,4 +17,12 @@ export const KNOWN_BUGS = {
     id: 'SD-002',
     summary: 'Cart button is announced as "Cart, 1 items" instead of "Cart, 1 item"',
   },
+  checkoutWithEmptyCart: {
+    id: 'SD-003',
+    summary: 'Checkout is allowed with an empty cart; a $0.00 order can be completed',
+  },
+  whitespaceOnlyCustomerName: {
+    id: 'SD-004',
+    summary: 'Checkout accepts a last name made only of spaces',
+  },
 } as const satisfies Record<string, KnownBug>;
