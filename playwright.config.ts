@@ -57,5 +57,12 @@ export default defineConfig({
       dependencies: ['setup'],
       use: { ...devices['Desktop Safari'] },
     },
+    {
+      // axe results do not depend on the engine, so one browser is enough.
+      name: 'a11y',
+      testMatch: /tests\/a11y\/.*\.spec\.ts$/,
+      dependencies: ['setup'],
+      use: chromium,
+    },
   ],
 });

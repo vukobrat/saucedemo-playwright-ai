@@ -59,7 +59,8 @@ jobs:
       - name: Check Playwright versions
         run: npm run check:versions
 
-      # PR and main: smoke on chromium. Nightly and manual dispatch: everything, all browsers.
+      # PR and main: smoke on chromium plus the accessibility gate. Nightly and manual dispatch:
+      # everything, all browsers.
       - name: Plan test run
         id: plan
         env:
@@ -70,7 +71,7 @@ jobs:
           if [ "$EVENT" = schedule ] || { [ "$EVENT" = workflow_dispatch ] && [ "$SUITE_INPUT" = regression ]; }; then
             suite=regression args='' shards='[1,2,3,4]' total=4
           else
-            suite=smoke args='--grep @smoke --project=chromium' shards='[1,2]' total=2
+            suite=smoke args='--grep=@smoke|@a11y --project=chromium --project=a11y' shards='[1,2]' total=2
           fi
           {
             echo "image=$image"

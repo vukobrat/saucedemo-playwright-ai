@@ -102,4 +102,14 @@ export const KNOWN_BUGS = {
     id: 'SD-402',
     summary: 'visual_user: the Sauce Labs Backpack image is the broken "sl-404" image',
   },
+
+  // accessibility best practices (axe "best-practice" rules; WCAG 2.2 AA itself passes)
+  a11yNoLevelOneHeading: {
+    id: 'SD-501',
+    summary: 'No page has a level-one heading (axe page-has-heading-one)',
+  },
+  a11yLoginContentOutsideLandmarks: {
+    id: 'SD-502',
+    summary: 'Login page content is not inside landmarks (axe region)',
+  },
 } as const satisfies Record<string, KnownBug>;
