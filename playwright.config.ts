@@ -20,14 +20,17 @@ export default defineConfig({
     // Record on every run, keep only for failures: the first failure always has a trace.
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: env.recordVideo ? 'retain-on-failure' : 'off',
   },
 
   projects: [
     {
       name: 'chromium',
       testMatch: BROWSER_SPECS,
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...(env.browserChannel && { channel: env.browserChannel }),
+      },
     },
     {
       name: 'firefox',

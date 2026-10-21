@@ -21,6 +21,8 @@ const EnvSchema = z.object({
   BASE_URL: z.url().default('https://www.saucedemo.com'),
   SAUCE_PASSWORD: z.string({ error: REQUIRED }).min(1, { error: REQUIRED }),
   EXPOSE_KNOWN_BUGS: z.stringbool().default(false),
+  BROWSER_CHANNEL: z.enum(['chrome', 'msedge']).optional(),
+  RECORD_VIDEO: z.stringbool().default(true),
   CI: z.stringbool().default(false),
 });
 
@@ -35,6 +37,10 @@ export const env = Object.freeze({
   saucePassword: parsed.data.SAUCE_PASSWORD,
   /** When true, `knownBug()` markers are disabled so known defects fail for real. */
   exposeKnownBugs: parsed.data.EXPOSE_KNOWN_BUGS,
+  /** Installed browser for the chromium project instead of Playwright's bundled Chromium. */
+  browserChannel: parsed.data.BROWSER_CHANNEL,
+  /** Video needs Playwright's ffmpeg build, which is unavailable on some platforms (macOS 12). */
+  recordVideo: parsed.data.RECORD_VIDEO,
   isCI: parsed.data.CI,
 });
 
