@@ -23,6 +23,9 @@ export const PAGE_TITLES = {
   checkoutComplete: 'Checkout: Complete!',
 } as const;
 
+/** Product details page for an unknown product id. */
+export const PRODUCT_NOT_FOUND = 'ITEM NOT FOUND';
+
 export const CHECKOUT_SUMMARY = {
   payment: 'SauceCard #31337',
   shipping: 'Free Pony Express Delivery!',
