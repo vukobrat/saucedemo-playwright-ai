@@ -13,6 +13,7 @@ export class CheckoutInformationPage extends AppPage {
   readonly continueButton: Locator;
   readonly cancelButton: Locator;
   readonly error: Locator;
+  readonly dismissErrorButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,6 +23,7 @@ export class CheckoutInformationPage extends AppPage {
     this.continueButton = page.getByRole('button', { name: 'Continue' });
     this.cancelButton = page.getByRole('button', { name: 'Cancel' });
     this.error = page.getByTestId('error');
+    this.dismissErrorButton = page.getByRole('button', { name: 'Dismiss error' });
     this.readyMarker = page.getByTestId('checkout-info-container');
   }
 
@@ -42,5 +44,9 @@ export class CheckoutInformationPage extends AppPage {
 
   async cancel(): Promise<void> {
     await this.cancelButton.click();
+  }
+
+  async dismissError(): Promise<void> {
+    await this.dismissErrorButton.click();
   }
 }
