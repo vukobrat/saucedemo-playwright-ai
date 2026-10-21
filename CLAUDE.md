@@ -15,6 +15,8 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - Local browsers: Playwright 1.64 ships no browsers or ffmpeg for macOS 12. There, set `BROWSER_CHANNEL=chrome` and `RECORD_VIDEO=false` and run only `--project=chromium`; Firefox and WebKit run in CI (Linux). Why: the maintainer's machine is macOS 12, and a test run that cannot start is not a test failure.
 - `npm test` - all projects (CI, Docker). `npm run test:local` - chromium only, the default on a dev machine. `npm run test:smoke` / `test:regression` - by tag. `npm run test:headed`, `npm run test:ui`, `npm run report`. Pass Playwright flags after `--`, e.g. `npm run test:local -- tests/e2e/login.spec.ts`.
 - Every run starts with the `setup` project (logs in each persona, about 8 s), also under `--grep`. Never run specs with `--no-deps` unless `.auth/` is fresh (sessions expire after 10 minutes).
+- `npm run docker:build` then `SAUCE_PASSWORD=... npm run test:docker -- <playwright flags>` - the suite in the official Playwright image (Linux, all browsers). Not available on macOS 12; CI proves it via `.github/workflows/docker.yml`.
+- `npm run check:versions` - `@playwright/test` in package.json and node_modules must equal the Dockerfile image tag. Why: CI picks its container image from the Dockerfile, and a mismatch leaves no usable browsers. Upgrade both together, never one.
 - `npm run typecheck` - `tsc --noEmit`. Why: Playwright transpiles TypeScript without type checking, so type errors only surface here.
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier.

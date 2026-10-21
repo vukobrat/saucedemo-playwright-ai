@@ -1,0 +1,43 @@
+name: Docker
+
+# Proves the Dockerfile builds and runs the suite. Runs when the image inputs change.
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - package.json
+      - package-lock.json
+      - .github/workflows/docker.yml
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - package.json
+      - package-lock.json
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    name: Docker image smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build image
+        run: npm run docker:build
+
+      - name: Smoke suite in the image, all browsers
+        run: npm run test:docker -- --grep @smoke --reporter=list
+        env:
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
