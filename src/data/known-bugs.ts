@@ -25,4 +25,81 @@ export const KNOWN_BUGS = {
     id: 'SD-004',
     summary: 'Checkout accepts a last name made only of spaces',
   },
+
+  // problem_user
+  problemBrokenImages: {
+    id: 'SD-101',
+    summary: 'problem_user: every inventory image is the same broken "sl-404" image',
+  },
+  problemSortingIgnored: {
+    id: 'SD-102',
+    summary: 'problem_user: choosing a sort option does not change the product order',
+  },
+  problemAddToCartIgnored: {
+    id: 'SD-103',
+    summary:
+      'problem_user: Add to cart does nothing for Bolt T-Shirt, Fleece Jacket and Red T-Shirt',
+  },
+  problemRemoveIgnored: {
+    id: 'SD-104',
+    summary: 'problem_user: Remove on the inventory page does nothing',
+  },
+  problemWrongProductDetails: {
+    id: 'SD-105',
+    summary: 'problem_user: product links open the details of a different product',
+  },
+  problemLastNameOverwritesFirstName: {
+    id: 'SD-106',
+    summary: 'problem_user: typing the last name overwrites the first name at checkout',
+  },
+  problemAboutLinkBroken: {
+    id: 'SD-107',
+    summary: 'problem_user: side menu About links to a Sauce Labs 404 page',
+  },
+
+  // error_user
+  errorSortingAlert: {
+    id: 'SD-201',
+    summary: 'error_user: sorting raises "Sorting is broken!" and keeps the order',
+  },
+  errorAddToCartFails: {
+    id: 'SD-202',
+    summary: 'error_user: Add to cart throws for Bolt T-Shirt, Fleece Jacket and Red T-Shirt',
+  },
+  errorRemoveFails: {
+    id: 'SD-203',
+    summary: 'error_user: Remove on the inventory page throws and keeps the item',
+  },
+  errorLastNameNotEditable: {
+    id: 'SD-204',
+    summary: 'error_user: the last name field cannot be typed into',
+  },
+  errorLastNameNotValidated: {
+    id: 'SD-205',
+    summary: 'error_user: checkout continues without a last name',
+  },
+  errorFinishDoesNothing: {
+    id: 'SD-206',
+    summary: 'error_user: Finish throws and the order is never completed',
+  },
+
+  // performance_glitch_user
+  performanceSlowLogin: {
+    id: 'SD-301',
+    summary: 'performance_glitch_user: login takes about 5 seconds',
+  },
+  performanceSlowSorting: {
+    id: 'SD-302',
+    summary: 'performance_glitch_user: each sort takes about 5 seconds',
+  },
+
+  // visual_user
+  visualRandomPrices: {
+    id: 'SD-401',
+    summary: 'visual_user: inventory prices are random and differ from the catalog',
+  },
+  visualBrokenBackpackImage: {
+    id: 'SD-402',
+    summary: 'visual_user: the Sauce Labs Backpack image is the broken "sl-404" image',
+  },
 } as const satisfies Record<string, KnownBug>;

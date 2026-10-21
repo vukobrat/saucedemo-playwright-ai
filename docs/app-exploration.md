@@ -98,34 +98,36 @@ Correction (2026-10-21): an earlier version of this file blamed trap 2 on `aria-
 
 ## Known defects by persona
 
-These are deliberate. Tests assert the correct behavior and mark these with `knownBug()`.
+These are deliberate. Tests in `tests/personas/` assert the correct behavior and mark each defect with `knownBug()`; ids refer to `src/data/known-bugs.ts`.
 
 ### problem_user
 
-- Every inventory image is the same broken `sl-404` image.
-- Sorting does nothing: list order and the active option stay "Name (A to Z)".
-- Add to cart works for Backpack, Bike Light, Onesie; does nothing for Bolt T-Shirt, Fleece Jacket, Test.allTheThings() T-Shirt (Red).
-- Remove does nothing (inventory page).
-- Clicking the Backpack name opens `inventory-item.html?id=5` (Fleece Jacket).
-- Checkout: typing into Last Name overwrites First Name, Last Name stays empty, so Continue fails with `Error: Last Name is required`.
-- Side menu About links to `https://saucelabs.com/error/404`.
+- SD-101: Every inventory image is the same broken `sl-404` image.
+- SD-102: Sorting does nothing: list order and the active option stay "Name (A to Z)".
+- SD-103: Add to cart works for Backpack, Bike Light, Onesie; does nothing for Bolt T-Shirt, Fleece Jacket, Test.allTheThings() T-Shirt (Red).
+- SD-104: Remove does nothing (inventory page).
+- SD-105: Clicking the Backpack name opens `inventory-item.html?id=5` (Fleece Jacket).
+- SD-106: Checkout: typing into Last Name overwrites First Name, Last Name stays empty, so Continue fails with `Error: Last Name is required`.
+- SD-107: Side menu About links to `https://saucelabs.com/error/404`.
 
 ### error_user
 
-- Choosing any sort option raises `alert("Sorting is broken! This error has been reported to Backtrace.")` and the order does not change.
-- Same add-to-cart pattern as problem_user, with page errors `Error: Failed to add item to the cart.`; remove throws `Error: Failed to remove item from cart.`
-- Checkout: Last Name cannot be typed (`TypeError: Cannot read properties of undefined (reading 'value')`) yet Continue proceeds to the overview without validation.
-- Finish does nothing and stays on the overview (`TypeError: wa.cesetRart is not a function`).
+- SD-201: Choosing any sort option raises `alert("Sorting is broken! This error has been reported to Backtrace.")` and the order does not change.
+- SD-202: Same add-to-cart pattern as problem_user, with page errors `Error: Failed to add item to the cart.`
+- SD-203: Remove throws `Error: Failed to remove item from cart.` and keeps the item.
+- SD-204: Checkout: Last Name cannot be typed (`TypeError: Cannot read properties of undefined (reading 'value')`).
+- SD-205: Continue proceeds to the overview without a last name.
+- SD-206: Finish does nothing and stays on the overview (`TypeError: wa.cesetRart is not a function`).
 
 ### performance_glitch_user
 
-- Login takes about 5.1 s; each sort takes about 5.3 s. Both exceed Playwright's default 5 s `expect` timeout. Functionally correct otherwise.
+- SD-301: Login takes about 5.1 to 5.9 s. SD-302: each sort takes about 5.1 to 5.3 s. Both exceed Playwright's default 5 s `expect` timeout. Functionally correct otherwise; budget tests use 2 s (login) and 1 s (sort).
 
 ### visual_user
 
-- Inventory prices are random on every render (for example Backpack $59.52, then different after sorting). Cart and checkout use the real catalog prices.
-- First inventory image (Backpack) is the broken `sl-404` image.
-- Cart icon is misplaced (x=1034 instead of 1220 at a 1280 px viewport); menu icon is 21 px instead of 20 px.
+- SD-401: Inventory prices are random on every render (for example Backpack $59.52, then different after sorting). Cart and checkout use the real catalog prices.
+- SD-402: First inventory image (Backpack) is the broken `sl-404` image.
+- Cart icon is misplaced (x=1034 instead of 1220 at a 1280 px viewport); menu icon is 21 px instead of 20 px. Not asserted in the DOM; covered by visual regression.
 
 ### standard_user
 

@@ -31,14 +31,14 @@ export class CheckoutInformationPage extends AppPage {
     await this.page.goto(this.pathname);
   }
 
-  async fill(customer: Customer): Promise<void> {
+  async enterDetails(customer: Customer): Promise<void> {
     await this.firstNameInput.fill(customer.firstName);
     await this.lastNameInput.fill(customer.lastName);
     await this.postalCodeInput.fill(customer.postalCode);
   }
 
   async submit(customer: Customer): Promise<void> {
-    await this.fill(customer);
+    await this.enterDetails(customer);
     await this.continueButton.click();
   }
 

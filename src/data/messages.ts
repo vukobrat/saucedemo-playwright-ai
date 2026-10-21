@@ -23,6 +23,11 @@ export const PAGE_TITLES = {
   checkoutComplete: 'Checkout: Complete!',
 } as const;
 
+/** Expected targets of links in the app (content, not environment configuration). */
+export const LINKS = {
+  about: 'https://saucelabs.com/',
+} as const;
+
 /** Product details page for an unknown product id. */
 export const PRODUCT_NOT_FOUND = 'ITEM NOT FOUND';
 
