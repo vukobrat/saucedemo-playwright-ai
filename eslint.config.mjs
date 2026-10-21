@@ -89,7 +89,8 @@ export default defineConfig(
       'playwright/no-conditional-expect': 'error',
       'playwright/no-skipped-test': ['error', { allowConditional: true }],
       'playwright/no-identical-title': 'error',
-      'playwright/expect-expect': 'error',
+      // Page-object guards such as `inventoryPage.expectLoaded()` count as assertions.
+      'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect'] }],
     },
   },
   {

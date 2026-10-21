@@ -143,3 +143,19 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _`data-test` ids or role locators?_ Roles first for interactive controls, because they test what users and assistive tech see and they respect `aria-hidden` (the side menu example). Test ids for data and structure, and where the accessible name is ambiguous (two "View details" buttons per card). Never CSS classes or DOM position. Verify both kinds on the live app.
 - _How do you make random test data reproducible?_ A faker instance per test seeded from a stable hash of the test id, with the seed recorded as an annotation. Data differs across tests, but a rerun of the same test uses the same data.
 - _Where do assertions go in a page object model?_ In specs, so the intent of each test is readable. The one exception is a navigation guard (`expectLoaded()`), which every page transition needs and which carries no test-specific intent.
+
+### 2026-10-21 - Step 7: persona auth setup and login specs
+
+**Built** - `setup` project that logs in each persona through the UI and saves `storageState` to `.auth/`; a `persona` fixture option (`test.use({ persona: 'problem' })`, `null` for logged out) that overrides the built-in `storageState`; `login.spec.ts` (happy path, five data-driven rejections, dismissible error, protected-route redirect) and `session.spec.ts` (every persona's saved session, logout ends the session); npm test scripts.
+
+**Concepts**
+
+- **Authenticate once, reuse everywhere.** Five UI logins per run instead of one per test. Sessions are browser-independent, so the setup project runs in one browser and feeds all of them.
+- **Scope timeouts to where they are justified.** `performance_glitch_user` needs about 5.1 s to log in. Only the setup project gets a 15 s `expect` timeout; specs keep the default so slowness stays visible where it is a bug.
+- **Verify framework claims empirically.** The docs say dependencies run even under filters; a `--grep @smoke` run confirmed the setup project still runs. `--repeat-each=5` on the smoke tests found no flakiness (15/15).
+- **Configure the linter to understand the abstraction.** `expect-expect` did not recognise `inventoryPage.expectLoaded()` as an assertion; `assertFunctionPatterns: ['^expect']` teaches it the project convention instead of disabling the rule.
+
+**Interview notes**
+
+- _How do you handle authentication in a large Playwright suite?_ A setup project logs in once per role and saves `storageState`; a fixture option selects the role per test or describe block; login itself is tested by a small set of specs that start logged out. Mind session lifetime (here 10 minutes), so setup runs on every invocation and every CI shard.
+- _How do you test login negatives without duplicating code?_ A typed table of `{ scenario, username, password, error }` and one parametrised test; error strings come from a constants module copied verbatim from the app.

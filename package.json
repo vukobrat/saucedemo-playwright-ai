@@ -14,6 +14,13 @@
     "node": ">=22.22.1"
   },
   "scripts": {
+    "test": "playwright test",
+    "test:local": "playwright test --project=chromium",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

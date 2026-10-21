@@ -13,6 +13,8 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `nvm use` - selects Node 24 from `.nvmrc`. Why: CI and the Playwright Docker image run Node 24.
 - Setup: `cp .env.example .env` and fill in the values (a human does this; agents never read or write `.env`). `src/config/env.ts` validates it with zod at startup and names any missing or invalid variable. Shell and CI variables override `.env`.
 - Local browsers: Playwright 1.64 ships no browsers or ffmpeg for macOS 12. There, set `BROWSER_CHANNEL=chrome` and `RECORD_VIDEO=false` and run only `--project=chromium`; Firefox and WebKit run in CI (Linux). Why: the maintainer's machine is macOS 12, and a test run that cannot start is not a test failure.
+- `npm test` - all projects (CI, Docker). `npm run test:local` - chromium only, the default on a dev machine. `npm run test:smoke` / `test:regression` - by tag. `npm run test:headed`, `npm run test:ui`, `npm run report`. Pass Playwright flags after `--`, e.g. `npm run test:local -- tests/e2e/login.spec.ts`.
+- Every run starts with the `setup` project (logs in each persona, about 8 s), also under `--grep`. Never run specs with `--no-deps` unless `.auth/` is fresh (sessions expire after 10 minutes).
 - `npm run typecheck` - `tsc --noEmit`. Why: Playwright transpiles TypeScript without type checking, so type errors only surface here.
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier.
@@ -59,7 +61,7 @@ Before adding a locator, verify it on the live app with the Playwright MCP serve
 
 - Web-first assertions only (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no `force: true`, no manual `isVisible()` polling. Why: auto-retrying assertions are the main defence against flakiness.
 - Every test carries a suite tag: `@smoke` (critical path, PR gate), `@regression`, `@persona`, `@a11y`, `@visual` or `@api`. Why: CI selects suites by tag.
-- Logged-in tests reuse `storageState` through the `persona` fixture option. Only login specs log in through the UI. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
+- Logged-in tests reuse `storageState` through the `persona` fixture option (default `standard`; `test.use({ persona: 'problem' })`). Only login specs log in through the UI, with `test.use({ persona: null })`. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
 - Derive expected values from typed data (catalog prices, `pricing.ts`); never hardcode totals. Why: one fact, one place.
 - Tests are independent: no order dependencies, no shared mutable state. Why: `fullyParallel` and sharding run them in any order on any worker.
 - Deep links (`/inventory.html`, `/cart.html`) return HTTP 404 while the SPA renders correctly. Do not assert on the navigation response status.
