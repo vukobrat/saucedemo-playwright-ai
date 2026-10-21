@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { test, expect } from '@fixtures';
 import { CustomerBuilder } from '@data/builders/customer.builder';
 import { KNOWN_BUGS } from '@data/known-bugs';
@@ -75,11 +76,16 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
     test.use({ persona: 'visual' });
 
     test('inventory matches the reference rendering', async ({ page, inventoryPage }) => {
-      // Compares against the standard_user baseline. Never run it while updating snapshots,
-      // or the broken rendering would overwrite the reference image.
+      // Compares against the standard_user baseline. The broken persona must never write it:
+      // not when updating snapshots, and not by creating it when it is missing (the default
+      // updateSnapshots mode is 'missing').
       test.skip(
-        test.info().config.updateSnapshots !== 'none',
+        ['all', 'changed'].includes(test.info().config.updateSnapshots),
         'Never update the shared baseline from the broken persona',
+      );
+      test.skip(
+        !existsSync(test.info().snapshotPath('inventory.png')),
+        'Reference baseline is missing; render it from standard_user first',
       );
       knownBug(KNOWN_BUGS.visualLayoutDiffers);
       await inventoryPage.goto();
