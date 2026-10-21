@@ -71,7 +71,7 @@ Before adding a locator, verify it on the live app with the Playwright MCP serve
 
 ## Known application bugs
 
-Personas `problem_user`, `error_user`, `performance_glitch_user` and `visual_user` have deliberate defects (catalogued in `docs/app-exploration.md`). Test the correct behavior and mark the defect with `knownBug({ id, summary })` from `src/utils/known-bug.ts`, which calls `test.fail()` and adds an issue annotation. Why: the suite stays green while the bug exists and turns red when it is fixed, forcing the marker to be removed. `EXPOSE_KNOWN_BUGS=true` disables the marker to produce real failures with traces (eval data for triage agents).
+Personas `problem_user`, `error_user`, `performance_glitch_user` and `visual_user` have deliberate defects (catalogued in `docs/app-exploration.md`). Test the correct behavior and call `knownBug(KNOWN_BUGS.<entry>)` (`src/utils/known-bug.ts`) as the first line of the test. It marks the test as expected to fail and adds a `known-bug` annotation. Every defect gets one entry with a stable `SD-xxx` id in `src/data/known-bugs.ts`; never pass an ad hoc object. After adding a marker, run the test with `EXPOSE_KNOWN_BUGS=true` and confirm it fails on the documented symptom, not on something else. Why: the suite stays green while the bug exists and turns red when it is fixed, forcing the marker to be removed. `EXPOSE_KNOWN_BUGS=true` disables the marker to produce real failures with traces (eval data for triage agents).
 
 ## Guardrails for agents
 
