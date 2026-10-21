@@ -275,3 +275,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you add accessibility testing without blocking delivery?_ Scan representative page states with axe at WCAG 2.x AA, measure the baseline first, gate on zero new violations (allowlist only what exists today, each entry linked to an issue), attach full results for triage, and remember that automated tools find only part of the issues: keep keyboard and screen reader checks for critical flows.
 - _Why scan in one browser only?_ axe evaluates the DOM and accessibility tree, which do not differ meaningfully between engines for this app; running it three times costs time without new information.
+
+### 2026-10-21 - Guardrail decision and Step 14: visual regression
+
+**Decision** - The maintainer dropped the `ask` permission rule for `.github/workflows/**`; workflow changes are now reviewed in the PR. Claude Code's auto-mode classifier refused to let the agent commit that change ("Self-Modification"), so the maintainer commits it. An agent should not be able to loosen its own permissions, even with approval in chat.
+
+**Built** - `visual` project (bundled Chromium, Linux-only baselines, snapshot path without test name or platform), `visual.spec.ts` (login, inventory, product details, cart, checkout overview, footer year masked; visual_user inventory against the standard baseline as SD-403), "Visual baselines" workflow that renders candidates into an artifact, and five reviewed baseline images. PRs now run the visual gate with smoke and a11y.
+
+**Concepts**
+
+- **CI never approves its own screenshots.** The workflow only renders candidates (read-only token); a person downloads, inspects and commits them. Every baseline change is a reviewed diff in a PR.
+- **One renderer, one platform.** Baselines come from bundled Chromium in the official Linux image; on other platforms the spec skips with a reason instead of failing on font rendering.
+- **Shared baselines need write protection.** visual_user is compared against standard_user's image, so the broken persona must never write it: the test skips in overwrite modes and when the baseline does not exist.
+- **Green is not proof: read the log.** The first CI run was green, but its log showed the visual_user test as skipped. Playwright's default `updateSnapshots` mode is `'missing'`, not `'none'`, so the original guard skipped the test on every run. After the fix, CI runs it (expected failure: 34,780 pixels, 3%, differ) and the baseline workflow still skips it.
+
+**Interview notes**
+
+- _How do you keep visual tests stable?_ One renderer and OS for baselines (the CI container), fixed viewport, animations disabled, dynamic content masked (here the copyright year), deterministic data, and baselines updated only through a reviewed workflow.
+- _What is the most dangerous failure mode of a test suite?_ Tests that silently do not run: a skip with a wrong condition, a filter that matches nothing, a `test.fail()` that fails for the wrong reason. All of them look green. Counter: read the run log or report, assert test counts, and prove each new check can fail.
