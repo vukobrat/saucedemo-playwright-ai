@@ -36,6 +36,11 @@ export class CheckoutOverviewPage extends AppPage {
     this.readyMarker = page.getByTestId('checkout-summary-container');
   }
 
+  /** Opens the overview for the current cart directly, skipping the information step. */
+  async goto(): Promise<void> {
+    await this.page.goto(this.pathname);
+  }
+
   item(product: Product): CartItemComponent {
     return new CartItemComponent(
       this.items.filter({

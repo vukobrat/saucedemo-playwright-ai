@@ -18,6 +18,7 @@
     "test:local": "playwright test --project=chromium",
     "test:smoke": "playwright test --grep @smoke",
     "test:regression": "playwright test --grep @regression",
+    "test:persona": "playwright test --grep @persona",
     "test:headed": "playwright test --project=chromium --headed",
     "test:ui": "playwright test --ui",
     "test:docker": "docker run --rm --init --ipc=host -e SAUCE_PASSWORD -e BASE_URL -v \"$PWD/playwright-report:/app/playwright-report\" -v \"$PWD/test-results:/app/test-results\" saucedemo-playwright-ai",

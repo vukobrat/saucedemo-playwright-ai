@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures';
 import { KNOWN_BUGS } from '@data/known-bugs';
+import { LINKS } from '@data/messages';
 import { PRODUCTS } from '@data/products';
 import { knownBug } from '@utils/known-bug';
 
@@ -33,7 +34,7 @@ test.describe('Side menu', { tag: '@regression' }, () => {
   test('About points to the Sauce Labs website', async ({ inventoryPage }) => {
     await inventoryPage.menu.open();
 
-    await expect(inventoryPage.menu.aboutLink).toHaveAttribute('href', 'https://saucelabs.com/');
+    await expect(inventoryPage.menu.aboutLink).toHaveAttribute('href', LINKS.about);
   });
 
   test('Reset App State empties the cart', async ({ page, inventoryPage }) => {
