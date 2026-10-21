@@ -77,3 +77,34 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you enforce test conventions across a team, or across agents?_ Encode them as lint rules with clear messages, verify the rules with negative examples, run them in pre-commit and again in CI, and require written reasons for suppressions.
 - _Why `no-floating-promises` in a Playwright repo?_ A missing `await` lets the test continue before the action finishes. The result is intermittent failures that get misdiagnosed as flakiness and "fixed" with retries or timeouts instead of the actual missing `await`.
+
+### 2026-10-21 - Safety layers in practice: rewriting git history
+
+**What happened** - The first commits were made with the wrong git identity (a global work email). Fixing them required rewriting history and force-pushing `main`.
+
+**Concepts**
+
+- **Auto mode has an independent classifier.** In auto mode, a separate classifier reviews risky actions. It blocked both the history rewrite and the force push as "Git Destructive", even though the request was legitimate. The agent stopped and handed the exact commands to the human instead of looking for a loophole.
+- **Layered guardrails.** Three independent layers covered the same risk: the project `deny` rule on force pushes, the auto-mode classifier, and `--force-with-lease` (refuses to overwrite remote work it has not seen). Any one of them failing still leaves the others.
+- **Identity is configuration, not habit.** A repo-local `user.email` (the GitHub noreply address of the right account) fixes attribution for every future commit, independent of global git config.
+
+**Interview notes**
+
+- _Would you let an agent force-push or rewrite history?_ No. Destructive, outward-facing operations stay with a human. The agent prepares and verifies the change locally (same tree hash, correct authors), then hands over the exact commands. In this repo that is enforced by a deny rule plus the auto-mode classifier, not by trust.
+
+### 2026-10-21 - Step 4: typed env config and Playwright config
+
+**Built** - `src/config/env.ts` (zod schema, `process.loadEnvFile()`, frozen typed `env` object), `.env.example`, `playwright.config.ts` (fullyParallel, CI-only retries and `forbidOnly`, blob+github reporters on CI, `retain-on-failure` traces/videos, `data-test` as test id, chromium/firefox/webkit projects).
+
+**Concepts**
+
+- **Fail fast, with a message a human or agent can act on.** Missing `SAUCE_PASSWORD` stops the run before any browser starts and says which variable and how to fix it. Each failure path (missing, empty, invalid URL, invalid boolean) was triggered on purpose to check the message.
+- **Precedence by design.** `process.loadEnvFile()` never overrides existing variables (verified with a probe), so CI secrets and shell exports always beat a stray local `.env`. No `dotenv` dependency needed on Node 22+.
+- **Single point of access.** Only `src/config/env.ts` reads `process.env`; everything else imports a typed, frozen object. Typos become compile errors instead of silent `undefined`.
+- **Agents and secrets.** The `Read(./.env)` deny rule also blocks Claude from writing `.env`, so a human creates it. The agent works from `.env.example`, which documents every variable without values.
+- **Config grows with the code.** Only the browser projects exist now; setup, a11y, visual and api projects arrive with the steps that need them, so the config never points at code that does not exist.
+
+**Interview notes**
+
+- _How do you manage environments and secrets in a test framework?_ One typed config module validated at startup (zod), an `.env.example` as documentation, real secrets only from the CI secret store or local untracked files, explicit precedence (environment over file), and no URLs or credentials anywhere else in the code.
+- _Why `trace: 'retain-on-failure'` instead of `'on-first-retry'`?_ With `on-first-retry`, only the second attempt is recorded: the original failure never has a trace, a flaky test that passes on retry leaves a trace of the passing run (which shows nothing wrong), and a run without retries has no trace at all. Recording always and keeping only failures guarantees evidence for the first failure, which is what triage (human or agent) needs. The cost is some recording overhead on every test.
