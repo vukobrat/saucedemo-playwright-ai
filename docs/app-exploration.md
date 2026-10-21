@@ -91,8 +91,10 @@ Correction (2026-10-21): an earlier version of this file blamed trap 2 on `aria-
 - Default order is name A to Z (as listed above).
 - Sort options (`<select>` value = label): `az` = Name (A to Z), `za` = Name (Z to A), `lohi` = Price (low to high), `hilo` = Price (high to low). Ties (Bolt T-Shirt and Test.allTheThings() T-Shirt, both 15.99) keep A to Z order in both price directions.
 - Checkout tax is 8% of the item total, rounded to cents: 39.98 -> 3.20 -> 43.18; 105.96 -> 8.48 -> 114.44.
-- Completing an order clears the cart (badge and `cart-contents` removed).
-- "Generate PDF order" downloads `swag-labs-order-<YYYY-MM-DD_HH-MM-SS>.pdf`.
+- Completing an order clears the cart (badge and `cart-contents` removed); "Back Home" returns to the inventory.
+- Checkout "Cancel" on the information step returns to the cart; on the overview it returns to the inventory. Both keep the cart.
+- With every field empty, the checkout form reports the first missing field (first name). The error has a dismiss button ("Dismiss error").
+- "Generate PDF order" downloads `swag-labs-order-<YYYY-MM-DD_HH-MM-SS>.pdf` (a real PDF, `%PDF-` header).
 
 ## Known defects by persona
 
@@ -127,8 +129,12 @@ These are deliberate. Tests assert the correct behavior and mark these with `kno
 
 ### standard_user
 
-- Side menu "Reset App State" clears the cart badge and `cart-contents`, but product buttons keep showing "Remove" until the page reloads.
-- The cart button's accessible name is "Cart, 1 items" for a single item (grammar defect visible to screen reader users).
+Ids refer to `src/data/known-bugs.ts`.
+
+- SD-001: Side menu "Reset App State" clears the cart badge and `cart-contents`, but product buttons keep showing "Remove" until the page reloads.
+- SD-002: The cart button's accessible name is "Cart, 1 items" for a single item (grammar defect visible to screen reader users).
+- SD-003: Checkout works with an empty cart: the overview shows "Total: $0.00" and Finish completes the order.
+- SD-004: A last name of only spaces passes checkout validation.
 
 ## Dynamic Catalog (currently untested)
 
@@ -149,5 +155,4 @@ Item-level selectors of these pages were not mapped yet.
 
 - Accessibility violations per page (to be measured with axe).
 - Visual differences of visual_user beyond the inventory page.
-- Whether checkout is allowed with an empty cart.
 - Behavior of problem_user and error_user on the product details page add/remove buttons.
