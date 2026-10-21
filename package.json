@@ -1,0 +1,24 @@
+{
+  "name": "saucedemo-playwright-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-grade Playwright + TypeScript test framework for SauceDemo, built and maintained with agentic AI workflows (Claude Code).",
+  "author": "Marko Vukobrat",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vukobrat/saucedemo-playwright-ai.git"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "typescript": "6.0.3"
+  }
+}
