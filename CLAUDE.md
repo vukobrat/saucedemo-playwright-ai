@@ -16,6 +16,8 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier.
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
+- CI (`.github/workflows/ci.yml`) runs exactly these npm scripts. Never put logic in a workflow that has no npm script equivalent. Why: anything CI checks must be reproducible locally with one command.
+- Actions are pinned to full commit SHAs with a `# vX.Y.Z` comment. Why: tags can be moved to malicious code; SHAs cannot.
 
 More scripts (lint, format, test suites) are added to this list as each framework step lands. Never invent a script that is not in `package.json`.
 

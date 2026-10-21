@@ -108,3 +108,19 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you manage environments and secrets in a test framework?_ One typed config module validated at startup (zod), an `.env.example` as documentation, real secrets only from the CI secret store or local untracked files, explicit precedence (environment over file), and no URLs or credentials anywhere else in the code.
 - _Why `trace: 'retain-on-failure'` instead of `'on-first-retry'`?_ With `on-first-retry`, only the second attempt is recorded: the original failure never has a trace, a flaky test that passes on retry leaves a trace of the passing run (which shows nothing wrong), and a run without retries has no trace at all. Recording always and keeping only failures guarantees evidence for the first failure, which is what triage (human or agent) needs. The cost is some recording overhead on every test.
+
+### 2026-10-21 - Step 5: quality CI workflow
+
+**Built** - `.github/workflows/ci.yml` with a `quality` job: `npm ci`, lint, format check, typecheck, on pull requests, pushes to `main` and manual dispatch.
+
+**Concepts**
+
+- **CI runs the same commands as a developer.** Every step is an npm script, so a red CI check reproduces locally with one command. The full sequence was run locally from a clean `npm ci` before pushing.
+- **Supply-chain hardening.** Actions are pinned to full commit SHAs (a tag like `@v7` can be repointed, as in the 2025 `tj-actions` compromise), the workflow token is read-only (`permissions: contents: read`), and the job has a timeout.
+- **Concurrency.** A new push to a PR cancels the outdated run; runs on `main` are never cancelled, so every merge gets a complete result.
+- **Lint the pipeline too.** `actionlint` statically checks workflow syntax, expressions and embedded shell before the first push, which is cheaper than debugging in CI.
+- **CI changes need a human.** `.github/workflows/**` is on the project's `ask` list, so an agent cannot change the pipeline silently, and the PR review is the second check.
+
+**Interview notes**
+
+- _How do you secure a GitHub Actions pipeline?_ Least-privilege `GITHUB_TOKEN` per workflow or job, SHA-pinned third-party actions kept current by Dependabot, secrets only in the jobs that need them, no secrets for pull requests from forks, timeouts and concurrency limits, and branch protection that requires the checks to pass.
