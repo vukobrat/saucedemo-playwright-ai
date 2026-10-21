@@ -17,12 +17,23 @@ if (existsSync(ENV_FILE)) {
 
 const REQUIRED = 'is required: copy .env.example to .env and set it, or export it';
 
+/** Unset or empty becomes undefined, so `KEY=` in .env behaves like a missing key. */
+const optionalText = z
+  .string()
+  .optional()
+  .transform((value) => (value === '' ? undefined : value));
+
 const EnvSchema = z.object({
   BASE_URL: z.url().default('https://www.saucedemo.com'),
   SAUCE_PASSWORD: z.string({ error: REQUIRED }).min(1, { error: REQUIRED }),
   EXPOSE_KNOWN_BUGS: z.stringbool().default(false),
   BROWSER_CHANNEL: z.enum(['chrome', 'msedge']).optional(),
   RECORD_VIDEO: z.stringbool().default(true),
+  API_BASE_URL: z.url().default('https://dummyjson.com'),
+  // Optional so UI-only runs do not need them (an empty value counts as unset); the API
+  // fixtures fail fast when they are missing.
+  API_USERNAME: optionalText,
+  API_PASSWORD: optionalText,
   CI: z.stringbool().default(false),
 });
 
@@ -41,6 +52,10 @@ export const env = Object.freeze({
   browserChannel: parsed.data.BROWSER_CHANNEL,
   /** Video needs Playwright's ffmpeg build, which is unavailable on some platforms (macOS 12). */
   recordVideo: parsed.data.RECORD_VIDEO,
+  /** DummyJSON, the public API used for the API test layer (SauceDemo has no public API). */
+  apiBaseUrl: parsed.data.API_BASE_URL,
+  apiUsername: parsed.data.API_USERNAME,
+  apiPassword: parsed.data.API_PASSWORD,
   isCI: parsed.data.CI,
 });
 

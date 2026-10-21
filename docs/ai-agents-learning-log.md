@@ -293,3 +293,20 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you keep visual tests stable?_ One renderer and OS for baselines (the CI container), fixed viewport, animations disabled, dynamic content masked (here the copyright year), deterministic data, and baselines updated only through a reviewed workflow.
 - _What is the most dangerous failure mode of a test suite?_ Tests that silently do not run: a skip with a wrong condition, a filter that matches nothing, a `test.fail()` that fails for the wrong reason. All of them look green. Counter: read the run log or report, assert test counts, and prove each new check can fail.
+
+### 2026-10-21 - Step 15: API test layer (DummyJSON)
+
+**Built** - `src/api/`: typed clients (auth, products, carts) returning raw responses, zod contracts per endpoint, `parseBody()` that fails with the endpoint and the offending fields, verbatim error messages. Fixtures: per-test request context, worker-scoped login token, credentials that fail fast when missing. `api` project (no browser), 20 tests in `tests/api/`, known bugs DJ-001 (500 instead of 401 for a malformed token) and DJ-002 (cart line field named differently per endpoint). API credentials are optional in the env schema so UI-only runs do not need them.
+
+**Concepts**
+
+- **Probe the API before writing contracts.** Exact status codes, messages and field names came from live calls. The probe itself hit two zsh traps (`${var:+...}` is not word-split, and `path` is tied to `$PATH`); scripts that look right in bash behave differently in zsh.
+- **Shared HTTP state breaks isolation too.** DummyJSON's login sets HttpOnly cookies. With one request context per worker, a test that logged in silently authenticated every later "no token" request, so a negative test passed or failed depending on order. Fix: a fresh context per test, and the worker-scoped login uses its own throwaway context. Proven with `--repeat-each=3`.
+- **Model the contract that exists, flag the one that should.** Stored and added carts name the same field differently. Each endpoint gets its accurate schema, so totals are still verified, and a separate known-bug test asserts the names should match.
+- **Consumer contracts, not provider snapshots.** Schemas strip unknown fields (new provider fields are fine) but fail on missing or mistyped ones; `select` uses a strict object because "only these fields" is the behavior under test.
+- **Third-party dependencies stay out of the merge gate.** API tests run nightly and on demand, so a provider outage cannot block unrelated PRs.
+
+**Interview notes**
+
+- _How do you structure API tests in Playwright?_ `APIRequestContext` per test, thin typed clients per resource, runtime schema validation (zod) at the boundary, status and error-body assertions in specs, business rules (totals, pagination) checked with exact arithmetic, and auth tokens obtained once per worker.
+- _Contract testing vs schema validation?_ Schema validation checks one response against an expected shape. Consumer-driven contract testing (e.g. Pact) publishes the consumer's expectations so the provider verifies them in its own pipeline. With a third-party API you cannot run provider verification, so consumer-side schema checks on the live API are the practical substitute.

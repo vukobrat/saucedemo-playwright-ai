@@ -22,6 +22,7 @@
 
     "paths": {
       "@fixtures": ["./src/fixtures/index.ts"],
+      "@api/*": ["./src/api/*"],
       "@components/*": ["./src/components/*"],
       "@config/*": ["./src/config/*"],
       "@data/*": ["./src/data/*"],

@@ -73,5 +73,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       snapshotPathTemplate: '{testDir}/visual/__screenshots__/{arg}{ext}',
     },
+    {
+      // HTTP only: no browser and no login setup. Third-party API, so it is not part of the PR
+      // gate; it runs nightly, on manual dispatch and with `npm run test:api`.
+      name: 'api',
+      testMatch: /tests\/api\/.*\.spec\.ts$/,
+    },
   ],
 });
