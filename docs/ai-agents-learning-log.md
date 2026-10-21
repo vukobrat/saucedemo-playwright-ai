@@ -235,3 +235,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you investigate a flake you cannot reproduce?_ Preserve artifacts first (traces, JSON report, timings), compare environment signals (duration, load, parallelism), reproduce with targeted `--repeat-each` under the same parallelism, and let CI retries label flakes over time instead of concluding from one run. Do not "fix" it by adding waits or retries.
 - _What does a good end-to-end checkout test assert?_ The user-visible contract at each step: items carried over, payment and shipping info, subtotal/tax/total computed from the catalog (not copied from the screen), the confirmation, and side effects such as the emptied cart.
+
+### 2026-10-21 - First full regression; Step 12: persona defects as known bugs
+
+**Built** - First manual full regression on `main`: 194 tests across chromium, firefox and webkit in 4 shards, all green, about 1 minute per shard, published to Pages. Four persona specs (`tests/personas/`, `@persona`, `npm run test:persona`) with 21 catalogued defects (SD-101 to SD-402) plus the behaviors that do work for each persona. `Product.image` with an exact `src` pattern, `expectLoaded({ timeout })` for explicit wait budgets, `CheckoutOverviewPage.goto()`, `LINKS.about`.
+
+**Concepts**
+
+- **Labelled failures are a dataset.** Running the persona suite with `EXPOSE_KNOWN_BUGS=true` produced 21 real failures, each carrying a `known-bug` annotation with its id, plus 14 expected passes and 0 flaky. That JSON report is the raw material for the Phase 1 triage eval: inputs (error, trace, screenshot) and ground-truth labels (catalogue id, category).
+- **Every expected failure was read, not counted.** All 21 failed on the documented symptom (e.g. SD-105 opened "Sauce Labs Fleece Jacket", SD-106 put "Hayes" into First Name, SD-301 took 5,368 ms). The JSON report was saved this time.
+- **Isolate defects that chain.** error_user's Finish defect (SD-206) is reached by navigating straight to the overview, so it does not depend on the last-name defects (SD-204, SD-205). Entangled tests make triage ambiguous.
+- **Performance as an explicit budget.** Functional tests for the slow persona wait up to 15 s (named constant, scoped to that spec); separate budget tests measure duration and fail against 2 s / 1 s. Slowness is reported once, by the right test, instead of as random timeouts everywhere.
+- **Lint false positives are design feedback.** `prefer-locator` flagged `checkoutInformationPage.fill()` as Playwright's deprecated `page.fill()`. Renaming the method to `enterDetails()` fixed the warning and the ambiguity; a suppression would have kept both.
+- **Measure the machine, too.** The load average reached 72 on an 8-thread laptop during a 4-worker local run, while CI runs the same tests in about a second each. That supports the Step 11 local-load hypothesis and gives a concrete mitigation (`--workers=2` locally).
+
+**Interview notes**
+
+- _How do you test a deliberately broken or slow system without a red suite?_ Assert the correct behavior, mark each defect with a catalogued known-bug id, keep the working paths as normal tests, express performance as budgets, and keep a switch that turns the markers off to see the real failures.
+- _How would you build ground truth for evaluating an AI test-triage agent?_ Use failures whose causes are known by construction: here, 21 catalogued product defects with stable ids, plus deliberately injected test bugs, environment failures and flaky tests (Phase 1). Each failure keeps its trace and error, and the label comes from the catalogue, not from a human guessing afterwards.

@@ -13,8 +13,8 @@ export abstract class BasePage {
    * The one assertion page objects own: a navigation guard used after every page transition.
    * Matches on pathname only, because deep links render correctly but return HTTP 404.
    */
-  async expectLoaded(): Promise<void> {
-    await expect(this.page).toHaveURL((url) => url.pathname === this.pathname);
-    await expect(this.readyMarker).toBeVisible();
+  async expectLoaded(options: { timeout?: number } = {}): Promise<void> {
+    await expect(this.page).toHaveURL((url) => url.pathname === this.pathname, options);
+    await expect(this.readyMarker).toBeVisible(options);
   }
 }
