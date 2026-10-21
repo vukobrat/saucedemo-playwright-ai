@@ -31,6 +31,7 @@ More scripts (lint, format, test suites) are added to this list as each framewor
 - `src/fixtures/` - fixtures that inject page objects, persona auth and API clients. Specs import `test` and `expect` from `@fixtures` only.
 - `src/api/` - DummyJSON clients and zod response schemas.
 - `src/utils/` - small pure helpers (pricing, known bugs, auth state paths).
+- Pages extend `BasePage` (routed screen, `expectLoaded()`) or `AppPage` (adds header, side menu, title). Test data with randomness comes from builders fed the per-test `faker` fixture, which is seeded from the test id. Import across folders through the tsconfig aliases (`@fixtures`, `@data/*`, `@pages/*`, `@components/*`, `@utils/*`, `@config/*`).
 - `tests/{setup,e2e,personas,a11y,visual,api}/` - specs only, no raw locators.
 
 Why: a predictable map prevents duplicate abstractions when several agents or people add code in parallel.
@@ -47,11 +48,12 @@ Priority: `getByRole` with an accessible name for interactive controls, then `ge
 
 Verified exceptions, do not "fix" these back:
 
-- Open menu: `getByRole('button', { name: 'Open Menu' })`. `data-test="open-menu"` sits on an `<img>` covered by the button, so clicking it times out.
-- Side menu links: `getByTestId('logout-sidebar-link')` and siblings. The menu wrapper keeps `aria-hidden="true"` while open, so role queries find nothing.
+- Open/close menu: `getByRole('button', { name: 'Open Menu' })` / `'Close Menu'`. The `open-menu` and `close-menu` test ids sit on `<img>` elements covered by the buttons, so clicking them times out.
+- Side menu items are `<a role="button">`: use `getByRole('button', { name: 'Logout' })`, not `link`. Role locators only match while the menu is open, which is what we want; the test ids report closed items as visible.
+- Product card "View details" links: both image and title are `role="button"` with the same name; use the `item-<id>-title-link` test id.
 - Products: address them by name through the product card component, not by slug-built ids such as `add-to-cart-sauce-labs-backpack`.
 
-Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`). Why: never assume a selector; this app already has two traps.
+Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`, `ariaSnapshot()`), and check the cause, not just the symptom. Why: never assume a selector; this app has several traps, and one of them was first documented with the wrong cause.
 
 ## Writing tests
 
