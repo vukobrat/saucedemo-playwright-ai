@@ -47,6 +47,11 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { globals: globals.node },
   },
+  // CLI scripts report to the terminal.
+  {
+    files: ['scripts/**'],
+    rules: { 'no-console': 'off' },
+  },
 
   // Playwright rules for all framework code: pages, components, fixtures and specs.
   {

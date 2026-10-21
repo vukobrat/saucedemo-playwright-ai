@@ -1,0 +1,23 @@
+# Installed inside the image with npm ci
+node_modules/
+
+# Secrets and local machine state never go into an image
+.env
+.env.*
+!.env.example
+.auth/
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Test output and tooling caches
+test-results/
+playwright-report/
+blob-report/
+.playwright-mcp/
+
+# Not needed to run tests
+.git/
+.github/
+.husky/
+docs/
+*.md

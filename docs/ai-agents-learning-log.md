@@ -159,3 +159,28 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you handle authentication in a large Playwright suite?_ A setup project logs in once per role and saves `storageState`; a fixture option selects the role per test or describe block; login itself is tested by a small set of specs that start logged out. Mind session lifetime (here 10 minutes), so setup runs on every invocation and every CI shard.
 - _How do you test login negatives without duplicating code?_ A typed table of `{ scenario, username, password, error }` and one parametrised test; error strings come from a constants module copied verbatim from the app.
+
+### 2026-10-21 - Repository rules on GitHub
+
+**Built** - `SAUCE_PASSWORD` repository secret, GitHub Pages with GitHub Actions as the source, and a ruleset on `main`: PR required, "Lint, format and typecheck" must pass, no force push or deletion, merge commit or rebase only, no bypass.
+
+**Concepts**
+
+- **Server-side enforcement beats local discipline.** The local `deny` rule on force pushes only binds Claude Code on this machine. The ruleset binds every client, every person and every agent, including admins.
+- **Rulesets over classic branch protection.** Rulesets are the current GitHub mechanism: layered, visible to non-admins, with explicit bypass lists and allowed merge methods.
+- **Required checks need stable names.** The quality job has a fixed name, so it can be required now. Sharded test jobs change names with the shard count, so they get a single gate job later.
+
+### 2026-10-21 - Step 8: Dockerfile on the official Playwright image
+
+**Built** - `Dockerfile` (`mcr.microsoft.com/playwright:v1.64.1-noble`, `npm ci` layer cached on the lockfile, `npx playwright test` entrypoint), `.dockerignore` (no secrets, sessions or reports in the image), `scripts/check-playwright-version.mjs`, `docker.yml` workflow that builds the image and runs the smoke suite in it on every change to the image inputs.
+
+**Concepts**
+
+- **One source of truth for the browser version.** The Dockerfile tag pins the browsers; a script fails CI when it disagrees with `@playwright/test`. Tested both ways: passes now, fails with a clear message when the tag is changed.
+- **Prove what you cannot run locally.** Docker does not run on macOS 12, so a CI workflow builds and exercises the image. "It works in CI" is evidence; "it should work" is not.
+- **Keep secrets out of images.** `.env`, `.auth/` and local Claude settings are in `.dockerignore`; credentials are passed at run time with `-e`, never baked in.
+
+**Interview notes**
+
+- _Why run Playwright in the official Docker image?_ Browsers and their OS dependencies are pinned to the exact Playwright version, so local, CI and teammates run identical binaries. It also removes the slow `playwright install --with-deps` step from CI.
+- _Root or non-root in the container?_ The Playwright docs accept root for trusted end-to-end targets; for crawling untrusted sites, use the image's `pwuser` and the seccomp profile. Decide by threat model, and document the choice where it is made.
