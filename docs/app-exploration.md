@@ -8,14 +8,14 @@ Agents: treat this as the source of truth for selectors, messages and known defe
 
 All users share the password shown on the login page (provided to tests via the `SAUCE_PASSWORD` env variable).
 
-| Username | Login | Behavior |
-| --- | --- | --- |
-| `standard_user` | ok (~80 ms) | Reference behavior. |
-| `locked_out_user` | blocked | `Epic sadface: Sorry, this user has been locked out.` |
-| `problem_user` | ok | Broken images, sorting, cart and checkout (see defects). |
-| `performance_glitch_user` | ok (~5.1 s) | Correct behavior but artificially slow. |
-| `error_user` | ok | JS errors on cart actions, sorting alert, broken checkout. |
-| `visual_user` | ok | Visual defects and randomized inventory prices. |
+| Username                  | Login       | Behavior                                                   |
+| ------------------------- | ----------- | ---------------------------------------------------------- |
+| `standard_user`           | ok (~80 ms) | Reference behavior.                                        |
+| `locked_out_user`         | blocked     | `Epic sadface: Sorry, this user has been locked out.`      |
+| `problem_user`            | ok          | Broken images, sorting, cart and checkout (see defects).   |
+| `performance_glitch_user` | ok (~5.1 s) | Correct behavior but artificially slow.                    |
+| `error_user`              | ok          | JS errors on cart actions, sorting alert, broken checkout. |
+| `visual_user`             | ok          | Visual defects and randomized inventory prices.            |
 
 ## Session and client state
 
@@ -27,16 +27,16 @@ All users share the password shown on the login page (provided to tests via the 
 
 ## Routes
 
-| Route | Page |
-| --- | --- |
-| `/` | Login |
-| `/inventory.html` | Products (inventory) |
-| `/inventory-item.html?id=<id>` | Product details; unknown id renders "ITEM NOT FOUND" |
-| `/cart.html` | Your Cart |
-| `/checkout-step-one.html` | Checkout: Your Information |
-| `/checkout-step-two.html` | Checkout: Overview |
-| `/checkout-complete.html` | Checkout: Complete! |
-| `/dynamic-catalog-lazy-load.html`, `-spinner.html`, `-slider.html` | Dynamic Catalog variants |
+| Route                                                              | Page                                                 |
+| ------------------------------------------------------------------ | ---------------------------------------------------- |
+| `/`                                                                | Login                                                |
+| `/inventory.html`                                                  | Products (inventory)                                 |
+| `/inventory-item.html?id=<id>`                                     | Product details; unknown id renders "ITEM NOT FOUND" |
+| `/cart.html`                                                       | Your Cart                                            |
+| `/checkout-step-one.html`                                          | Checkout: Your Information                           |
+| `/checkout-step-two.html`                                          | Checkout: Overview                                   |
+| `/checkout-complete.html`                                          | Checkout: Complete!                                  |
+| `/dynamic-catalog-lazy-load.html`, `-spinner.html`, `-slider.html` | Dynamic Catalog variants                             |
 
 Deep links to any route except `/` return **HTTP 404** but the SPA still renders the page. Never assert `response.ok()` after `page.goto()`.
 
@@ -62,27 +62,27 @@ The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'dat
 
 ## Messages (exact strings)
 
-| Situation | Message |
-| --- | --- |
-| Empty username | `Epic sadface: Username is required` |
-| Empty password | `Epic sadface: Password is required` |
-| Wrong password or unknown user | `Epic sadface: Username and password do not match any user in this service` |
-| Locked out | `Epic sadface: Sorry, this user has been locked out.` |
+| Situation                        | Message                                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| Empty username                   | `Epic sadface: Username is required`                                          |
+| Empty password                   | `Epic sadface: Password is required`                                          |
+| Wrong password or unknown user   | `Epic sadface: Username and password do not match any user in this service`   |
+| Locked out                       | `Epic sadface: Sorry, this user has been locked out.`                         |
 | Protected route while logged out | `Epic sadface: You can only access '/inventory.html' when you are logged in.` |
-| Checkout, empty first name | `Error: First Name is required` |
-| Checkout, empty last name | `Error: Last Name is required` |
-| Checkout, empty postal code | `Error: Postal Code is required` |
+| Checkout, empty first name       | `Error: First Name is required`                                               |
+| Checkout, empty last name        | `Error: Last Name is required`                                                |
+| Checkout, empty postal code      | `Error: Postal Code is required`                                              |
 
 ## Product catalog
 
-| id | Name | Price | Slug |
-| --- | --- | --- | --- |
-| 4 | Sauce Labs Backpack | 29.99 | `sauce-labs-backpack` |
-| 0 | Sauce Labs Bike Light | 9.99 | `sauce-labs-bike-light` |
-| 1 | Sauce Labs Bolt T-Shirt | 15.99 | `sauce-labs-bolt-t-shirt` |
-| 5 | Sauce Labs Fleece Jacket | 49.99 | `sauce-labs-fleece-jacket` |
-| 2 | Sauce Labs Onesie | 7.99 | `sauce-labs-onesie` |
-| 3 | Test.allTheThings() T-Shirt (Red) | 15.99 | `test.allthethings()-t-shirt-(red)` |
+| id  | Name                              | Price | Slug                                |
+| --- | --------------------------------- | ----- | ----------------------------------- |
+| 4   | Sauce Labs Backpack               | 29.99 | `sauce-labs-backpack`               |
+| 0   | Sauce Labs Bike Light             | 9.99  | `sauce-labs-bike-light`             |
+| 1   | Sauce Labs Bolt T-Shirt           | 15.99 | `sauce-labs-bolt-t-shirt`           |
+| 5   | Sauce Labs Fleece Jacket          | 49.99 | `sauce-labs-fleece-jacket`          |
+| 2   | Sauce Labs Onesie                 | 7.99  | `sauce-labs-onesie`                 |
+| 3   | Test.allTheThings() T-Shirt (Red) | 15.99 | `test.allthethings()-t-shirt-(red)` |
 
 - Default order is name A to Z (as listed above).
 - Sort options (`<select>` value = label): `az` = Name (A to Z), `za` = Name (Z to A), `lohi` = Price (low to high), `hilo` = Price (high to low). Ties (Bolt T-Shirt and Test.allTheThings() T-Shirt, both 15.99) keep A to Z order in both price directions.
@@ -95,6 +95,7 @@ The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'dat
 These are deliberate. Tests assert the correct behavior and mark these with `knownBug()`.
 
 ### problem_user
+
 - Every inventory image is the same broken `sl-404` image.
 - Sorting does nothing: list order and the active option stay "Name (A to Z)".
 - Add to cart works for Backpack, Bike Light, Onesie; does nothing for Bolt T-Shirt, Fleece Jacket, Test.allTheThings() T-Shirt (Red).
@@ -104,20 +105,24 @@ These are deliberate. Tests assert the correct behavior and mark these with `kno
 - Side menu About links to `https://saucelabs.com/error/404`.
 
 ### error_user
+
 - Choosing any sort option raises `alert("Sorting is broken! This error has been reported to Backtrace.")` and the order does not change.
 - Same add-to-cart pattern as problem_user, with page errors `Error: Failed to add item to the cart.`; remove throws `Error: Failed to remove item from cart.`
 - Checkout: Last Name cannot be typed (`TypeError: Cannot read properties of undefined (reading 'value')`) yet Continue proceeds to the overview without validation.
 - Finish does nothing and stays on the overview (`TypeError: wa.cesetRart is not a function`).
 
 ### performance_glitch_user
+
 - Login takes about 5.1 s; each sort takes about 5.3 s. Both exceed Playwright's default 5 s `expect` timeout. Functionally correct otherwise.
 
 ### visual_user
+
 - Inventory prices are random on every render (for example Backpack $59.52, then different after sorting). Cart and checkout use the real catalog prices.
 - First inventory image (Backpack) is the broken `sl-404` image.
 - Cart icon is misplaced (x=1034 instead of 1220 at a 1280 px viewport); menu icon is 21 px instead of 20 px.
 
 ### standard_user
+
 - Side menu "Reset App State" clears the cart badge and `cart-contents`, but product buttons keep showing "Remove" until the page reloads.
 
 ## Dynamic Catalog (currently untested)

@@ -12,6 +12,9 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 
 - `nvm use` - selects Node 24 from `.nvmrc`. Why: CI and the Playwright Docker image run Node 24.
 - `npm run typecheck` - `tsc --noEmit`. Why: Playwright transpiles TypeScript without type checking, so type errors only surface here.
+- `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
+- `npm run format` / `npm run format:check` - Prettier.
+- Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
 
 More scripts (lint, format, test suites) are added to this list as each framework step lands. Never invent a script that is not in `package.json`.
 
@@ -69,7 +72,7 @@ Personas `problem_user`, `error_user`, `performance_glitch_user` and `visual_use
 
 ## Definition of done
 
-`npm run typecheck` (and `npm run lint` once it exists) passes, and the affected specs pass locally. New behavior comes with a test. Why: CI should confirm quality, not discover problems.
+`npm run typecheck`, `npm run lint` and `npm run format:check` pass, and the affected specs pass locally. Fix lint errors at the cause; an `eslint-disable` needs a `-- reason` and is a review topic. New behavior comes with a test. Why: CI should confirm quality, not discover problems.
 
 ## Git
 

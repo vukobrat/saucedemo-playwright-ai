@@ -11,10 +11,12 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 ### 2026-10-21 - Planning and live app exploration
 
 **Built**
+
 - Approved architecture plan (POM + components + fixtures, persona auth via `storageState`, known-bug markers, sharded CI in the Playwright container).
 - Verified app model, later committed as `docs/app-exploration.md`.
 
 **Concepts**
+
 - **Plan mode is enforced by the harness, not by the prompt.** In plan mode the model can only read and explore; edits and side effects are blocked until the human approves. Asking "make a plan first" in a normal chat is only a request; plan mode is a hard gate.
 - **MCP turns a browser into tools.** Playwright MCP exposes `browser_navigate`, `browser_snapshot`, `browser_evaluate`, `browser_run_code_unsafe` and others. The snapshot is the accessibility tree, which hides `data-test` attributes, so selectors were mapped with `browser_evaluate` against the DOM.
 - **Batch tool calls.** One `run_code` script that probes six personas replaced dozens of click calls: fewer round trips, fewer permission prompts, less context consumed. Tradeoff: `browser_run_code_unsafe` executes arbitrary code in the MCP server process (RCE-equivalent), acceptable for a local, trusted session only.
@@ -23,25 +25,29 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - **Verify versions against registries, not memory.** Findings: TypeScript 7 is out but `typescript-eslint` only supports `<6.1.0`; Node 24 officially needs macOS 13.5 (the binary still runs on 12.7); the Playwright docs CI example uses older action majors than the latest releases; the Docker tag was checked in the registry before being planned.
 
 **Interview notes**
-- *How do you stop an AI agent from inventing selectors?* Give it a real browser through MCP, require verification on the live app before a locator is written, and record the verified selector map in a file the agent reads. In this repo two "obvious" locators (the menu `data-test` on an image, role queries inside an `aria-hidden` menu) would have failed.
-- *What went wrong when you used an agent for exploration?* The shared-page false positives above. A strong answer names the failure, the detection (results too broad to be plausible, re-verification), and the systemic fix (isolation, verify-before-report rule in CLAUDE.md).
+
+- _How do you stop an AI agent from inventing selectors?_ Give it a real browser through MCP, require verification on the live app before a locator is written, and record the verified selector map in a file the agent reads. In this repo two "obvious" locators (the menu `data-test` on an image, role queries inside an `aria-hidden` menu) would have failed.
+- _What went wrong when you used an agent for exploration?_ The shared-page false positives above. A strong answer names the failure, the detection (results too broad to be plausible, re-verification), and the systemic fix (isolation, verify-before-report rule in CLAUDE.md).
 
 ### 2026-10-21 - Step 1: bootstrap
 
 **Built** - `package.json` with exact pins, Node 24 via `.nvmrc`, strict `tsconfig.json`, `.gitignore`, MIT license.
 
 **Concepts**
+
 - Reproducibility starts before the first test: pinned runtime, pinned dependencies, lockfile.
 - Playwright transpiles TypeScript but never type-checks it, so `tsc --noEmit` is a separate gate.
 
 **Interview notes**
-- *Why does a Playwright project need a separate typecheck step?* Playwright runs tests even with type errors; only `tsc` catches them. In CI it runs in the quality job before any browser starts, which is cheaper than failing a test run.
+
+- _Why does a Playwright project need a separate typecheck step?_ Playwright runs tests even with type errors; only `tsc` catches them. In CI it runs in the quality job before any browser starts, which is cheaper than failing a test run.
 
 ### 2026-10-21 - Step 2: CLAUDE.md, shared settings, pinned MCP server
 
 **Built** - `CLAUDE.md`, `docs/app-exploration.md`, this log, `.claude/settings.json`, and `.mcp.json` pinned to `@playwright/mcp@0.0.83` with `--isolated` and `--test-id-attribute=data-test`.
 
 **Concepts**
+
 - **CLAUDE.md is context, not configuration.** It is loaded into every session and followed probabilistically. Official guidance: keep each file under 200 lines; specific, concise rules are followed more consistently.
 - **Memory scopes.** Managed (org), user (`~/.claude/CLAUDE.md`), project (`CLAUDE.md`), local (`CLAUDE.local.md`, gitignored), path-scoped rules in `.claude/rules/`, and nested `CLAUDE.md` files in subdirectories that load on demand when Claude works there. All are concatenated, not overridden.
 - **Rules carry their reason.** "No `waitForTimeout`. Why: auto-retrying assertions are the defence against flakiness." The reason lets the agent generalize to cases the rule did not name, and lets humans prune stale rules.
@@ -51,5 +57,23 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - **Supply-chain hygiene for agent tools.** `@playwright/mcp@latest` would run whatever was published last; pinning an exact version makes tool behavior reproducible and reviewable via Dependabot. `--isolated` keeps the MCP browser profile in memory so no session leaks between explorations.
 
 **Interview notes**
-- *CLAUDE.md, permissions or hooks: which do you use for what?* CLAUDE.md for guidance and conventions (probabilistic). Permissions for capability boundaries per tool call (deterministic allow/ask/deny). Hooks for deterministic automation or validation with custom logic, for example running lint after every edit or blocking edits that delete assertions. Example from this repo: "ask before editing workflows" exists both as a CLAUDE.md rule and as an `ask` permission rule.
-- *How do you keep an agent's context small in a large test repo?* Short root CLAUDE.md, path-scoped rules for specific folders, reference large docs by path instead of importing them, and delegate exploration to subagents (Phase 1).
+
+- _CLAUDE.md, permissions or hooks: which do you use for what?_ CLAUDE.md for guidance and conventions (probabilistic). Permissions for capability boundaries per tool call (deterministic allow/ask/deny). Hooks for deterministic automation or validation with custom logic, for example running lint after every edit or blocking edits that delete assertions. Example from this repo: "ask before editing workflows" exists both as a CLAUDE.md rule and as an `ask` permission rule.
+- _How do you keep an agent's context small in a large test repo?_ Short root CLAUDE.md, path-scoped rules for specific folders, reference large docs by path instead of importing them, and delegate exploration to subagents (Phase 1).
+
+### 2026-10-21 - Step 3: ESLint, Prettier, Husky, lint-staged
+
+**Built** - `eslint.config.mjs` (typescript-eslint strict type-checked, eslint-plugin-playwright, eslint-comments, Prettier compat), Prettier config, Husky pre-commit (lint-staged) and pre-push (typecheck).
+
+**Concepts**
+
+- **Move conventions from prose to mechanism.** CLAUDE.md says "no locators in specs, every test tagged, no hard waits"; ESLint now fails the commit when any of these is broken. Prose guides the agent; the linter catches it when guidance is ignored, for humans and agents alike.
+- **Test your guardrails.** The config was validated with throwaway probe files containing deliberate violations: 14 out of 14 were reported, and a clean file passed, which also proved that describe-level tags satisfy `require-tags`. An unverified lint rule gives false confidence.
+- **Close the escape hatches.** Agents tend to make a red check green by adding `eslint-disable`. `require-description` forces a written reason and `reportUnusedDisableDirectives` removes stale ones, so every suppression shows up in review.
+- **Type-aware linting catches the most common Playwright bug.** `@typescript-eslint/no-floating-promises` flags a missing `await` on `page.goto()`, which otherwise causes races that look like flakiness.
+- **Hooks give fast feedback, CI enforces.** Pre-commit lints only the staged files (seconds); pre-push runs the typecheck. Both can be bypassed with `--no-verify`, so CI repeats them as the real gate.
+
+**Interview notes**
+
+- _How do you enforce test conventions across a team, or across agents?_ Encode them as lint rules with clear messages, verify the rules with negative examples, run them in pre-commit and again in CI, and require written reasons for suppressions.
+- _Why `no-floating-promises` in a Playwright repo?_ A missing `await` lets the test continue before the action finishes. The result is intermittent failures that get misdiagnosed as flakiness and "fixed" with retries or timeouts instead of the actual missing `await`.
