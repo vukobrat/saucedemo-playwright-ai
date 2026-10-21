@@ -203,3 +203,20 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How do you shard Playwright in CI and still get one report?_ `fullyParallel` for test-level balancing, `--shard=i/n` per matrix job, `blob` reporter per shard, then `merge-reports` in a final job that downloads all blobs. Publish the HTML report as an artifact and, for `main`, to Pages.
 - _How do you make a dynamic matrix a required check?_ Add a gate job with `needs: test` and `if: always()` that asserts `needs.test.result == 'success'`, and require the gate instead of the individual shards.
 - _What would you not let Dependabot upgrade automatically?_ Versions coupled to something outside the package manager: Playwright (Docker image), TypeScript (linter support), Node types (runtime major).
+
+### 2026-10-21 - Pipeline confirmed on main; Step 10: inventory, sorting, details, cart, menu
+
+**Built** - First report published to GitHub Pages from `main`; "Playwright tests" added as a second required check. `known-bugs.ts` catalogue (stable `SD-xxx` ids) and the `knownBug()` helper; specs for inventory, sorting (all four options), product details (all six products, add/remove, back, unknown id), cart (contents, remove, empty, continue shopping, accessible name) and the side menu (open/close, All Items, About, Reset App State).
+
+**Concepts**
+
+- **Evidence over green checks.** The first sharded run was green, but the logs were read anyway: each shard ran all five setup logins before its tests, which empirically confirms the 10-minute session-TTL design.
+- **An expected failure must fail for the right reason.** Both known-bug tests were re-run with `EXPOSE_KNOWN_BUGS=true` to read the actual assertion errors (`"Cart, 1 items"`, missing "Add to cart" button). A `test.fail()` that fails on a typo or timeout would hide a broken test behind a green suite.
+- **Known bugs as data.** One catalogue with stable ids instead of strings scattered across specs. Reports, triage agents and the eval in Phase 1 can reference `SD-001` unambiguously.
+- **Flake check before review.** The whole suite ran three times (140/140) before committing.
+- **Process slip and fix.** PR #3 was merged before its second step was pushed. Recovery: rebase the orphaned commit onto `main` in a new branch and open a new PR. Prevention: PRs stay drafts until every step is in, and are explicitly announced as ready.
+
+**Interview notes**
+
+- _How do you keep known bugs from making the suite red without hiding them?_ Assert the correct behavior and mark the test as expected to fail with a reference to a catalogued defect. Playwright then flags the test when the bug is fixed ("expected to fail, but passed"), so the marker cannot rot. A switch turns the markers off to see the real failures.
+- _How do you choose what goes into the smoke suite?_ The few tests that prove the critical path works (login, product list, add to cart, cart contents, logout), fast enough to gate every PR in about a minute. Breadth goes into the nightly regression.
