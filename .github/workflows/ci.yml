@@ -4,11 +4,19 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: '0 2 * * *' # nightly full regression, 02:00 UTC
   workflow_dispatch:
+    inputs:
+      suite:
+        description: Suite to run
+        type: choice
+        options: [regression, smoke]
+        default: regression
 
-# One run per branch; a new push to a PR cancels the outdated run.
+# PRs: a new push cancels the outdated run. main, nightly and manual runs always complete.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -16,9 +24,16 @@ permissions:
 
 jobs:
   quality:
+    # Name is a required status check in the "Protect main" ruleset; keep it stable.
     name: Lint, format and typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      image: ${{ steps.plan.outputs.image }}
+      suite: ${{ steps.plan.outputs.suite }}
+      args: ${{ steps.plan.outputs.args }}
+      shards: ${{ steps.plan.outputs.shards }}
+      shard-total: ${{ steps.plan.outputs.shard-total }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -40,3 +55,146 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Check Playwright versions
+        run: npm run check:versions
+
+      # PR and main: smoke on chromium. Nightly and manual dispatch: everything, all browsers.
+      - name: Plan test run
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          SUITE_INPUT: ${{ inputs.suite }}
+        run: |
+          image=$(sed -n 's/^FROM \(mcr\.microsoft\.com\/playwright:[^ ]*\).*/\1/p' Dockerfile)
+          if [ "$EVENT" = schedule ] || { [ "$EVENT" = workflow_dispatch ] && [ "$SUITE_INPUT" = regression ]; }; then
+            suite=regression args='' shards='[1,2,3,4]' total=4
+          else
+            suite=smoke args='--grep @smoke --project=chromium' shards='[1,2]' total=2
+          fi
+          {
+            echo "image=$image"
+            echo "suite=$suite"
+            echo "args=$args"
+            echo "shards=$shards"
+            echo "shard-total=$total"
+          } >> "$GITHUB_OUTPUT"
+          echo "Planned: $suite suite, $total shards, image $image" >> "$GITHUB_STEP_SUMMARY"
+
+  test:
+    name: Playwright ${{ needs.quality.outputs.suite }} (shard ${{ matrix.shard }}/${{ needs.quality.outputs.shard-total }})
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Same image as the Dockerfile: browsers preinstalled, nothing to download or cache.
+    container:
+      image: ${{ needs.quality.outputs.image }}
+      options: --ipc=host --init
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.quality.outputs.shards) }}
+    env:
+      HOME: /root # Firefox refuses to start when HOME is owned by another user
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          HUSKY: '0'
+
+      - name: Run Playwright
+        # PLAYWRIGHT_ARGS is unquoted on purpose: it must split into separate CLI flags.
+        run: npm test -- $PLAYWRIGHT_ARGS --shard="$SHARD"
+        env:
+          PLAYWRIGHT_ARGS: ${{ needs.quality.outputs.args }}
+          SHARD: ${{ matrix.shard }}/${{ needs.quality.outputs.shard-total }}
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report
+          retention-days: 1
+
+  # Single, stable status check for branch protection, whatever the shard count.
+  test-gate:
+    name: Playwright tests
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All shards passed
+        run: test "$RESULT" = success
+        env:
+          RESULT: ${{ needs.test.result }}
+
+  report:
+    name: Merge reports
+    needs: [quality, test]
+    if: ${{ !cancelled() && needs.quality.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          HUSKY: '0'
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+
+      - name: Merge shard reports into one HTML report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-attempt-${{ github.run_attempt }}
+          path: playwright-report
+          retention-days: 14
+
+      - name: Prepare report for GitHub Pages
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: playwright-report
+
+  pages:
+    name: Publish report to GitHub Pages
+    needs: report
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.report.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
