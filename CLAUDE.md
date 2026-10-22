@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-Project memory for Claude Code and any agent working in this repo. Keep it under 200 lines. Every rule states why it exists: rules with reasons are followed more reliably and are easier to prune when the reason no longer applies.
+Project memory for Claude Code and any agent working in this repo. Keep it under 200 lines and limited to what almost every task needs. Every rule states why it exists: rules with reasons are followed more reliably and are easier to prune when the reason no longer applies.
+
+Conventions for one part of the codebase are path-scoped rules in `.claude/rules/` that load when a matching file is read or edited: `pages.md` (page objects, components, locators), `tests.md` (specs, fixtures, known bugs), `api.md`, `visual.md` and `ci.md` (workflows, Docker, dependencies). Change files with the Read, Edit and Write tools, not `sed -i` or shell redirection. Why: a shell write does not load the matching rule, so its conventions would be missing exactly while the file changes.
 
 ## Project
 
@@ -11,23 +13,16 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 ## Commands
 
 - `nvm use` - selects Node 24 from `.nvmrc`. Why: CI and the Playwright Docker image run Node 24.
-- Setup: `cp .env.example .env` and fill in the values (a human does this; agents never read or write `.env`). `src/config/env.ts` validates it with zod at startup and names any missing or invalid variable. Shell and CI variables override `.env`.
-- Local browsers: Playwright 1.64 ships no browsers or ffmpeg for macOS 12. There, set `BROWSER_CHANNEL=chrome` and `RECORD_VIDEO=false` and run only `--project=chromium`; Firefox and WebKit run in CI (Linux). Why: the maintainer's machine is macOS 12, and a test run that cannot start is not a test failure.
-- `npm test` - all projects (CI, Docker). `npm run test:local` - chromium only, the default on a dev machine. `npm run test:smoke` / `test:regression` / `test:persona` - by tag. `npm run test:a11y` - axe gate (zero WCAG 2.2 AA violations) on every page state; PRs run it with smoke.
-- `npm run test:api` - DummyJSON API layer (needs `API_USERNAME`/`API_PASSWORD`). Not in the PR gate because the API is a third party; it runs nightly. API tests use the typed clients in `src/api/clients.ts` and validate every success body with `parseBody(response, Schema)`.
-- Visual regression: `npm run test:visual` compares against Linux baselines in `tests/visual/__screenshots__/` and skips on other platforms. To change baselines, never run `--update-snapshots` locally: dispatch the "Visual baselines" workflow (it also runs on PRs touching `tests/visual/`), download its `visual-baselines` artifact, inspect every image, and commit them in the PR. Why: CI must not approve its own screenshots, and only Linux renders match CI. On the maintainer's 8-thread Intel Mac, add `-- --workers=2`: four local Chrome workers saturate the machine and cause timeouts that are not test failures. `npm run test:headed`, `npm run test:ui`, `npm run report`. Pass Playwright flags after `--`, e.g. `npm run test:local -- tests/e2e/login.spec.ts`.
+- Setup: `cp .env.example .env`, filled in by a human; agents never read or write `.env`. `src/config/env.ts` validates it with zod at startup and names any missing or invalid variable. Shell and CI variables override `.env`.
+- Tests: `npm test` (all projects; CI, Docker), `npm run test:local` (chromium only, the default on a dev machine), `test:smoke` / `test:regression` / `test:persona` (by tag), `test:a11y` (zero WCAG 2.2 AA violations on every page state; PRs run it with smoke), `test:api` (DummyJSON, needs `API_USERNAME`/`API_PASSWORD`; nightly, not in the PR gate, because the API is a third party), `test:visual` (Linux baselines, skips elsewhere), `test:headed`, `test:ui`, `report`. Pass Playwright flags after `--`, e.g. `npm run test:local -- tests/e2e/login.spec.ts`.
+- Never update visual baselines locally (`--update-snapshots`, `test:visual:update`); they come from the "Visual baselines" workflow. Why: CI must not approve its own screenshots, and only Linux renders match CI.
 - Every run starts with the `setup` project (logs in each persona, about 8 s), also under `--grep`. Never run specs with `--no-deps` unless `.auth/` is fresh (sessions expire after 10 minutes).
-- `npm run docker:build` then `SAUCE_PASSWORD=... npm run test:docker -- <playwright flags>` - the suite in the official Playwright image (Linux, all browsers). Not available on macOS 12; CI proves it via `.github/workflows/docker.yml`.
-- `npm run check:versions` - `@playwright/test` in package.json and node_modules must equal the Dockerfile image tag. Why: CI picks its container image from the Dockerfile, and a mismatch leaves no usable browsers. Upgrade both together, never one.
+- `npm run docker:build` then `SAUCE_PASSWORD=... npm run test:docker -- <playwright flags>` - the suite in the official Playwright image (Linux, all browsers).
 - `npm run typecheck` - `tsc --noEmit`. Why: Playwright transpiles TypeScript without type checking, so type errors only surface here.
-- `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in this file are enforced here, not just written down.
-- `npm run format` / `npm run format:check` - Prettier.
+- `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in these rules are enforced here, not just written down.
+- `npm run format` / `npm run format:check` - Prettier. `npm run check:versions` - Playwright package equals the Dockerfile image tag.
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
-- CI (`.github/workflows/ci.yml`) runs exactly these npm scripts. Never put checks in a workflow that have no npm script equivalent; the only workflow logic is planning which suite and shard count to run. Why: anything CI checks must be reproducible locally with one command.
-- Pipeline: quality job (lint, format, typecheck, versions, plan) then sharded tests in the Playwright container, a "Playwright tests" gate, merged HTML report (artifact), and Pages publishing from `main`. PRs and `main`: `@smoke` on chromium, 2 shards. Nightly 02:00 UTC and manual dispatch: everything, 4 shards. "Lint, format and typecheck" and "Playwright tests" are required checks on `main`; do not rename those jobs.
-- Actions are pinned to full commit SHAs with a `# vX.Y.Z` comment. Why: tags can be moved to malicious code; SHAs cannot.
-
-More scripts (lint, format, test suites) are added to this list as each framework step lands. Never invent a script that is not in `package.json`.
+- Never invent a script that is not in `package.json`.
 
 ## Architecture (where code goes)
 
@@ -42,38 +37,6 @@ More scripts (lint, format, test suites) are added to this list as each framewor
 - `tests/{setup,e2e,personas,a11y,visual,api}/` - specs only, no raw locators.
 
 Why: a predictable map prevents duplicate abstractions when several agents or people add code in parallel.
-
-## Page objects and components
-
-- Pages expose `readonly` locators and intent methods (`addToCart(product)`), not assertions. The only exception is `expectLoaded()`. Why: assertions stay visible in the spec, and pages stay reusable for positive and negative tests.
-- Methods take typed data (`Product`, `Customer`), not raw strings. Why: compile-time safety and one place to change data.
-- No retries, `if` branches or try/catch in page objects to "handle" broken UI. Why: that hides real bugs; we want them visible.
-
-## Locators
-
-Priority: `getByRole` with an accessible name for interactive controls, then `getByTestId` (configured to `data-test`) for structure and data, then `getByText` or `getByLabel` for content. Never CSS classes, XPath or `nth()` without a comment explaining why. Why: classes and DOM position change with styling; roles and test ids are a contract.
-
-Verified exceptions, do not "fix" these back:
-
-- Open/close menu: `getByRole('button', { name: 'Open Menu' })` / `'Close Menu'`. The `open-menu` and `close-menu` test ids sit on `<img>` elements covered by the buttons, so clicking them times out.
-- Side menu items are `<a role="button">`: use `getByRole('button', { name: 'Logout' })`, not `link`. Role locators only match while the menu is open, which is what we want; the test ids report closed items as visible.
-- Product card "View details" links: both image and title are `role="button"` with the same name; use the `item-<id>-title-link` test id.
-- Products: address them by name through the product card component, not by slug-built ids such as `add-to-cart-sauce-labs-backpack`.
-
-Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`, `ariaSnapshot()`), and check the cause, not just the symptom. Why: never assume a selector; this app has several traps, and one of them was first documented with the wrong cause.
-
-## Writing tests
-
-- Web-first assertions only (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no `force: true`, no manual `isVisible()` polling. Why: auto-retrying assertions are the main defence against flakiness.
-- Every test carries a suite tag: `@smoke` (critical path, PR gate), `@regression`, `@persona`, `@a11y`, `@visual` or `@api`. Why: CI selects suites by tag.
-- Logged-in tests reuse `storageState` through the `persona` fixture option (default `standard`; `test.use({ persona: 'problem' })`). Only login specs log in through the UI, with `test.use({ persona: null })`. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
-- Derive expected values from typed data (catalog prices, `pricing.ts`); never hardcode totals. Why: one fact, one place.
-- Tests are independent: no order dependencies, no shared mutable state. Why: `fullyParallel` and sharding run them in any order on any worker.
-- Deep links (`/inventory.html`, `/cart.html`) return HTTP 404 while the SPA renders correctly. Do not assert on the navigation response status.
-
-## Known application bugs
-
-Personas `problem_user`, `error_user`, `performance_glitch_user` and `visual_user` have deliberate defects (catalogued in `docs/app-exploration.md`). Test the correct behavior and call `knownBug(KNOWN_BUGS.<entry>)` (`src/utils/known-bug.ts`) as the first line of the test. It marks the test as expected to fail and adds a `known-bug` annotation. Every defect gets one entry with a stable `SD-xxx` id in `src/data/known-bugs.ts`; never pass an ad hoc object. After adding a marker, run the test with `EXPOSE_KNOWN_BUGS=true` and confirm it fails on the documented symptom, not on something else. Why: the suite stays green while the bug exists and turns red when it is fixed, forcing the marker to be removed. `EXPOSE_KNOWN_BUGS=true` disables the marker to produce real failures with traces (eval data for triage agents).
 
 ## Guardrails for agents
 

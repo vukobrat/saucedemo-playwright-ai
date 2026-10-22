@@ -155,7 +155,7 @@ flowchart LR
 
 ## Conventions
 
-The full rule set, each rule with its reason, is in [`CLAUDE.md`](CLAUDE.md). Highlights enforced by tooling:
+The full rule set, each rule with its reason, is in [`CLAUDE.md`](CLAUDE.md) and the path-scoped rules in [`.claude/rules/`](.claude/rules/). Highlights enforced by tooling:
 
 - Specs cannot build locators (`playwright/no-raw-locators` plus a ban on `page.locator`/`page.getBy*` in `tests/`).
 - No `waitForTimeout`, `waitForSelector`, `force`, `nth` or magic timeouts; web-first assertions only; a missing `await` is a lint error.
@@ -193,7 +193,7 @@ The full rule set, each rule with its reason, is in [`CLAUDE.md`](CLAUDE.md). Hi
 
 This repository is built and maintained with AI coding agents (Claude Code) as a deliberate part of the engineering process, with the same review discipline as human contributions:
 
-- **Project memory:** [`CLAUDE.md`](CLAUDE.md) holds the conventions with a reason for each rule; the verified app model in [`docs/app-exploration.md`](docs/app-exploration.md) is referenced, not imported, to keep agent context small.
+- **Project memory:** a short [`CLAUDE.md`](CLAUDE.md) holds the cross-cutting conventions and guardrails, each with a reason; path-scoped rules in [`.claude/rules/`](.claude/rules/) (page objects, tests, API, visual, CI) load only when an agent works on matching files; the verified app model in [`docs/app-exploration.md`](docs/app-exploration.md) is referenced, not imported, to keep agent context small.
 - **Grounded in the real app:** the Playwright MCP server (pinned version, isolated profile, `data-test` as test id) lets agents verify selectors on the live site instead of guessing.
 - **Guardrails:** shared permission rules deny reading `.env`, merging pull requests and force pushes; lint and hooks reject the usual ways of making a red check green (suppressions without reasons, hard waits, raw locators); CLAUDE.md forbids weakening assertions.
 - **Evaluation data:** the known-bug catalogue turns the deliberately broken personas into labelled failures for measuring how well an agent classifies test failures.
@@ -202,6 +202,7 @@ This repository is built and maintained with AI coding agents (Claude Code) as a
 ## Project structure
 
 ```
+.claude/rules/       path-scoped agent rules: pages, tests, api, visual, ci
 .github/workflows/   ci.yml, docker.yml, visual-baselines.yml (+ dependabot.yml)
 docs/                app model, learning log
 scripts/             Playwright/Docker version check
