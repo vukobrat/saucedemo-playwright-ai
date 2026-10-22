@@ -98,6 +98,13 @@ if (result) {
   for (const error of result.errors ?? []) {
     console.log(`  error: ${short(error, 120)}`);
   }
+  // `--output-format json` has no per-turn events, only the aggregated usage of the main loop.
+  if (responses.size === 0 && result.usage) {
+    console.log(
+      `Input tokens over ${result.num_turns} call(s): ${number(contextOf(result.usage))} ` +
+        '(for a one-call run, this is the size of its context)',
+    );
+  }
   for (const denial of denials) {
     console.log(`  denied: ${denial.tool_name} ${short(denial.tool_input, 80)}`);
   }
