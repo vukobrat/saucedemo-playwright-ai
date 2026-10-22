@@ -60,9 +60,11 @@ if (init) {
     .map(([status, count]) => `${count} ${status}`)
     .join(', ');
   const connected = servers.filter((s) => s.status === 'connected').map((s) => s.name);
+  const tools = init.tools ?? [];
+  const mcpTools = tools.filter((name) => name.startsWith('mcp__')).length;
   console.log(
     `Session ${init.session_id?.slice(0, 8)} | model ${init.model} | mode ${init.permissionMode} | ` +
-      `${init.tools?.length ?? 0} tools`,
+      `${tools.length} tools (${mcpTools} from MCP)`,
   );
   console.log(
     `MCP servers: ${servers.length ? `${byStatus}${connected.length ? ` (connected: ${connected.join(', ')})` : ''}` : 'none'}`,
