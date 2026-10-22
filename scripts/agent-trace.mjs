@@ -90,10 +90,14 @@ for (const { blocks, usage } of responses.values()) {
 if (result) {
   const denials = result.permission_denials ?? [];
   console.log(
-    `\nResult: ${result.subtype} | stop_reason ${result.stop_reason} | ${result.num_turns} turns | ` +
+    `\nResult: ${result.subtype} | stop_reason ${result.stop_reason} | ` +
+      `terminal_reason ${result.terminal_reason ?? 'n/a'} | ${result.num_turns} turns | ` +
       `${((result.duration_ms ?? 0) / 1000).toFixed(1)} s | $${(result.total_cost_usd ?? 0).toFixed(3)} | ` +
       `${denials.length} permission denial(s)`,
   );
+  for (const error of result.errors ?? []) {
+    console.log(`  error: ${short(error, 120)}`);
+  }
   for (const denial of denials) {
     console.log(`  denied: ${denial.tool_name} ${short(denial.tool_input, 80)}`);
   }

@@ -86,6 +86,38 @@ Questions to answer from the traces:
 4. E3: what is the result `subtype`, the exit code, and is there a final answer?
 5. E4: which tools ran, what was written, and where? Is README.md changed?
 
+### What the runs showed (2026-10-22)
+
+| Run | Turns (model responses)   | Tools                                                        | Denials         | Result                               | Task done      |
+| --- | ------------------------- | ------------------------------------------------------------ | --------------- | ------------------------------------ | -------------- |
+| E1  | 2                         | Glob                                                         | 0               | `success`, exit 0                    | yes            |
+| E2a | 3                         | Bash (`node --version`), Read (`.nvmrc`)                     | 0               | `success`, exit 0                    | yes            |
+| E2b | 4                         | Bash (`touch`), Glob, Write                                  | 2 (Bash, Write) | `success`, exit 0                    | **no**         |
+| E3  | 2 (`num_turns` reports 3) | Glob, Read                                                   | 0               | `error_max_turns`, exit 1, no answer | **no**         |
+| E4  | 3 (`num_turns` reports 4) | Read x2 in parallel, Write (plan file in `~/.claude/plans/`) | 0               | `success`, exit 0                    | no (plan only) |
+
+Predictions made before the runs, and what they got wrong:
+
+- **"A turn is the whole run."** A turn is one model round trip. Even E1 needs two: one to call Glob, one to answer.
+- **"`--allowedTools` is the tool set; `--disallowedTools` shows up as denials."** Allowed tools are only auto-approved; every other tool stays available (E2a ran Bash). Bare-name deny rules remove tools from the context before any check, so they never appear in `permission_denials`.
+- **"The task will get done."** In three of five runs it did not: denied writes (E2b), a turn limit (E3) and plan mode (E4) all stopped the work, and two of those still reported `success`.
+
+Observed details worth keeping:
+
+- Read-only shell commands are approved by the Bash tool itself (step 5 of the permission order), so `node --version` ran in `dontAsk` without an allow rule. A compound command like `ls ... || touch ...` is judged by its parts, and `touch` is not read-only, so it was denied.
+- After a denial, the rejection text tells Claude it may try a natural alternative or stop and explain. In E2b it tried Write once, was denied again, and reported honestly.
+- On `error_max_turns` the last requested tool still ran; the harness only refused the next model call. In a run that writes, the last write still happens.
+- `num_turns` was one higher than the number of model responses whenever the run ended normally after tools or hit the limit; treat it as approximate.
+- `--disallowedTools "mcp__*"` hides MCP tools (135 to 29) but the servers still start and connect (Gmail and Drive included). Only `--bare` skips them.
+- Headless plan mode cannot leave planning: `ExitPlanMode` was not loaded and there is nobody to approve. It always ends with a plan, never a change.
+- The run read a memory file from `~/.claude/projects/.../memory/` on its own: memory and CLAUDE.md shape headless runs too.
+
+Hypotheses from the analysis that were checked against the traces:
+
+- _Refuted:_ "Glob and Grep were only loaded because `--allowedTools` named them." E2a named only Read and Glob, and Grep was loaded anyway. E4 is the only run without Glob/Grep and also the only plan-mode run, so plan mode is the likelier cause (unconfirmed: E4 differs in two ways).
+- _Incomplete:_ "Node 20 because a non-interactive shell never runs `nvm use`." True, but the actual source was a stale PATH: VS Code had been started before `~/.zshrc` was fixed, and every terminal and agent it launched inherited `node@20`. A clean login shell finds no Node at all; an interactive one finds Node 24.
+- _Plausible, unverified:_ MCP tools are deferred (only names in context), which would explain why removing 106 tools saved only about 2,900 tokens.
+
 ## 4. Tradeoffs and pitfalls
 
 - **Autonomy vs oversight.** `auto` removes prompt fatigue, but its classifier is a model too: in Phase 0 it blocked a force push you had explicitly approved. Safe, but not predictable. For CI, prefer `dontAsk` with an exact allowlist, so behavior is deterministic and reviewable.
