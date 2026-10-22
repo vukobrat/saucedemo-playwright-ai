@@ -22,6 +22,9 @@ CLAUDE.local.md
 # Playwright MCP session output (snapshots, console logs)
 /.playwright-mcp/
 
+# Headless agent run traces (stream-json); may contain local paths and session ids
+/traces/
+
 # Personal mentoring brief (local only)
 /docs/mentor-prompt.md
 

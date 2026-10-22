@@ -29,6 +29,7 @@
     "docker:build": "docker build -t saucedemo-playwright-ai .",
     "report": "playwright show-report",
     "check:versions": "node scripts/check-playwright-version.mjs",
+    "agent:trace": "node scripts/agent-trace.mjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
