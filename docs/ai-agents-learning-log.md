@@ -350,3 +350,20 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How does an AI coding agent work?_ A loop of model calls and tool executions, with the harness responsible for context, permissions, tools, memory and stop conditions.
 - _How do you run an agent safely in CI?_ `dontAsk` with an exact allowlist, deny rules, turn and budget limits, no ambient MCP servers, isolated runner, and checking subtype, denials and the real outcome instead of the exit code.
+
+### 2026-10-22 - Module 2: context engineering
+
+**Built** - `docs/phase-1/02-context-engineering.md` (lesson, four exercises with predictions and recorded results, checkpoint answers) and `scripts/context-budget.mjs` (`npm run context:budget`), which lists instruction files by load time and each CLAUDE.md section's share; `agent:trace` also reads `--output-format json` results. CLAUDE.md is split into a 6,700-character root and five path-scoped rules in `.claude/rules/` (pages, tests, api, visual, ci); machine-specific notes moved to a gitignored `CLAUDE.local.md`.
+
+**Concepts**
+
+- Everything in the context is re-sent on every model call. The project CLAUDE.md cost 4,557 tokens per call, 16% of a one-word answer; after the split it costs 2,545 (10%).
+- Where a rule goes depends on when it must be in context, not on its topic. Path-scoped rules load only when a matching file is read or edited, so rules about running things and guardrails stay in the root. The test applies per sentence: "never update baselines locally" stayed in the root while the procedure moved.
+- Rule loading follows how the agent touches a file, not what it sees. The same spec text loaded the test rules through `grep` and not through `grep | cat`; recursive greps, test runs and searches without matches loaded nothing. Hence the new root rule to change files with Read, Edit and Write.
+- Path-scoped rules live in message history. After `/compact` only a paraphrase was left in the summary, and even the automatic re-read of the spec did not bring the rule back.
+- Measuring beat estimating every time: chars/4 underestimated the cost by a third; an `@import` of the app model would cost 5,901 tokens per call; a short session got larger after compaction; turn-to-turn deltas were skewed by an MCP server that connected mid-run; and the documented `compact` hook reason never appeared.
+
+**Interview notes**
+
+- _Why does an agent follow conventions early in a session and ignore them later?_ Compaction replaces chat instructions and path-scoped rules with a summary; only the root CLAUDE.md, unscoped rules and auto memory are re-read from disk. Durable rules go in the root, unrelated work is separated with `/clear`, and large reads go to subagents.
+- _How do you keep an agent's context small in a large test repository?_ A short root CLAUDE.md with guardrails, path-scoped rules per area, reference docs linked rather than imported, machine-specific notes kept local, and no ambient MCP servers for focused tasks. Measure the per-call cost before and after with paired headless runs from a clean environment.
