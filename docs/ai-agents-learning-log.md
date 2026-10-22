@@ -330,3 +330,23 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _What does a good test automation README contain?_ What is covered and why, the architecture in one picture, how to run locally/in Docker/in CI with exact commands, the conventions and how they are enforced, how to add a test, and live status (badges, published report). Every number in it should be reproducible.
 - _What did you learn building a framework with an AI agent?_ The agent is fast at producing and verifying, and confidently wrong in ways that look green. The value comes from making everything checkable: live verification before writing, guardrails as code, proving checks can fail, and reading evidence instead of trusting a status.
+
+---
+
+## Phase 1 - Agentic QA
+
+### 2026-10-22 - Module 1: the agent loop and the harness
+
+**Built** - `docs/phase-1/01-agent-loop.md` (lesson, five prediction-first exercises with recorded results, checkpoint answers) and `scripts/agent-trace.mjs` (`npm run agent:trace`), which turns a headless `stream-json` run into turns, tool calls, denials, stop reason, cost and context size.
+
+**Concepts**
+
+- The model is stateless and only requests tools; the harness builds the context, enforces permissions (hooks, deny, ask, mode, allow, prompt), executes tools and decides when the run ends.
+- Five real runs disproved three common assumptions: a turn is one model round trip, not the whole run; `--allowedTools` only auto-approves and does not define the toolset; and the agent does not necessarily finish the task (denials, turn limits and plan mode all stopped work, twice with result `success`).
+- An analysis of the traces written by another agent contained a refuted claim and an incomplete one. Agent explanations are hypotheses until checked against the evidence.
+- Environment drift is real: VS Code had been running since before the shell fix, so every agent it started used Node 20.
+
+**Interview notes**
+
+- _How does an AI coding agent work?_ A loop of model calls and tool executions, with the harness responsible for context, permissions, tools, memory and stop conditions.
+- _How do you run an agent safely in CI?_ `dontAsk` with an exact allowlist, deny rules, turn and budget limits, no ambient MCP servers, isolated runner, and checking subtype, denials and the real outcome instead of the exit code.

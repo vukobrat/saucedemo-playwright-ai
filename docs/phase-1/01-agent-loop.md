@@ -134,9 +134,49 @@ Hypotheses from the analysis that were checked against the traces:
 
 ## 6. Checkpoint
 
-Answer in your own words:
+### 1. A CI job runs `claude -p --max-turns 5` and the result is `error_max_turns`. What happened, is there a final answer, and what are two reasonable fixes?
 
-1. A CI job runs `claude -p` with `--max-turns 5` and gets result subtype `error_max_turns`. What happened, is there a final answer, and what are two reasonable fixes?
-2. Why could the agent not force-push in Phase 0 even after you approved it in chat, and which layer made that decision?
-3. Write the flags for a headless run that may only read files and run `npm run test:api`, must not use MCP tools, and must stop after 10 turns or $1.
-4. In E2b the run reported `success`. What would your CI script check instead?
+The loop hit the turn cap before the model finished. Its last response still asked for a tool (`stop_reason: tool_use`); the harness ran that tool but refused to make another model call. The run reports `is_error: true`, `terminal_reason: max_turns`, `errors: ["Reached maximum number of turns (5)"]` and exits with code 1. There is **no final answer**: the `result` field only exists on `success`. Any side effects of the tools that did run (including the last one) remain.
+
+Reasonable fixes:
+
+- **Right-size the limit and cap cost separately.** Measure how many turns the task really needs from a few traces, set `--max-turns` with some headroom, and keep `--max-budget-usd` as the actual safety limit.
+- **Make the task need fewer turns.** Give the context up front (pipe the failing log or the file list into the prompt), allow batch tools (`Grep` across all files instead of reading files one at a time), or split the task into smaller runs. A run that stopped early can also be continued with `--resume <session_id>`, since every result carries the session id.
+
+Either way, CI must treat `error_max_turns` as a failed run, not a pass.
+
+### 2. Why couldn't the agent force-push in Phase 0, even after you approved it in chat, and which layer made that decision?
+
+The **harness**, not the model, through the **auto-mode classifier**. In auto mode the classifier takes the place of the permission prompt (the last step of the permission order) and judged `git push --force-with-lease origin main` as "Git Destructive". Approval written in the chat is only text in the model's context; it is not a permission grant, so it cannot override the harness. (The project deny rule `Bash(git push --force *)` would also block `--force`, but `--force-with-lease` does not match that pattern, so it was the classifier that stopped this command.) To allow such an action, a person runs it, or adds an explicit permission rule.
+
+### 3. Write the flags for a headless run that may only read files and run `npm run test:api`, must not use MCP tools, and stops after 10 turns or $1.
+
+```bash
+claude -p "<task>" \
+  --permission-mode dontAsk \
+  --allowedTools "Read" "Glob" "Grep" "Bash(npm run test:api)" \
+  --disallowedTools "mcp__*" \
+  --max-turns 10 \
+  --max-budget-usd 1 \
+  --output-format json < /dev/null
+```
+
+- `dontAsk` denies everything not pre-approved instead of waiting for a prompt that nobody answers.
+- `Bash(npm run test:api)` matches exactly that command; `Bash(npm run test:api *)` would also allow extra flags.
+- `--disallowedTools "mcp__*"` removes the MCP tools, but the servers still start (E2a). `--bare` skips them entirely, but it also skips CLAUDE.md and needs an `ANTHROPIC_API_KEY`.
+- Read-only shell commands still run without a rule (E2a). For a hard boundary, add the OS sandbox or run in a container.
+
+### 4. E2b reported `success`. What should a CI script check instead?
+
+`success` only means the loop ended normally. A CI script should check, in this order:
+
+1. `subtype == "success"` and `is_error == false` (otherwise: limit hit, error or crash).
+2. `permission_denials` is empty, or contains only denials you expect.
+3. **The actual outcome, independently of what the agent says:** the file exists, the tests pass, the diff matches, or the answer validates against a schema (`--json-schema`).
+
+```bash
+jq -e '.subtype == "success" and .is_error == false and (.permission_denials | length == 0)' result.json \
+  && test -f agent-check.txt
+```
+
+Never treat exit code 0 alone as task success: E2b exited with 0 although nothing was created.
