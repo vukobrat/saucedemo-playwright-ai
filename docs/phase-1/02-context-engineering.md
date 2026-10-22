@@ -230,7 +230,36 @@ In an interactive session: run `/context` to see the breakdown, `/memory` to see
 
 ## 6. Checkpoint
 
-1. After `/compact`, which instructions are guaranteed to be back, and which return only on demand?
-2. A rule has `paths: ["tests/**"]`. Does it load when the agent runs `npx playwright test tests/e2e/login.spec.ts`? When it runs `grep -n expect tests/e2e/login.spec.ts`? Why?
-3. Where do these belong, and why: "never weaken assertions"; the visual-baseline update procedure; "my Mac needs `BROWSER_CHANNEL=chrome`"; the 150-line app model?
-4. What did measuring show that estimating did not?
+### 1. After `/compact`, which instructions are guaranteed to be back, and which return only on demand?
+
+**Back automatically, re-read from disk:** the project-root `CLAUDE.md` and `CLAUDE.local.md`, unscoped rules in `.claude/rules/`, the auto-memory index, skill descriptions, a fresh git status, and the plan file in plan mode. The system prompt and tools still apply, since they were never part of the conversation. In this repo that means the guardrails, the commands, the architecture map, the definition of done and the git rules are always back. Exercise D confirmed it: the first request after compaction carried a fresh `instructions` attachment with both files.
+
+**Back only on demand:** path-scoped rules and nested `CLAUDE.md` files. They entered as attachments in message history, so the summary replaces them, and they load again only when Claude reads or edits a matching file after the compaction (or views it with one of the counting shell commands). The harness also re-reads up to five recently read or edited files, but in Exercise D that re-read of the spec did not bring `tests.md` back; the request held only the summary's paraphrase of it.
+
+**Gone:** instructions given only in chat, tool results and context added by hooks, except for what the summary chooses to keep.
+
+The practical rule: anything that must hold for the whole session cannot be path-scoped. A path-scoped rule comes back only when the agent next opens a matching file with Read or Edit.
+
+### 2. A rule has `paths: ["tests/**"]`. Does it load when the agent runs `npx playwright test tests/e2e/login.spec.ts`? When it runs `grep -n expect tests/e2e/login.spec.ts`? Why?
+
+- **`npx playwright test tests/e2e/login.spec.ts`: no.** Running a program that takes the file as an argument is not viewing the file. A rule loads on Read, Write or Edit of a matching file, or when one of the viewing commands (`cat`, `nl`, `bat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep`/`egrep`/`fgrep`, `rg`) shows its content. C8 ran `npx playwright test --list` on the spec: no rule loaded.
+- **`grep -n expect tests/e2e/login.spec.ts`: yes, exactly as written.** grep on one file, with no pipe or redirect, that prints matches counts as a read. C3 loaded `tests.md` with the spec as the trigger. Three small changes turn it into a no: a pattern with no matches (C4), a pipe (C7, `| cat`, the same 504 characters of output as C3), or a recursive search (C5).
+
+Why: rule loading reuses the harness's record of which files Claude has viewed, the same record that lets Edit skip a separate Read. Only those simple single-file commands enter that record. The consequence for QA: a fix loop that only runs tests and greps recursively never sees the test rules. That is why the guardrails are in the root and the root tells agents to change files with Read, Edit and Write.
+
+### 3. Where do these belong, and why: "never weaken assertions"; the visual-baseline update procedure; "my Mac needs `BROWSER_CHANNEL=chrome`"; the 173-line app model?
+
+- **"Never weaken assertions": the root `CLAUDE.md` (guardrails).** It must apply in every task, including fix loops that start from a CI log and a test run, which is shell work that loads no path-scoped rule. It must also survive compaction, which long fix loops reach. CLAUDE.md is still only context, not enforcement; Module 6 adds a hook that blocks test-weakening edits.
+- **The visual-baseline update procedure: `.claude/rules/visual.md` with `paths: ['tests/visual/**']`.** It is a multi-step procedure needed only when visual tests or baselines change. The one-line prohibition "never update baselines locally" stays in the root, because an agent can run `npm run test:visual:update` without touching a file under `tests/visual/`. A rarely used procedure is also a candidate for a skill (Module 5), which loads only when invoked.
+- **"My Mac needs `BROWSER_CHANNEL=chrome`": `CLAUDE.local.md` (gitignored).** It is true on one machine and wrong in CI and for every contributor, so it must not be in shared instructions; the README documents the switch for people. It costs 385 tokens per call, on this machine only. It exists only in this worktree (Module 8).
+- **The 173-line app model: `docs/app-exploration.md`, referenced by path from the root, not `@import`ed.** An import loads at launch: measured, 5,901 tokens on every call, more than twice the root CLAUDE.md and almost three times what the split saved. Referenced, it costs nothing until a task reads it.
+
+### 4. What did measuring show that estimating did not?
+
+- **The real cost was half again the estimate.** Characters divided by four put CLAUDE.md at about 3,000 tokens; it cost 4,557. This markdown, full of paths, flags and backticks, tokenizes at 2.2 to 2.7 characters per token.
+- **Where you measure from changes the base, not the difference.** The same pair of runs launched from inside a VS Code Claude session started 12,800 tokens higher because of the inherited environment; the project's cost was the same. Absolute numbers only compare within one environment.
+- **The predicted saving held, but the net saving on this machine is smaller.** The split saved 2,012 tokens per call, as predicted; `CLAUDE.local.md` adds 385 back here, which a CLAUDE.md-only estimate leaves out.
+- **Moving a rule makes it conditional, not cheaper.** `tests.md` costs 855 tokens when it loads; the saving comes only from tasks that never touch tests.
+- **The documented conditions behave sharply in practice.** The same spec text in context loaded the rule without a pipe and not with one; `npx playwright test` on the file loaded nothing.
+- **Compaction is not a free reset.** A short session was 4,300 tokens larger after `/compact`, and the next call re-wrote most of the prompt cache.
+- **The instrument needs checking too.** Turn-to-turn deltas were distorted by an MCP server that connected mid-run, while single-call runs were deterministic; the hook never reported the documented `compact` reason; and two runs that "failed" were a zsh quoting bug, not the tool.
