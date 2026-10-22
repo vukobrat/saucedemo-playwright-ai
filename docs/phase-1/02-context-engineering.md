@@ -18,13 +18,13 @@ The context window is everything the model sees on a call. It is rebuilt and re-
 
 **Memory scopes.** Managed (organization), user (`~/.claude/CLAUDE.md`, `~/.claude/rules/`), project (`CLAUDE.md` or `.claude/CLAUDE.md`, `.claude/rules/`), local (`CLAUDE.local.md`, gitignored, per worktree). They are concatenated from the filesystem root down, not overridden. Auto memory is separate: notes Claude writes itself, per repository, shared across worktrees.
 
-**A path-scoped rule loads** when Claude uses Read, Write or Edit on a matching file, or views one matching file with `cat`, `nl`, `bat`/`batcat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep` (`egrep`, `fgrep`) or `rg`, with no pipes or redirects. A search that prints no matches, any other command on the file (`wc`, `npx playwright test tests/e2e/login.spec.ts`) and a recursive `grep -r` do not load it. Exercise C verifies this with `grep`, `grep -r`, a pipe and `wc`.
+**A path-scoped rule loads** when Claude uses Read, Write or Edit on a matching file, or views one matching file with `cat`, `nl`, `bat`/`batcat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep` (`egrep`, `fgrep`) or `rg`, with no pipes or redirects. A search that prints no matches, any other command on the file (`wc`, `npx playwright test tests/e2e/login.spec.ts`) and a recursive `grep -r` do not load it. Exercise C verifies this with `grep`, `grep -r`, a pipe, `wc` and `npx playwright test --list`.
 
 **Compaction.** Near the limit (or on `/compact`), the conversation is replaced by a summary. Afterwards:
 
-| Re-injected from disk                                                                  | Back only on demand                                                                                                    | Summarized away                                                   |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Project-root CLAUDE.md, unscoped rules, auto memory, skill descriptions, the plan file | Path-scoped rules, nested CLAUDE.md (when a matching file is touched again); up to 5 recently edited files are re-read | Instructions given only in chat, tool results, earlier rule loads |
+| Re-injected from disk                                                                                      | Back only on demand                                                                                                                                 | Summarized away                                                   |
+| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Project-root CLAUDE.md and CLAUDE.local.md, unscoped rules, auto memory, skill descriptions, the plan file | Path-scoped rules, nested CLAUDE.md (when a matching file is touched again); up to 5 recently read or edited files are re-read, without their rules | Instructions given only in chat, tool results, earlier rule loads |
 
 **Subagents protect the main context.** A subagent works in its own context window; only its summary comes back. Reading a 5 MB HTML report or a long CI log there costs your session a few hundred tokens instead of everything (Module 4).
 
@@ -173,7 +173,7 @@ Repeat with `grep -n waitForTimeout tests/e2e/login.spec.ts` (no matches), `grep
 | C5 `grep -rn expect tests/e2e`              | Only the two `session_start` loads: recursive, not one file.                                                                                                                        |
 | C6 `wc -l` on the spec                      | Only the two `session_start` loads: `wc` is not in the list of viewing commands, so it stands in for "running a command on the file", like `npx playwright test`.                   |
 
-**Results (2026-10-22).** Every prediction held. A seventh run was added afterwards to separate what the agent saw from how it saw it:
+**Results (2026-10-22).** Every prediction held. Two runs were added afterwards: C7 separates what the agent saw from how it saw it, and C8 runs the command from checkpoint question 2 instead of the `wc` stand-in:
 
 | Run        | What the trace shows                                      | Loaded                                                 | Prediction                                      |
 | ---------- | --------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------- |
@@ -184,6 +184,7 @@ Repeat with `grep -n waitForTimeout tests/e2e/login.spec.ts` (no matches), `grep
 | C5         | `grep -rn expect tests/e2e`: 111 lines from 9 specs       | Session start only                                     | Held                                            |
 | C6         | `wc -l` on the spec                                       | Session start only                                     | Held                                            |
 | C7 (added) | C3's command piped through `cat`: the same 504 characters | Session start only                                     | The pipe alone prevents the load                |
+| C8 (added) | `npx playwright test --list` on the spec: 13 tests listed | Session start only                                     | Running a program on a file is not a read       |
 
 What the runs showed:
 
@@ -199,12 +200,24 @@ The hook runs asynchronously, so each run waited one second before moving its lo
 
 In an interactive session: run `/context` to see the breakdown, `/memory` to see which memory files are loaded, then `/compact focus on <topic>` and `/context` again. Which entries shrank, and which came back?
 
+**Run headlessly instead (2026-10-22).** The C2 session, which had loaded `tests.md`, was compacted with `claude -p "/compact" --resume <session id>` and then asked for a one-word answer, both with the logging hook. The session transcript stores each request, so what came back can be checked verbatim instead of asking the model:
+
+| After compaction                    | Observed                                                                                                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root `CLAUDE.md`, `CLAUDE.local.md` | Back: a fresh `instructions` attachment in the next request                                                                                              |
+| `tests/e2e/login.spec.ts`           | Re-read automatically, as a `file` attachment right after the summary                                                                                    |
+| `tests.md`                          | Not back: the re-read did not reload it. The request holds only the summary's paraphrase ("Each defect has one entry" for "Every defect gets one entry") |
+
+- **The summary kept the conventions only because the session was about them.** In a long fix loop they compete with everything else for a place in the summary. A rule that must hold goes in the root.
+- **Compacting a short session made it larger.** The next call was 32,755 tokens, against 28,466 before compaction: the 10,458-character summary plus the re-read spec outweighed the two-turn conversation they replaced. Most of the prompt (23,896 tokens) was written to the cache again, so the one-word answer cost $0.58 on top of $0.39 for the compaction. Compaction is for long sessions; `/clear` is the reset.
+- **The hook did not behave as documented.** A resumed session fired `session_start` twice per file, and no event had `load_reason: compact`. An audit built on a hook has to be checked against a real run before it is trusted.
+
 ## 4. Tradeoffs and pitfalls
 
-- **Path-scoped rules are not durable.** They live in message history, so compaction summarizes them away until a matching file is touched again. Anything that must hold for the whole session (guardrails, git rules) stays in the root CLAUDE.md.
+- **Path-scoped rules are not durable.** They live in message history, so compaction summarizes them away until a matching file is touched again. Even the automatic re-read of a recent file after compaction does not reload its rule (Exercise D). Anything that must hold for the whole session (guardrails, git rules) stays in the root CLAUDE.md.
 - **Shell-only work skips rules.** Running tests or a recursive grep does not count as reading a file, so an agent that never opens a spec may never load the test rules. In Exercise C, two runs put the same 504 characters of a spec into context; only the one without a pipe loaded the test rules.
 - **Fragmentation has a cost.** Ten small rule files are harder to keep consistent than one; contradictions between them make the model pick one at random. Split by real boundaries (tests, page objects, API, CI), not by topic for its own sake.
-- **`@import` is convenient and eager.** An imported file loads at launch on every call; reference large documents by path instead.
+- **`@import` is convenient and eager.** An imported file loads at launch on every call; reference large documents by path instead. Importing `docs/app-exploration.md` would cost 5,901 tokens on every call (measured), more than twice the whole root CLAUDE.md.
 - **`CLAUDE.local.md` is per worktree.** A gitignored local file exists only in the worktree where it was created; to share personal instructions across worktrees, import a file from your home directory.
 - **Memory can be wrong.** Auto memory is written by the model; review it like code. A stale memory is followed as confidently as a correct one.
 - **Measure, do not estimate.** A characters-divided-by-four estimate put this CLAUDE.md at about 3,000 tokens; the measured difference was about 4,600. Markdown full of paths, flags and backticks tokenizes at 2.2 to 2.7 characters per token here. The before and after measurements put the fixed overhead of the project scope at only about 40 tokens, so almost all of the cost is the text itself.
