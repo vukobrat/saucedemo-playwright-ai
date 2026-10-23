@@ -367,3 +367,20 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _Why does an agent follow conventions early in a session and ignore them later?_ Compaction replaces chat instructions and path-scoped rules with a summary; only the root CLAUDE.md, unscoped rules and auto memory are re-read from disk. Durable rules go in the root, unrelated work is separated with `/clear`, and large reads go to subagents.
 - _How do you keep an agent's context small in a large test repository?_ A short root CLAUDE.md with guardrails, path-scoped rules per area, reference docs linked rather than imported, machine-specific notes kept local, and no ambient MCP servers for focused tasks. Measure the per-call cost before and after with paired headless runs from a clean environment.
+
+### 2026-10-23 - Module 3: tools and MCP
+
+**Built** - `docs/phase-1/03-tools-mcp.md` (lesson) and `docs/phase-1/03-tools-mcp-answers.md` (worked answers, the first module where answers live in their own file). The `qa` MCP server in `src/mcp/` (SDK v2, stdio, launched via `tsx`): `find_known_bug`, `list_ci_runs`, `analyze_ci_run`, a `qa://known-bugs` resource and a `triage` prompt, registered in `.mcp.json`. Scoped the Playwright MCP permissions in `.claude/settings.json`. CI now emits a JSON report artifact. `agent:trace` shows the MCP tool count.
+
+**Concepts**
+
+- A tool is a contract (name, description, JSON Schema) the model reads; the harness runs it. MCP exposes tools (model-decided), resources (user-attached, `@server:...`) and prompts (user-invoked, `/mcp__server__prompt`).
+- Tool search is what makes many servers affordable. Measured here: 17 servers, 127 tools; tool search on costs about 5,400 tokens per call, off costs 103,771 (deferring saves about 98,000, roughly 70% of a 128k window). One server deferred is 384 tokens; upfront, 22,123.
+- Build a tool, not a prompt, when the work is deterministic over large input with a small answer, needs data or credentials the model should not hold, or wants a narrower permission than a shell. The raw CI job log marks `knownBug()` expected failures with the same cross as real failures; a tool that reads the JSON report's `expectedStatus` and `known-bug` annotation cannot miscount. For a coding agent with a shell, a CLI plus a skill often beats a server; the deciding factor here was the narrow read-only permission for unattended agents.
+- Permission rules are per tool, not per argument (`mcp__` rules with parentheses are ignored), and an MCP server runs as a separate process, outside the Read/Edit deny rules and the sandbox. Confirmed with harmless probes that Playwright's `browser_run_code_unsafe` runs in the server's host Node process; the control that works is a per-tool deny, which removes it from the toolset.
+- SDK v2 (`@modelcontextprotocol/server`) is not v1: `McpServer`, `registerTool/Resource/Prompt`, `serveStdio(factory)`. The repo is `"type": "commonjs"` with ESM-syntax TypeScript, so Node cannot run the server's `.ts` directly; a pinned `tsx` loader runs it and resolves the tsconfig aliases, keeping the catalogue a single typed source.
+
+**Interview notes**
+
+- _When do you build an MCP server instead of a script or a better prompt?_ When the answer needs data or credentials the model should not handle directly, the work is deterministic (parsing a report, joining failures to a bug catalogue), the input is large and the answer small, and several agents reuse it. Otherwise a script plus a skill is cheaper. The log-vs-report example: the log miscounts known-bug expected failures, the report tool cannot.
+- _How do you secure MCP tools for an agent in CI?_ Pass only the servers needed (`--strict-mcp-config`), allow tools individually rather than `mcp__server__*`, deny code-execution tools, pin server versions, keep tokens in environment variables, prefer read-only tools, and remember servers run outside Read/Edit deny rules and the sandbox.

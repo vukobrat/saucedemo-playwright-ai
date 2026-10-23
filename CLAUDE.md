@@ -33,6 +33,7 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `src/fixtures/` - fixtures that inject page objects, persona auth and API clients. Specs import `test` and `expect` from `@fixtures` only.
 - `src/api/` - DummyJSON clients, zod response contracts (one per endpoint), verbatim error messages.
 - `src/utils/` - small pure helpers (pricing, known bugs, auth state paths).
+- `src/mcp/` - the `qa` MCP server (SDK v2, stdio): read-only tools over the known-bug catalogue and CI results. Run with `npm run mcp:qa`; launched via `.mcp.json`. Imports the catalogue from `@data/known-bugs`, never duplicates it.
 - Pages extend `BasePage` (routed screen, `expectLoaded()`) or `AppPage` (adds header, side menu, title). Test data with randomness comes from builders fed the per-test `faker` fixture, which is seeded from the test id. Import across folders through the tsconfig aliases (`@fixtures`, `@data/*`, `@pages/*`, `@components/*`, `@utils/*`, `@config/*`).
 - `tests/{setup,e2e,personas,a11y,visual,api}/` - specs only, no raw locators.
 
