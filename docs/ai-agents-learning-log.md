@@ -420,3 +420,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _Skill vs subagent vs CLAUDE.md rule?_ CLAUDE.md for always-true conventions needed every turn; a skill for an on-demand procedure, free until invoked; a subagent when the job needs its own context, tools and model and returns only a report. They compose.
 - _How do skills keep context small?_ Progressive disclosure: only short descriptions load at startup; full instructions, reference files and scripts load when invoked (scripts executed, not read).
 - _How do you make "write a test the way our team does" repeatable?_ A `write-test` skill encoding the steps and referencing the rule files, ending in the quality gates - the onboarding doc in executable form, verified by running it.
+
+### 2026-10-24 - Module 6: slash commands and hooks
+
+**Built** - `docs/phase-1/06-commands-hooks.md` (lesson) and `docs/phase-1/06-commands-hooks-answers.md` (worked answers). A `/check` command (`.claude/skills/check/SKILL.md`) that runs the definition-of-done gates and only reports. A `PreToolUse` hook (`.claude/hooks/block-test-weakening.mjs`, registered on `Edit|Write` in `.claude/settings.json`) that blocks an edit to a spec that removes assertions or adds skip/only/fixme, `force: true` or `waitForTimeout`.
+
+**Concepts**
+
+- A slash command is a skill invoked by name (`.claude/commands/x.md` and `.claude/skills/x/SKILL.md` both make `/x`). `disable-model-invocation: true` keeps side-effect commands user-only; a read-only check can stay model-invocable.
+- A hook is code the harness runs on every matching event, not text the model may follow. Protocol: JSON on stdin; exit 0 means no objection (permissions still apply), exit 2 blocks and its stderr becomes the reason Claude reads, any other exit is a non-blocking error and the action proceeds.
+- The hook earns its place by seeing the delta: an Edit carries `old_string` and `new_string`, so it can tell one of three assertions was removed, which ESLint (final state only; `expect-expect` fires only at zero) cannot.
+- Verified live: in a fresh session, an Edit deleting the cart badge assertion from `inventory.spec.ts` was refused with the script's message and the file stayed unchanged; an Edit to a non-test file went through.
+- Probing for holes (11 inputs, plus lint from stdin): a vaguer matcher and a non-empty `try`/`catch` pass every automated layer, `sed -i` through Bash never reaches an `Edit|Write` hook, and `expect.soft` is a false alarm. Lint covers the dropped `await` and magic timeouts. Syntactic checks are a tripwire; semantic weakening is for review and evals.
+- Auto mode is its own guardrail: its classifier refused to invoke `/check` while it pre-approved `Bash(npx *)` (narrowed to `Bash(npm run *)`), refused a nested `claude` run, and refused to let the agent commit its own settings and skill changes - the human commits those.
+
+**Interview notes**
+
+- _How do you stop an agent from weakening a failing test?_ Layers: the CLAUDE.md rule, a `PreToolUse` hook on the edit delta, lint on the final state, read-only reviewer agents, human review, and evals with injected failures. Name the hook's limits: syntactic only, blind to shell writes.
+- _Hook, permission rule or CLAUDE.md?_ CLAUDE.md is a request; a permission rule is a pattern gate on tool and arguments; a hook is code that reads the whole call and can block with a reason. Use a hook when you must look at content or at what changed.
+- _Your guardrail hook crashes - what happens?_ Unless it exits 2 or sets `onFailure: "block"`, the action proceeds. Fail open for quality checks so a bug cannot wedge the team; fail closed for security checks.
