@@ -384,3 +384,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _When do you build an MCP server instead of a script or a better prompt?_ When the answer needs data or credentials the model should not handle directly, the work is deterministic (parsing a report, joining failures to a bug catalogue), the input is large and the answer small, and several agents reuse it. Otherwise a script plus a skill is cheaper. The log-vs-report example: the log miscounts known-bug expected failures, the report tool cannot.
 - _How do you secure MCP tools for an agent in CI?_ Pass only the servers needed (`--strict-mcp-config`), allow tools individually rather than `mcp__server__*`, deny code-execution tools, pin server versions, keep tokens in environment variables, prefer read-only tools, and remember servers run outside Read/Edit deny rules and the sandbox.
+
+### 2026-10-23 - Module 4: subagents
+
+**Built** - `docs/phase-1/04-subagents.md` (lesson) and `docs/phase-1/04-subagents-answers.md` (worked answers). Four subagents in `.claude/agents/`: `triage` (classifies a failure, drives the qa MCP server), `flaky-investigator` (runs a test repeatedly, decides flaky vs stable), `locator-reviewer` (haiku, read-only, reviews page objects against the locator rules), `test-gap-analyzer` (read-only, ranks coverage gaps). Each scoped to the smallest tool set and a fitting model.
+
+**Concepts**
+
+- A subagent runs the agent loop in its own isolated context with its own tools and model; only its final report returns. That is the point: large reads and long reasoning stay out of the main window, which is how triage can read a 5 MB report and hand back three lines.
+- `description` drives automatic delegation and shares a 15,000-token budget, so descriptions cost main context and must be sharp and few. `@mention` or `--agent` makes selection deterministic.
+- Tool and model scoping is least privilege per agent: the two reviewers get no Bash and no Write, so they cannot edit a test to make it pass; only triage gets the qa tools; haiku runs the mechanical review while judgment agents run the full model.
+- Scope and permission are separate layers. The `tools` field says what an agent _can_ reach; permissions still gate each call. A headless `dontAsk` run denied triage's qa tools until they were pre-approved with `--allowedTools`; interactively they would have prompted.
+- Verified each agent by running it: triage classified real CI run 40003269955 as green (0 regressions, 3 known-bug expected failures); test-gap-analyzer ranked the untested Dynamic Catalog #1 on evidence (a small eval it passed); locator-reviewer on haiku caught a real raw-string judgment call; flaky-investigator found a stable test stable and flagged performance_glitch slowness as a known bug, not flakiness.
+
+**Interview notes**
+
+- _Why run a subtask as a subagent?_ Context isolation: its big reads and long reasoning stay in its own window and only a short report returns, keeping the main context small; plus per-task tool and model scoping, which is cheaper and safer.
+- _How do you stop a fix-loop agent from cheating a test green?_ Give the reviewing or triaging agent read-only tools (no Write/Edit) so it can diagnose but not alter a test. Enforcement is the `tools` field and permissions, not an instruction in the prompt.
+- _How does Claude pick a subagent, and how do you make it reliable?_ It matches the request against the `description` fields within a shared token budget, so descriptions must be specific and distinct; `@mention` or `--agent` removes the guesswork.
