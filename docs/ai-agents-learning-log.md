@@ -402,3 +402,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _Why run a subtask as a subagent?_ Context isolation: its big reads and long reasoning stay in its own window and only a short report returns, keeping the main context small; plus per-task tool and model scoping, which is cheaper and safer.
 - _How do you stop a fix-loop agent from cheating a test green?_ Give the reviewing or triaging agent read-only tools (no Write/Edit) so it can diagnose but not alter a test. Enforcement is the `tools` field and permissions, not an instruction in the prompt.
 - _How does Claude pick a subagent, and how do you make it reliable?_ It matches the request against the `description` fields within a shared token budget, so descriptions must be specific and distinct; `@mention` or `--agent` removes the guesswork.
+
+### 2026-10-23 - Module 5: skills
+
+**Built** - `docs/phase-1/05-skills.md` (lesson) and `docs/phase-1/05-skills-answers.md` (worked answers). Two skills in `.claude/skills/`: `write-test` (add a spec following the conventions) and `add-page-object` (add a page object or component, selectors verified on the live app). Both reference the existing rules rather than duplicate them.
+
+**Concepts**
+
+- A skill is a procedure loaded on demand: a `SKILL.md` whose frontmatter says when to use it and whose body is the instructions. Progressive disclosure: only the description is always in context (truncated at 1,536 chars in the listing); the body, referenced files and scripts load only when invoked, so a long skill is nearly free until used.
+- Skill vs subagent vs slash command: a skill injects a procedure into the current agent (inline, shares context); a subagent is a separate agent with its own context/tools/model that returns a report; a slash command is just the user-invocation of a skill. They compose - a subagent can run a skill, and a skill can run as a subagent with `context: fork`.
+- Reference, do not duplicate: both skills point at `.claude/rules/tests.md`, `pages.md` and `docs/app-exploration.md` so there is one source. The skill owns the ordering and decisions, not the conventions.
+- `allowed-tools` pre-approves tools for the invoking turn; it does not restrict the toolset (unlike a subagent's `tools`, which is the toolset). A skill scopes convenience, a subagent scopes capability.
+- Verified by invoking each: `write-test` produced a conventions-clean `@regression` test (count derived from `ALL_PRODUCTS.length`, no raw locator, web-first) that passed 3/3 with lint/typecheck clean; `add-page-object` drove the live-selector workflow and used the Playwright MCP to reach the Dynamic Catalog, once the server was pinned with `--strict-mcp-config` so it connected in the headless run.
+
+**Interview notes**
+
+- _Skill vs subagent vs CLAUDE.md rule?_ CLAUDE.md for always-true conventions needed every turn; a skill for an on-demand procedure, free until invoked; a subagent when the job needs its own context, tools and model and returns only a report. They compose.
+- _How do skills keep context small?_ Progressive disclosure: only short descriptions load at startup; full instructions, reference files and scripts load when invoked (scripts executed, not read).
+- _How do you make "write a test the way our team does" repeatable?_ A `write-test` skill encoding the steps and referencing the rule files, ending in the quality gates - the onboarding doc in executable form, verified by running it.
