@@ -107,15 +107,24 @@ Three tools, all read-only (`readOnlyHint: true`, so Claude Code runs them in pa
 - **Registration:** a `qa` entry in `.mcp.json` (project scope, committed), alongside `playwright`.
 - **Secrets:** GitHub access via the ambient `gh` CLI or `${GITHUB_TOKEN}` expanded in `.mcp.json`; never a literal token, and the token is never echoed into a tool result.
 
-## Exercise C: build and verify (plan)
+## Exercise C: build and verify (built)
 
-This is the implementation step and lands as its own reviewed change, because it adds `src/mcp/`, edits `.mcp.json`, and introduces a JSON report in CI. The shape:
+Built in `src/mcp/`: `qa-server.ts` (entry and registrations), `known-bugs-index.ts` (catalogue views and the spec scan) and `ci-report.ts` (the pure classifier and the `gh` wrappers). Registered as `qa` in `.mcp.json`; `npm run mcp:qa` launches it.
 
-1. **`src/mcp/qa-server.ts`:** an SDK v2 `Server` over `StdioServerTransport`, registering the three tools with zod input schemas and `readOnlyHint: true`, the `qa://known-bugs` resource, and the `triage` prompt. All logging to `stderr`; `stdout` is the protocol. Server instructions name the known-bug and CI-triage use cases so tool search can match them.
-2. **Report input:** add `['json', { outputFile: 'report.json' }]` to the merge step (`merge-reports --reporter html,json`) and upload `report.json` as an artifact, so `analyze_ci_run` reads structured data rather than scraping logs.
-3. **Verify with the Inspector in CLI mode:** `npx @modelcontextprotocol/inspector@2.12.0 --cli node src/mcp/qa-server.ts` to list tools and call each with sample input, outside Claude, before wiring it in.
-4. **Verify headlessly:** `claude -p "Is CI run <id> a regression or a known bug?" --strict-mcp-config --mcp-config .mcp.json --allowedTools "mcp__qa__*" --permission-mode dontAsk`, then compare the answer and the context size against doing the same from `gh run view --log-failed`.
-5. **Done when:** the Inspector lists three tools and one resource; `analyze_ci_run` on run 39670242164 reports five real failures and two known-bug expected failures (not seven failures); typecheck, lint and format pass.
+**SDK v2 API actually used.** v2 is not v1. A server is `new McpServer({ name, version })`; tools are `server.registerTool(name, { description, inputSchema, outputSchema, annotations }, handler)`; `registerResource(name, uri, meta, handler)` and `registerPrompt(name, config, handler)`; and stdio is `serveStdio(() => server)` from `@modelcontextprotocol/server/stdio`, which replaces v1's `new StdioServerTransport()` plus `server.connect()`. Schemas are plain zod (`import { z } from 'zod'`, the repo's zod 4), and the handler returns `{ content, structuredContent }`, validated against `outputSchema` before it leaves the server.
+
+**The blocking finding: module format.** The repo is `"type": "commonjs"`, but every `src/*.ts` uses ESM `import`/`export` and is transpiled by Playwright or tsc, never run by Node directly. An MCP server is launched by `node`, so running `node src/mcp/qa-server.ts` fails: Node classifies the `.ts` under the commonjs package as CommonJS and chokes on `export`, and it cannot resolve the tsconfig path aliases either. The fix is a loader. I added `tsx` (pinned, a devDependency, so `npx tsx` uses the local copy with no download), and `.mcp.json` launches `npx tsx src/mcp/qa-server.ts`. tsx strips types, handles the ESM/CommonJS mismatch, and resolves `@data/known-bugs`, so the catalogue stays the single typed source. Internal imports between the `src/mcp` files are relative and extensionless, which `bundler` resolution and tsx both accept.
+
+**Two design changes found while building.** `analyze_ci_run` gained a `reportPath` input (a local JSON report) next to `runId`, so the classifier is testable without GitHub and usable on a local run. And a fifth bucket, `knownBugExposed`, covers `EXPOSE_KNOWN_BUGS=true` runs, where a known-bug test is surfaced as a real failure (`expectedStatus: "passed"`); without it, such a failure would look like a regression. The classifier keys off both `status` (outcome) and `expectedStatus`, not outcome alone.
+
+**CI report input.** The merge job now runs `merge-reports --reporter html,json` with `PLAYWRIGHT_JSON_OUTPUT_FILE=report.json` and uploads `report.json` as the `playwright-report-json` artifact (14-day retention). `analyze_ci_run` downloads it by run id with `gh run download`. This works from the next CI run onward; the one historical failed run (39670242164) predates the artifact, so its `runId` path has nothing to download.
+
+**Verification done:**
+
+- MCP Inspector CLI (`npx @modelcontextprotocol/inspector@2.12.0 --cli --method tools/list -- node_modules/.bin/tsx src/mcp/qa-server.ts`): lists the three tools with `readOnlyHint`, and each tool, the `qa://known-bugs` resource (26 entries) and the `triage` prompt return correctly. The `--tool-arg` option is variadic, so the server command needs a `--` separator before it.
+- Classifier against a real report captured with the JSON reporter: 1 known-bug expected failure (SD-002), 0 regressions, as expected. Against a synthetic report exercising all five buckets: 1 regression (ANSI stripped from the message), 1 flaky, 1 probably-fixed, 1 exposed, 1 plain pass ignored.
+- Headless Claude Code over `--strict-mcp-config --mcp-config .mcp.json --allowedTools "mcp__qa__*"`: both servers connect, tool search defers `qa` and loads `find_known_bug` through `ToolSearch`, and the run returns the six `error_user` bugs. stdout stayed clean (the protocol worked), confirming the stdio discipline.
+- `npm run typecheck`, `lint`, `format:check` and `check:versions` all pass.
 
 ## Exercise D: review the Playwright MCP permissions
 
@@ -127,14 +136,14 @@ This is a security finding on this repo's own configuration; it is kept to the c
 
 **Why the `.env` deny rule is not enough:** it is a rule on Claude's own tools, and a tool that executes code is a general-purpose capability behind a single permission. The allow rule cannot see arguments (Claude Code ignores `mcp__` rules with parentheses), so `mcp__playwright__*` cannot be narrowed to "only safe snippets". The control that works is denying the specific tool.
 
-**Proposed rule set (needs your approval, changes `.claude/settings.json` and `.mcp.json`):**
+**Applied rule set (committed to `.claude/settings.json`):**
 
-- **Deny:** `mcp__playwright__browser_run_code_unsafe`. Verified that a deny rule removes the tool from the toolset entirely: in a run with it denied, the tool was absent and could not be called. This is the one that matters.
-- **Replace the blanket `mcp__playwright__*` allow** with the specific read/interaction tools the exploration work actually uses: `browser_snapshot`, `browser_navigate`, `browser_click`, `browser_type`, `browser_fill_form`, `browser_select_option`, `browser_hover`, `browser_press_key`, `browser_wait_for`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`, `browser_find`. These cover selector verification without a general code-execution or file capability.
-- **Ask (not deny)** for `browser_evaluate` and `browser_file_upload`: both are occasionally useful for exploration but can read page internals or send a local file, so a person should confirm each use.
-- **Server flags in `.mcp.json`:** keep `--isolated`; add `--blocked-origins` for anything the exploration browser should never reach, while noting the README's warning that the origin lists are "not a security boundary" and do not affect redirects, so they are a guardrail against accidents, not a control against a hostile page. The real boundary is denying the code-execution tool.
+- **Deny:** `mcp__playwright__browser_run_code_unsafe`. Verified that a deny rule removes the tool from the toolset entirely: in a run with it denied, the tool was absent (24 Playwright tools instead of 25) and could not be called. This is the one that matters.
+- **Replaced the blanket `mcp__playwright__*` allow** with the specific read/interaction tools exploration uses: `browser_snapshot`, `browser_navigate`, `browser_navigate_back`, `browser_click`, `browser_type`, `browser_fill_form`, `browser_select_option`, `browser_hover`, `browser_press_key`, `browser_wait_for`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`, `browser_find`, `browser_tabs`, `browser_resize`. These cover selector verification without a general code-execution or file capability.
+- **Ask (not deny)** for `browser_evaluate` and `browser_file_upload`: both are useful for exploration but can read page internals or send a local file, so a person confirms each use, and an unattended `dontAsk` run cannot use them silently. (`browser_evaluate` is in the `pages.md` verification workflow; it now prompts once per use.)
+- **Server flags:** kept `--isolated`. I did **not** add `--blocked-origins`: the README is explicit that the origin lists are "not a security boundary" and do not affect redirects, and there is no specific origin to block for saucedemo exploration, so it would be false reassurance. The real boundary is the per-tool deny above.
 
-The blanket allow was convenient for Phase 0 exploration. For an unattended agent, the combination of a code-execution tool and auto-approval is exactly the "untrusted output plus powerful tools" risk from the lesson, so it is worth narrowing before Module 4 adds subagents that run on their own.
+The blanket allow was convenient for Phase 0 exploration. For an unattended agent, the combination of a code-execution tool and auto-approval is exactly the "untrusted output plus powerful tools" risk from the lesson, so it was narrowed before Module 4 adds subagents that run on their own.
 
 ## Checkpoint
 
