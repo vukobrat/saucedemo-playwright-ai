@@ -2,6 +2,8 @@
 
 Verified on 2026-10-22 against the Claude Code docs for v2.1.308 ("Tools reference", "Connect Claude Code to tools via MCP", "Configure permissions"), the MCP specification revision 2026-07-28, the MCP TypeScript SDK v2 (`@modelcontextprotocol/server` 2.3.1) and the `@playwright/mcp` 0.0.83 README.
 
+Worked answers to every exercise and the checkpoint, with measured results, are in [03-tools-mcp-answers.md](03-tools-mcp-answers.md).
+
 ## 1. Concept
 
 **A tool is a contract the model reads:** a name, a description and a JSON Schema for the input. The model never runs anything. It emits a tool call; the harness checks permissions, executes, and returns the result as the next message (Module 1). The definition costs context on every call, the result once, until compaction.
