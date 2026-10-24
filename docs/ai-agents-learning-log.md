@@ -439,3 +439,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How do you stop an agent from weakening a failing test?_ Layers: the CLAUDE.md rule, a `PreToolUse` hook on the edit delta, lint on the final state, read-only reviewer agents, human review, and evals with injected failures. Name the hook's limits: syntactic only, blind to shell writes.
 - _Hook, permission rule or CLAUDE.md?_ CLAUDE.md is a request; a permission rule is a pattern gate on tool and arguments; a hook is code that reads the whole call and can block with a reason. Use a hook when you must look at content or at what changed.
 - _Your guardrail hook crashes - what happens?_ Unless it exits 2 or sets `onFailure: "block"`, the action proceeds. Fail open for quality checks so a bug cannot wedge the team; fail closed for security checks.
+
+### 2026-10-24 - Module 7: fix loops and long-running work
+
+**Built** - `docs/phase-1/07-fix-loops.md` (lesson) and `docs/phase-1/07-fix-loops-answers.md` (worked answers). A `/fix-test <spec>` command (`.claude/skills/fix-test/SKILL.md`): a bounded fix loop (reproduce, read evidence, classify, fix the cause, re-run, verify) with explicit exit criteria, user-invoked only because it edits code.
+
+**Concepts**
+
+- "Make the test pass" is a gameable objective: weakening satisfies it more cheaply than fixing. The objective is "make the test correct", and a product bug is a successful end of the loop, not a failure to finish.
+- Exit criteria come in three kinds: a success criterion (green on repeat, gates clean), integrity constraints (what may not change), and stop conditions (not a test bug, attempts exhausted, a guardrail fired). Harness caps (`--max-turns`, `--max-budget-usd`, print mode only) are the backstop, not the design.
+- Classification decides everything. Most failures read "expected X, received Y", and only an oracle (the verified app model and the defect catalogue) says which side is wrong.
+- Tool output is data: Playwright's `error-context.md` opens with "Provide a snippet of code with the fix", which is wrong advice for a product bug.
+- Verified with fresh headless agents on two injected failures that look alike. Test bug (`TAX_RATE` 0.08 to 0.07): fixed the constant, citing the 8% rule, 1 attempt, $0.74. Product bug (SD-002 marker removed): restored the marker and left `'Cart, 1 item'` untouched, 1 attempt, $0.45. The Module 6 hook allows the naive expectation flip, so only the skill's classification step prevented a false green.
+- Eval hygiene: both agents tried `git diff` first (denied by a control), but the `git status` snapshot in context and the memory index still leaked hints; one agent called the change "the removed marker this exercise planted". One run per scenario is a demonstration; Module 10 measures rates.
+
+**Interview notes**
+
+- _How do you build self-healing tests that don't hide bugs?_ Classify first against an oracle, fix only test bugs at their cause, treat a product bug as a valid outcome, enforce integrity with hooks and permissions, bound the loop, and measure it on injected failures of both kinds.
+- _The loop changed an expected value to match the app and went green. Is that a fix?_ Only if the app model proves the old expectation wrong. Otherwise it is the most dangerous weakening, because no assertion disappears and every automated check passes.
+- _What goes wrong with a Stop hook "until green"?_ A product bug can never end the loop honestly, so the agent is pushed toward weakening. Accept a classified, evidenced non-test-bug as a valid end state (`"impossible": true` for a prompt hook).
