@@ -5,7 +5,7 @@ description: >-
   tests) and report which passed. Use before pushing or opening a PR, or when asked whether a
   change is ready.
 argument-hint: '[spec path, e.g. tests/e2e/cart.spec.ts; omit to run the smoke suite]'
-allowed-tools: Bash(npm run *), Bash(npx *)
+allowed-tools: Bash(npm run *)
 ---
 
 # Check: is this change ready?
