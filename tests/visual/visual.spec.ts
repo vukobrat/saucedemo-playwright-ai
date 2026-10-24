@@ -27,7 +27,7 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
 
     await expect(page).toHaveScreenshot('inventory.png', {
       fullPage: true,
-      mask: [inventoryPage.footerCopy],
+      mask: [inventoryPage.footer.copyright],
     });
   });
 
@@ -37,7 +37,7 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
 
     await expect(page).toHaveScreenshot('product-details.png', {
       fullPage: true,
-      mask: [productDetailsPage.footerCopy],
+      mask: [productDetailsPage.footer.copyright],
     });
   });
 
@@ -49,7 +49,7 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
 
     await expect(page).toHaveScreenshot('cart.png', {
       fullPage: true,
-      mask: [cartPage.footerCopy],
+      mask: [cartPage.footer.copyright],
     });
   });
 
@@ -68,7 +68,7 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
 
     await expect(page).toHaveScreenshot('checkout-overview.png', {
       fullPage: true,
-      mask: [checkoutOverviewPage.footerCopy],
+      mask: [checkoutOverviewPage.footer.copyright],
     });
   });
 
@@ -93,7 +93,7 @@ test.describe('Visual regression', { tag: '@visual' }, () => {
 
       await expect(page).toHaveScreenshot('inventory.png', {
         fullPage: true,
-        mask: [inventoryPage.footerCopy],
+        mask: [inventoryPage.footer.copyright],
       });
     });
   });

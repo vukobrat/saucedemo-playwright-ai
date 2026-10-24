@@ -53,7 +53,7 @@ The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'dat
 - **Checkout information:** `firstName`, `lastName`, `postalCode` (placeholders "First Name", "Last Name", "Zip/Postal Code"), `cancel`, `continue`, `error`.
 - **Checkout overview:** `cart-list`, `payment-info-value` ("SauceCard #31337"), `shipping-info-value` ("Free Pony Express Delivery!"), `subtotal-label`, `tax-label`, `total-label`, `cancel`, `finish`.
 - **Checkout complete:** `checkout-complete-container` holding `complete-header` (`<h2>` "Thank you for your order!", the only heading on the page) and `complete-text`, plus `pony-express` (image), `back-to-products`, `generate-pdf-order`.
-- **Footer:** `footer`, `social-x`, `social-facebook`, `social-linkedin`, `footer-copy` (contains the current year; mask it in screenshots).
+- **Footer:** `footer` (`<footer>`, role contentinfo), `social-x`, `social-facebook`, `social-linkedin`, `footer-copy` (contains the current year; mask it in screenshots). The social test ids sit on the `<a>` elements themselves (accessible names "X", "Facebook", "LinkedIn"; `href` `https://x.com/saucelabs`, `https://www.facebook.com/saucelabs`, `https://www.linkedin.com/company/sauce-labs/`), all with `target="_blank" rel="noreferrer"`. The copyright reads `© <year> Sauce Labs. All Rights Reserved. Terms of Service | Privacy Policy`; the year is `new Date().getFullYear()` in the browser, and "Terms of Service" and "Privacy Policy" are plain text, not links (verified 2026-10-24).
 
 ### Selector traps
 
