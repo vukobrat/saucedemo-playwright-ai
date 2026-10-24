@@ -195,7 +195,7 @@ This repository is built and maintained with AI coding agents (Claude Code) as a
 
 - **Project memory:** a short [`CLAUDE.md`](CLAUDE.md) holds the cross-cutting conventions and guardrails, each with a reason; path-scoped rules in [`.claude/rules/`](.claude/rules/) (page objects, tests, API, visual, CI) load only when an agent works on matching files; the verified app model in [`docs/app-exploration.md`](docs/app-exploration.md) is referenced, not imported, to keep agent context small.
 - **Grounded in the real app:** the Playwright MCP server (pinned version, isolated profile, `data-test` as test id) lets agents verify selectors on the live site instead of guessing.
-- **Guardrails:** shared permission rules deny reading `.env`, merging pull requests and force pushes; lint and hooks reject the usual ways of making a red check green (suppressions without reasons, hard waits, raw locators); CLAUDE.md forbids weakening assertions.
+- **Guardrails:** shared permission rules deny reading `.env`, merging pull requests and force pushes; lint and hooks reject the usual ways of making a red check green (suppressions without reasons, hard waits, raw locators); CLAUDE.md forbids weakening assertions, and a Claude Code `PreToolUse` hook blocks agent edits that remove assertions from a spec or add `skip`, `only` or `fixme`.
 - **Evaluation data:** the known-bug catalogue turns the deliberately broken personas into labelled failures for measuring how well an agent classifies test failures.
 - **Learning log:** [`docs/ai-agents-learning-log.md`](docs/ai-agents-learning-log.md) records each step, the concepts involved, the mistakes made and how they were caught.
 
