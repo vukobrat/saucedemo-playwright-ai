@@ -458,3 +458,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How do you build self-healing tests that don't hide bugs?_ Classify first against an oracle, fix only test bugs at their cause, treat a product bug as a valid outcome, enforce integrity with hooks and permissions, bound the loop, and measure it on injected failures of both kinds.
 - _The loop changed an expected value to match the app and went green. Is that a fix?_ Only if the app model proves the old expectation wrong. Otherwise it is the most dangerous weakening, because no assertion disappears and every automated check passes.
 - _What goes wrong with a Stop hook "until green"?_ A product bug can never end the loop honestly, so the agent is pushed toward weakening. Accept a classified, evidenced non-test-bug as a valid end state (`"impossible": true` for a prompt hook).
+
+### 2026-10-25 - Module 8: worktrees and parallelism
+
+**Built** - `docs/phase-1/08-worktrees.md` (lesson) and `docs/phase-1/08-worktrees-answers.md` (worked answers). `.claude/worktrees/` excluded from git, Prettier, ESLint and `tsc`; a `.worktreeinclude` that copies `.env` and `CLAUDE.local.md` into new worktrees; a CLAUDE.md line on parallel work. As a by-product of the parallel run, footer coverage in its own PR (#22).
+
+**Concepts**
+
+- Parallel agents need separate working trees: one checkout means one set of files, one index, one `HEAD` and one `test-results/`. A git worktree gives each agent its own, sharing only the object store and refs.
+- Claude Code: `claude --worktree <name>` creates `.claude/worktrees/<name>/` on `worktree-<name>` from the remote default branch; `.worktreeinclude` copies gitignored files; subagents can run with `isolation: worktree`; inside a worktree, edits and commands aimed at the main checkout are refused; `-p` runs leave their worktrees locked behind.
+- A nested worktree is in scope for the main checkout's tools unless excluded: ESLint linted 63 duplicate files, and one unused variable in a worktree failed the main checkout's lint. It also resolves the parent's `node_modules`, which is convenient until a branch changes dependencies.
+- The copied `.env` stays under `Read(./.env)` only while the worktree is nested; a decoy outside the project was readable.
+- Verified with two headless agents at once: a fix loop repaired injected selector drift (and noticed that every `toBeHidden()` badge check had passed vacuously), while a coverage agent wrote five footer tests verified on the live app. 576 s wall versus 943 s back to back; contention visible even at one worker each; no conflicts.
+- A skill's `allowed-tools` widens a headless allowlist: under the same flags, the `write-test` agent ran `curl` (its skill pre-approves `Bash`) while the `fix-test` agent was refused. Only explicit denies held.
+
+**Interview notes**
+
+- _How do you run several coding agents on one repo without chaos?_ One worktree and one branch per agent, copy only the gitignored files each needs, exclude worktrees from the main checkout's tooling, budget CPU, workers and cost, split work by area, and review each branch.
+- _What does a worktree isolate, and what not?_ Files, index, `HEAD` and per-checkout artifacts. Not the object store, not gitignored files (until copied), not the machine, and not the system under test or its data.
+- _What is the subtle danger of a stale selector?_ Positive assertions fail loudly, but negative ones (`toBeHidden`, `toHaveCount(0)`) pass silently, because a locator that matches nothing is always hidden.
