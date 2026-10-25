@@ -11,7 +11,15 @@ import tseslint from 'typescript-eslint';
 const SUITE_TAGS = ['@smoke', '@regression', '@persona', '@a11y', '@visual', '@api'];
 
 export default defineConfig(
-  globalIgnores(['test-results/', 'playwright-report/', 'blob-report/', '.auth/']),
+  // .claude/worktrees/ holds full checkouts for parallel agents; their work in progress must not
+  // fail this checkout's lint.
+  globalIgnores([
+    'test-results/',
+    'playwright-report/',
+    'blob-report/',
+    '.auth/',
+    '.claude/worktrees/',
+  ]),
 
   {
     linterOptions: { reportUnusedDisableDirectives: 'error' },

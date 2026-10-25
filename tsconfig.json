@@ -31,5 +31,11 @@
     }
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "test-results", "playwright-report", "blob-report"]
+  "exclude": [
+    "node_modules",
+    "test-results",
+    "playwright-report",
+    "blob-report",
+    ".claude/worktrees"
+  ]
 }
