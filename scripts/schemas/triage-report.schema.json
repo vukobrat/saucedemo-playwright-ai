@@ -1,0 +1,44 @@
+{
+  "title": "CI triage report",
+  "description": "What the triage agent returns for one CI run (claude -p --json-schema).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["runId", "verdict", "summary", "expectedKnownBugFailures", "failures"],
+  "properties": {
+    "runId": { "type": "string", "description": "The GitHub Actions run id that was triaged." },
+    "verdict": {
+      "enum": ["green", "needs-attention", "infrastructure", "inconclusive"],
+      "description": "green: no failure needs an owner action (expected known-bug failures are normal). needs-attention: at least one does. infrastructure: the run broke before tests could report. inconclusive: the report could not be read or classified."
+    },
+    "summary": { "type": "string", "description": "Two or three sentences for a person." },
+    "expectedKnownBugFailures": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tests that failed as expected under a knownBug() marker."
+    },
+    "failures": {
+      "type": "array",
+      "description": "Failures that need an owner action, grouped by cause.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tests", "category", "evidence", "action"],
+        "properties": {
+          "tests": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "category": {
+            "enum": ["known-product-bug", "new-product-bug", "test-bug", "environment", "flaky"]
+          },
+          "knownBugId": {
+            "type": "string",
+            "description": "SD-xxx or DJ-xxx when the cause is catalogued."
+          },
+          "evidence": {
+            "type": "string",
+            "description": "The one line that decides the category."
+          },
+          "action": { "type": "string", "description": "What the owner should do next." }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "title": "Locator review",
+  "description": "What the locator-reviewer agent returns for the page objects and components a PR changes (claude -p --json-schema).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "summary", "findings"],
+  "properties": {
+    "verdict": { "enum": ["clean", "findings"] },
+    "summary": { "type": "string", "description": "One or two sentences for the PR author." },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "line", "severity", "rule", "message"],
+        "properties": {
+          "file": { "type": "string", "description": "Repository-relative path." },
+          "line": { "type": "integer", "minimum": 1 },
+          "severity": { "enum": ["must-fix", "should-fix", "judgment"] },
+          "rule": {
+            "type": "string",
+            "description": "The rule in .claude/rules/pages.md the finding is about."
+          },
+          "message": { "type": "string" },
+          "suggestion": { "type": "string", "description": "The locator or change to use instead." }
+        }
+      }
+    }
+  }
+}
