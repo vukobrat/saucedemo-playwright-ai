@@ -5,7 +5,7 @@ description: >-
   selectors on the live app, expose readonly locators and intent methods, and follow the locator
   rules. Use when a new screen or shared UI needs a page object, or an existing one needs locators.
 argument-hint: <the screen or component, e.g. "dynamic catalog lazy-load page">
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_click
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash(npm run *), mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_click
 ---
 
 # Add a page object
