@@ -1,0 +1,9 @@
+# Gitignored files Claude Code copies into every worktree it creates (claude --worktree, isolated
+# subagents). Only files that are also gitignored are copied. Worktrees stay under .claude/worktrees/,
+# where the Read(./.env) deny rule still covers the copy.
+
+# Test credentials: without them src/config/env.ts stops every run.
+.env
+
+# This machine's facts (browser channel, worker limit); a worktree agent needs them too.
+CLAUDE.local.md
