@@ -19,6 +19,9 @@ node_modules/
 .claude/settings.local.json
 CLAUDE.local.md
 
+# Claude Code worktrees for parallel sessions (claude --worktree, isolated subagents)
+/.claude/worktrees/
+
 # Playwright MCP session output (snapshots, console logs)
 /.playwright-mcp/
 
