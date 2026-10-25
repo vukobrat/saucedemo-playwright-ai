@@ -5,7 +5,7 @@ description: >-
   tags, typed data, web-first assertions, and the knownBug marker for defects. Use when asked to
   add a test, cover a feature or flow, or write a spec in tests/.
 argument-hint: <what to test, e.g. "cart badge updates when removing an item">
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash(npm run *)
 ---
 
 # Write a Playwright test
