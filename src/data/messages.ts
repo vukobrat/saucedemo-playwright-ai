@@ -28,6 +28,27 @@ export const LINKS = {
   about: 'https://saucelabs.com/',
 } as const;
 
+/** A footer social link: accessible name and target. */
+export interface SocialLink {
+  readonly name: string;
+  readonly href: string;
+}
+
+export const SOCIAL_LINKS = {
+  x: { name: 'X', href: 'https://x.com/saucelabs' },
+  facebook: { name: 'Facebook', href: 'https://www.facebook.com/saucelabs' },
+  linkedin: { name: 'LinkedIn', href: 'https://www.linkedin.com/company/sauce-labs/' },
+} as const satisfies Record<string, SocialLink>;
+
+/** Every footer social link, in display order. */
+export const ALL_SOCIAL_LINKS: readonly SocialLink[] = Object.values(SOCIAL_LINKS);
+
+export const FOOTER = {
+  /** The app renders the year from the browser clock. */
+  copyright: (year: number) =>
+    `© ${year} Sauce Labs. All Rights Reserved. Terms of Service | Privacy Policy`,
+} as const;
+
 /** Product details page for an unknown product id. */
 export const PRODUCT_NOT_FOUND = 'ITEM NOT FOUND';
 
