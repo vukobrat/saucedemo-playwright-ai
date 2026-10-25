@@ -22,6 +22,7 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `npm run lint` / `npm run lint:fix` - ESLint with type-aware and Playwright rules, zero warnings allowed. Why: most conventions in these rules are enforced here, not just written down.
 - `npm run format` / `npm run format:check` - Prettier. `npm run check:versions` - Playwright package equals the Dockerfile image tag.
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
+- Parallel work: one `claude --worktree <name>` per agent, under `.claude/worktrees/` (excluded from git, lint and tsc); `.worktreeinclude` copies `.env` and `CLAUDE.local.md` in. Agents running tests at the same time share the machine's worker budget. Why: agents in one checkout overwrite each other's files, index and test results.
 - Never invent a script that is not in `package.json`.
 
 ## Architecture (where code goes)
