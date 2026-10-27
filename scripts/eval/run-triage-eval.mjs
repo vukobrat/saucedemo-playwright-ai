@@ -179,6 +179,7 @@ const perRepeat = Array.from({ length: repeats }, (_, repeat) => {
     idTotal: withId.length,
     idCorrect: withId.filter((r) => r.knownBugIdCorrect).length,
     critical: rows.filter((r) => r.critical).length,
+    noAnswer: rows.filter((r) => !r.answer).length,
     costUsd: rows.reduce((sum, r) => sum + (r.meta?.costUsd ?? 0), 0),
     judged: rows.filter((r) => r.verdict).length,
     judgePassed: rows.filter((r) => r.verdict?.pass).length,
@@ -191,22 +192,36 @@ const passed = perRepeat.every(
     (m.idTotal === 0 || m.idCorrect / m.idTotal >= gate.minKnownBugIdAccuracy) &&
     m.critical <= gate.maxCriticalErrors,
 );
+// A run that got no answer (a usage limit, an outage) says nothing about the agent's judgment.
+// It still fails the job, because the agent was not fully measured, but it must not read as a
+// drop in accuracy.
+const unanswered = results.filter((r) => !r.answer);
+const verdict = unanswered.length > 0 ? 'INCONCLUSIVE' : passed ? 'PASS' : 'FAIL';
+const reasons = [...new Set(unanswered.map((r) => r.error ?? 'unknown'))];
 
 const lines = [
   `## Triage eval: ${String(cases.length)} cases x ${String(repeats)} repeat(s)`,
   '',
-  `**Gate: ${passed ? 'PASS' : 'FAIL'}** (category accuracy >= ${String(100 * gate.minCategoryAccuracy)}%, ` +
+  `**Gate: ${verdict}** (category accuracy >= ${String(100 * gate.minCategoryAccuracy)}%, ` +
     `known-bug id accuracy >= ${String(100 * gate.minKnownBugIdAccuracy)}%, ` +
     `critical errors <= ${String(gate.maxCriticalErrors)}, in every repeat). Model ${options.model}` +
     (options['no-tools'] ? ', no tools' : '') +
     (options.instructions ? `, instructions ${options.instructions}` : '') +
     `, golden set built from ${golden.builtFrom}.`,
+  ...(unanswered.length > 0
+    ? [
+        '',
+        `${String(unanswered.length)} of ${String(results.length)} runs got no answer, so the agent ` +
+          `was not fully measured. Re-run when the cause is gone: ${reasons.join('; ')}`,
+      ]
+    : []),
   '',
   `| Metric | ${perRepeat.map((_, i) => `Repeat ${String(i + 1)}`).join(' | ')} |`,
   `| --- | ${perRepeat.map(() => '---').join(' | ')} |`,
   `| Category accuracy | ${perRepeat.map((m) => percent(m.categoryCorrect, m.total)).join(' | ')} |`,
   `| Known-bug id accuracy | ${perRepeat.map((m) => percent(m.idCorrect, m.idTotal)).join(' | ')} |`,
   `| Critical errors (product bug called test bug) | ${perRepeat.map((m) => String(m.critical)).join(' | ')} |`,
+  `| No answer (not the agent's judgment) | ${perRepeat.map((m) => String(m.noAnswer)).join(' | ')} |`,
   `| Evidence judged adequate (${JUDGE_MODEL}) | ${perRepeat.map((m) => (m.judged ? percent(m.judgePassed, m.judged) : 'not run')).join(' | ')} |`,
   `| Estimated cost | ${perRepeat.map((m) => `$${m.costUsd.toFixed(2)}`).join(' | ')} |`,
   '',
@@ -220,15 +235,15 @@ const lines = [
     return `| ${label} | ${counts.join(' | ')} |`;
   }),
 ];
-const misses = results.filter((r) => !r.categoryCorrect || r.knownBugIdCorrect === false);
+const misses = results.filter(
+  (r) => r.answer && (!r.categoryCorrect || r.knownBugIdCorrect === false),
+);
 if (misses.length > 0) {
   lines.push('', '| Missed case | Label | Answer | Evidence |', '| --- | --- | --- | --- |');
   for (const miss of misses) {
     const label = [miss.label.category, miss.label.knownBugId].filter(Boolean).join(' ');
-    const answer = miss.answer
-      ? [miss.answer.category, miss.answer.knownBugId].filter(Boolean).join(' ')
-      : `no answer: ${miss.error ?? ''}`;
-    const evidence = (miss.answer?.evidence ?? '').replace(/\|/g, '\\|').replace(/\s+/g, ' ');
+    const answer = [miss.answer.category, miss.answer.knownBugId].filter(Boolean).join(' ');
+    const evidence = miss.answer.evidence.replace(/\|/g, '\\|').replace(/\s+/g, ' ');
     lines.push(`| ${miss.id} #${String(miss.repeat + 1)} | ${label} | ${answer} | ${evidence} |`);
   }
 }
@@ -237,8 +252,8 @@ mkdirSync(OUT_DIR, { recursive: true });
 const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 writeFileSync(
   `${OUT_DIR}/triage-${stamp}.json`,
-  `${JSON.stringify({ perRepeat, passed, results }, null, 2)}\n`,
+  `${JSON.stringify({ verdict, perRepeat, results }, null, 2)}\n`,
 );
 writeFileSync(`${OUT_DIR}/triage-latest.md`, `${lines.join('\n')}\n`);
 console.log(lines.join('\n'));
-process.exit(passed ? 0 : 1);
+process.exit(verdict === 'PASS' ? 0 : 1);
