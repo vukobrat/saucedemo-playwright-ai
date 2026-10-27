@@ -24,6 +24,7 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
 - Parallel work: one `claude --worktree <name>` per agent, under `.claude/worktrees/` (excluded from git, lint and tsc); `.worktreeinclude` copies `.env` and `CLAUDE.local.md` in. Agents running tests at the same time share the machine's worker budget. Why: agents in one checkout overwrite each other's files, index and test results.
 - `npm run agent:triage -- <run-id>` / `npm run agent:review -- <pr-number>` - the CI agents (nightly triage, `ai-review` label), run locally with `gh` and a Claude login. Why: an agent result in CI must be reproducible with one command, like any check.
+- `npm run eval:triage` - the triage agent on the golden set in `evals/triage/`, gated (`-- --repeat 3` for consistency, `--judge` for an evidence check). `eval:triage:build` rebuilds the set from real runs (no model calls); review its labels before committing. Why: an agent change is only an improvement if the eval says so.
 - Never invent a script that is not in `package.json`.
 
 ## Architecture (where code goes)
@@ -38,6 +39,7 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - `src/mcp/` - the `qa` MCP server (SDK v2, stdio): read-only tools over the known-bug catalogue and CI results. Run with `npm run mcp:qa`; launched via `.mcp.json`. Imports the catalogue from `@data/known-bugs`, never duplicates it.
 - Pages extend `BasePage` (routed screen, `expectLoaded()`) or `AppPage` (adds header, side menu, title). Test data with randomness comes from builders fed the per-test `faker` fixture, which is seeded from the test id. Import across folders through the tsconfig aliases (`@fixtures`, `@data/*`, `@pages/*`, `@components/*`, `@utils/*`, `@config/*`).
 - `tests/{setup,e2e,personas,a11y,visual,api}/` - specs only, no raw locators.
+- `evals/triage/` - eval data: code states and runs (`config.json`) and the reviewed golden set (`golden.json`); the tooling is in `scripts/eval/`. Never let an evaluated agent see these files: the runner removes them from its checkout.
 
 Why: a predictable map prevents duplicate abstractions when several agents or people add code in parallel.
 
