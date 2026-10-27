@@ -496,3 +496,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How do you run an AI agent in CI safely?_ As a check: pinned CLI, read-only tools, `dontAsk` with an allowlist, caps, only the MCP servers needed, schema output acted on by deterministic code, no write token for the agent, gated triggers, secrets in the CI store, and the same command runnable locally.
 - _Why structured output instead of letting the agent post?_ Judgment and action are separated: the result is machine-checkable, the posting is reviewable code, and injection yields at most a wrong report.
 - _Your CI triage agent was confidently vague. Why?_ Check which code it read. A `workflow_run` job checks out the default branch, not the commit that failed.
+
+### 2026-10-27 - Module 10: evals
+
+**Built** - `docs/phase-1/10-evals.md` (lesson) and `docs/phase-1/10-evals-answers.md` (worked answers). A triage eval: `evals/triage/config.json` (code states, runs, gate), a reviewed golden set of 35 real failures (`golden.json`), a biased mutant, and `scripts/eval/` (an isolated checkout, a builder that makes no model calls, a graded and gated runner). `npm run eval:triage`, `eval:triage:build`, `eval:triage:check`; a Triage eval workflow; the state check in CI's quality job. One sentence added to the triage agent after the eval found its weakness.
+
+**Concepts**
+
+- An eval is a test suite for an agent: a golden set, the agent, a grader. The subject is non-deterministic, so repeat and report rates, per-class confusion, a separate zero gate for the costly error (product bug called test bug), and cost per case.
+- Decide in code what code can decide (flaky, expected known-bug failures); evaluate the model only on what needs judgment. Grade deterministically where there is one right answer; an LLM judge for free text reports, it does not gate. Here its four rejections were all honest hedges.
+- The golden set came from real runs: 25 known-bug tests with their markers stripped gave 21 labelled product-bug cases at no labelling cost, plus injected test bugs and environment faults. The labels were reviewed, which removed a duplicate and an over-claiming reference fact.
+- Isolation is the hard part. Git status, history, auto memory (shared across worktrees), the lessons describing injections, the directory name and code seams all leaked or could have. The checkout is a `git archive` export in a neutral temp directory with leak files removed and auto memory off. The agent still found a stripping seam, which was then fixed.
+- Evaluate the eval. On 33 clean cases: real agent 100%, a "test-first" biased prompt 97%, Haiku 100% at $0.12 versus $1.35, no tools 36% with three critical errors (its SauceDemo priors overrode the tests). Saturated: it guards but cannot rank. Two confusable cases (a test bug that mimics SD-202) dropped Sonnet to 1 in 6; one instruction sentence made it 6 in 6, and the full set showed no regression. A single miss turned out to be noise, after five runs each with the old and new instructions.
+
+**Interview notes**
+
+- _How would you evaluate an agent that triages test failures?_ Real labelled failures, the label kept out of the agent's reach, the real agent in an isolated checkout, deterministic grading, a separate gate for the costly error, repeats, and a CI rerun whenever the agent or its inputs change.
+- _Your eval says 100%. What now?_ Look for leaks in the evidence, calibrate the judge, run variants that should fail, and add cases where the obvious reading is wrong.
+- _Deterministic or LLM-as-judge?_ Deterministic wherever one answer is right, so it can gate. A judge only for free text, calibrated against your own reading, reported rather than gated.
