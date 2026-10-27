@@ -1,0 +1,76 @@
+name: Triage eval
+
+# Regression eval for the triage agent: runs it on the golden set (evals/triage/golden.json) and
+# fails when the gate in evals/triage/config.json fails. It runs when anything the agent's answers
+# depend on changes: its instructions, the qa server, the catalogue, the app model or the eval.
+# Same command locally: npm run eval:triage.
+on:
+  pull_request:
+    paths:
+      - .claude/agents/triage.md
+      - scripts/lib/claude-headless.mjs
+      - scripts/eval/**
+      - scripts/schemas/triage-case.schema.json
+      - evals/triage/**
+      - src/mcp/**
+      - src/data/known-bugs.ts
+      - docs/app-exploration.md
+      - .github/workflows/triage-eval.yml
+  workflow_dispatch:
+    inputs:
+      repeat:
+        description: Runs per case (more runs measure consistency, at a higher cost)
+        default: '1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CLAUDE_CODE_VERSION: 2.1.308
+
+jobs:
+  eval:
+    name: Triage eval
+    # Fork pull requests get no secrets, so they are skipped rather than failed.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci # the qa MCP server runs through tsx
+        env:
+          HUSKY: '0'
+
+      - name: Install Claude Code
+        run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+
+      - name: Eval
+        run: npm run eval:triage -- --repeat "$REPEAT"
+        env:
+          REPEAT: ${{ inputs.repeat || '1' }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+      - name: Job summary
+        if: ${{ always() && hashFiles('eval-output/triage-latest.md') != '' }}
+        run: cat eval-output/triage-latest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        with:
+          name: triage-eval
+          path: eval-output/
+          if-no-files-found: ignore
+          retention-days: 30

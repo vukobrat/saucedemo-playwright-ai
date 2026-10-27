@@ -1,0 +1,17 @@
+{
+  "title": "Triage of one regression",
+  "description": "What the triage agent returns for one unexpected failure in the triage eval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "evidence"],
+  "properties": {
+    "category": {
+      "enum": ["known-product-bug", "new-product-bug", "test-bug", "environment", "flaky"]
+    },
+    "knownBugId": {
+      "type": "string",
+      "description": "SD-xxx or DJ-xxx, only for a known product bug."
+    },
+    "evidence": { "type": "string", "description": "The fact that decides the category." }
+  }
+}

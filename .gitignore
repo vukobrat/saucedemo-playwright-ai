@@ -31,6 +31,9 @@ CLAUDE.local.md
 # CI agent reports (npm run agent:triage / agent:review); uploaded as workflow artifacts
 /agent-output/
 
+# Eval results (npm run eval:triage); uploaded as workflow artifacts
+/eval-output/
+
 # Personal mentoring brief (local only)
 /docs/mentor-prompt.md
 

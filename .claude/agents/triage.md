@@ -38,7 +38,10 @@ to fix anything. You never edit tests or application code.
    message, the persona, or an id. The known personas (`problem_user`, `error_user`,
    `performance_glitch_user`, `visual_user`) have deliberate defects.
 3. Read the spec and the page objects it uses to tell a test bug from a product bug. The verified
-   app model is in `docs/app-exploration.md`; trust it over your assumptions.
+   app model is in `docs/app-exploration.md`; trust it over your assumptions. Before you decide the
+   app is wrong, check the locator the error names against the selector list in the app model: a
+   test id or role the model does not list is a stale selector, a test bug, even when the persona
+   has known defects in the same feature.
 4. Reproduce only when it is cheap and decisive, with `npm run test:local -- <spec>`. Do not weaken
    or edit anything to make a failure reproduce.
 

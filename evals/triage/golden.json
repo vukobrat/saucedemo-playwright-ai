@@ -1,0 +1,587 @@
+{
+  "description": "Golden set for the triage eval: real failures from the runs in config.json, each with its reviewed label. Inputs are shaped like the regressions the qa server reports.",
+  "builtFrom": "e3b5892",
+  "cases": [
+    {
+      "id": "unmarked-sd-002",
+      "state": "unmarked",
+      "input": {
+        "test": "the cart button announces a single item",
+        "file": "e2e/cart.spec.ts",
+        "line": 63,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveAccessibleName(expected) failed Locator: getByTestId('primary-header').getByRole('button', { name: /^Cart,/ }) Expected: \"Cart, 1 item\" Received: \"Cart, 1 items\" Timeout: 5000ms Call log: - Expect \"toHaveAccessibleName\" getByTestId('primary-header').getByRole('button', { name: /^Cart,/ }) with timeout 5000ms - waiting for getByTestId('primary-header').getByRole('button', { name: /^Cart,/ }) 14 × locator resolved to <a role=\"button\" class=\"shopping_cart_link\" aria-..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-002"
+      },
+      "decidingFact": "Matches catalogued defect SD-002: Cart button is announced as \"Cart, 1 items\" instead of \"Cart, 1 item\"",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-004",
+      "state": "unmarked",
+      "input": {
+        "test": "rejects a last name made only of spaces",
+        "file": "e2e/checkout-validation.spec.ts",
+        "line": 58,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('error') Expected: \"Error: Last Name is required\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('error') with timeout 5000ms - waiting for getByTestId('error')"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-004"
+      },
+      "decidingFact": "Matches catalogued defect SD-004: Checkout accepts a last name made only of spaces",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-003",
+      "state": "unmarked",
+      "input": {
+        "test": "checkout is unavailable for an empty cart",
+        "file": "e2e/checkout.spec.ts",
+        "line": 142,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeDisabled() failed Locator: getByRole('button', { name: 'Checkout' }) Expected: disabled Received: enabled Timeout: 5000ms Call log: - Expect \"toBeDisabled\" getByRole('button', { name: 'Checkout' }) with timeout 5000ms - waiting for getByRole('button', { name: 'Checkout' }) 14 × locator resolved to <button id=\"checkout\" name=\"checkout\" data-test=\"checkout\" class=\"btn btn_action btn_medium checkout_button \">Checkout</button> - unexpected value \"enabled\""
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-003"
+      },
+      "decidingFact": "Matches catalogued defect SD-003: Checkout is allowed with an empty cart; a $0.00 order can be completed",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-001",
+      "state": "unmarked",
+      "input": {
+        "test": "Reset App State restores the product buttons immediately",
+        "file": "e2e/menu.spec.ts",
+        "line": 49,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeVisible() failed Locator: getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', { exact: true }) }).getByRole('button', { name: 'Add to cart' }) Expected: visible Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toBeVisible\" getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', ..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-001"
+      },
+      "decidingFact": "Matches catalogued defect SD-001: Reset App State empties the cart but product buttons keep showing \"Remove\"",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-201",
+      "state": "unmarked",
+      "input": {
+        "test": "sorts products by name Z to A",
+        "file": "personas/error-user.spec.ts",
+        "line": 19,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item-name') Timeout: 5000ms - Expected - 5 + Received + 5 Array [ - \"Test.allTheThings() T-Shirt (Red)\", - \"Sauce Labs Onesie\", - \"Sauce Labs Fleece Jacket\", - \"Sauce Labs Bolt T-Shirt\", - \"Sauce Labs Bike Light\", \"Sauce Labs Backpack\", + \"Sauce Labs Bike Light\", + \"Sauce Labs Bolt T-Shirt\", + \"Sauce Labs Fleece Jacket\", + \"Sauce Labs Onesie\", + \"Test.allTheThings() T-Shirt (Red)\",..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-201"
+      },
+      "decidingFact": "Matches catalogued defect SD-201: error_user: sorting raises \"Sorting is broken!\" and keeps the order",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-202",
+      "state": "unmarked",
+      "input": {
+        "test": "adds Sauce Labs Bolt T-Shirt to the cart",
+        "file": "personas/error-user.spec.ts",
+        "line": 36,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge')"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-202"
+      },
+      "decidingFact": "Matches catalogued defect SD-202: error_user: Add to cart throws for Bolt T-Shirt, Fleece Jacket and Red T-Shirt",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-203",
+      "state": "unmarked",
+      "input": {
+        "test": "removes a product on the inventory page",
+        "file": "personas/error-user.spec.ts",
+        "line": 43,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeHidden() failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: hidden Received: visible Timeout: 5000ms Call log: - Expect \"toBeHidden\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge') 14 × locator resolved to <span class=\"shopping_cart_badge\" data-test=\"shopping-cart-badge\">1</span> - unexpected value \"visible\""
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-203"
+      },
+      "decidingFact": "Matches catalogued defect SD-203: error_user: Remove on the inventory page throws and keeps the item",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-204",
+      "state": "unmarked",
+      "input": {
+        "test": "accepts typing in the last name field",
+        "file": "personas/error-user.spec.ts",
+        "line": 58,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveValue(expected) failed Locator: getByRole('textbox', { name: 'Last Name' }) Expected: \"Aufderhar\" Received: \"\" Timeout: 5000ms Call log: - Expect \"toHaveValue\" getByRole('textbox', { name: 'Last Name' }) with timeout 5000ms - waiting for getByRole('textbox', { name: 'Last Name' }) 14 × locator resolved to <input value=\"\" type=\"text\" id=\"last-name\" name=\"lastName\" autocorrect=\"off\" data-test=\"lastName\" autocapitalize=\"none\" aria-label=\"Last Name\" placeholder=\"Last ..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-204"
+      },
+      "decidingFact": "Matches catalogued defect SD-204: error_user: the last name field cannot be typed into",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-205",
+      "state": "unmarked",
+      "input": {
+        "test": "requires the last name",
+        "file": "personas/error-user.spec.ts",
+        "line": 66,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('error') Expected: \"Error: Last Name is required\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('error') with timeout 5000ms - waiting for getByTestId('error')"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-205"
+      },
+      "decidingFact": "Matches catalogued defect SD-205: error_user: checkout continues without a last name",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-206",
+      "state": "unmarked",
+      "input": {
+        "test": "completes the order with Finish",
+        "file": "personas/error-user.spec.ts",
+        "line": 72,
+        "project": "chromium",
+        "message": "Error: expect(page).toHaveURL(expected) failed Expected: predicate to succeed Received: \"https://www.saucedemo.com/checkout-step-two.html\" Timeout: 5000ms"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-206"
+      },
+      "decidingFact": "Matches catalogued defect SD-206: error_user: Finish throws and the order is never completed",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-301",
+      "state": "unmarked",
+      "input": {
+        "test": "logs in within 2000 ms",
+        "file": "personas/performance-glitch-user.spec.ts",
+        "line": 28,
+        "project": "chromium",
+        "message": "Error: expect(received).toBeLessThan(expected) Expected: < 2000 Received: 5404.484701"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-301"
+      },
+      "decidingFact": "Matches catalogued defect SD-301: performance_glitch_user: login takes about 5 seconds",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-302",
+      "state": "unmarked",
+      "input": {
+        "test": "sorts within 1000 ms",
+        "file": "personas/performance-glitch-user.spec.ts",
+        "line": 55,
+        "project": "chromium",
+        "message": "Error: expect(received).toBeLessThan(expected) Expected: < 1000 Received: 5229.716713"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-302"
+      },
+      "decidingFact": "Matches catalogued defect SD-302: performance_glitch_user: each sort takes about 5 seconds",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-101",
+      "state": "unmarked",
+      "input": {
+        "test": "shows the right image for every product",
+        "file": "personas/problem-user.spec.ts",
+        "line": 19,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveAttribute(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', { exact: true }) }).getByRole('img') Expected pattern: /\\/sauce-backpack-1200x1500-[\\w-]+\\.jpg$/ Received string: \"/assets/sl-404-Cq1a9k9X.jpg\" Timeout: 5000ms Call log: - Expect \"toHaveAttribute\" getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('invent..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-101"
+      },
+      "decidingFact": "Matches catalogued defect SD-101: problem_user: every inventory image is the same broken \"sl-404\" image",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-102",
+      "state": "unmarked",
+      "input": {
+        "test": "sorts products by name Z to A",
+        "file": "personas/problem-user.spec.ts",
+        "line": 28,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item-name') Timeout: 5000ms - Expected - 5 + Received + 5 Array [ - \"Test.allTheThings() T-Shirt (Red)\", - \"Sauce Labs Onesie\", - \"Sauce Labs Fleece Jacket\", - \"Sauce Labs Bolt T-Shirt\", - \"Sauce Labs Bike Light\", \"Sauce Labs Backpack\", + \"Sauce Labs Bike Light\", + \"Sauce Labs Bolt T-Shirt\", + \"Sauce Labs Fleece Jacket\", + \"Sauce Labs Onesie\", + \"Test.allTheThings() T-Shirt (Red)\",..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-102"
+      },
+      "decidingFact": "Matches catalogued defect SD-102: problem_user: choosing a sort option does not change the product order",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-103",
+      "state": "unmarked",
+      "input": {
+        "test": "adds Sauce Labs Bolt T-Shirt to the cart",
+        "file": "personas/problem-user.spec.ts",
+        "line": 45,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge')"
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-103"
+      },
+      "decidingFact": "Matches catalogued defect SD-103: problem_user: Add to cart does nothing for Bolt T-Shirt, Fleece Jacket and Red T-Shirt",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-104",
+      "state": "unmarked",
+      "input": {
+        "test": "removes a product on the inventory page",
+        "file": "personas/problem-user.spec.ts",
+        "line": 52,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeHidden() failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: hidden Received: visible Timeout: 5000ms Call log: - Expect \"toBeHidden\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge') 14 × locator resolved to <span class=\"shopping_cart_badge\" data-test=\"shopping-cart-badge\">1</span> - unexpected value \"visible\""
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-104"
+      },
+      "decidingFact": "Matches catalogued defect SD-104: problem_user: Remove on the inventory page does nothing",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-105",
+      "state": "unmarked",
+      "input": {
+        "test": "opens the details of the selected product",
+        "file": "personas/problem-user.spec.ts",
+        "line": 61,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('inventory-item').getByTestId('inventory-item-name') Expected: \"Sauce Labs Backpack\" Received: \"Sauce Labs Fleece Jacket\" Timeout: 5000ms Call log: - Expect \"toHaveText\" getByTestId('inventory-item').getByTestId('inventory-item-name') with timeout 5000ms - waiting for getByTestId('inventory-item').getByTestId('inventory-item-name') 14 × locator resolved to <div data-test=\"inventory-item-name\" class=\"inventory_details_name..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-105"
+      },
+      "decidingFact": "Matches catalogued defect SD-105: problem_user: product links open the details of a different product",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-106",
+      "state": "unmarked",
+      "input": {
+        "test": "keeps first and last name separate at checkout",
+        "file": "personas/problem-user.spec.ts",
+        "line": 70,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveValue(expected) failed Locator: getByRole('textbox', { name: 'First Name' }) Expected: \"Diana\" Received: \"Hayes\" Timeout: 5000ms Call log: - Expect \"toHaveValue\" getByRole('textbox', { name: 'First Name' }) with timeout 5000ms - waiting for getByRole('textbox', { name: 'First Name' }) 14 × locator resolved to <input type=\"text\" value=\"Hayes\" id=\"first-name\" name=\"firstName\" autocorrect=\"off\" data-test=\"firstName\" autocapitalize=\"none\" aria-label=\"First Name\" place..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-106"
+      },
+      "decidingFact": "Matches catalogued defect SD-106: problem_user: typing the last name overwrites the first name at checkout",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-107",
+      "state": "unmarked",
+      "input": {
+        "test": "About points to the Sauce Labs website",
+        "file": "personas/problem-user.spec.ts",
+        "line": 85,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveAttribute(expected) failed Locator: getByRole('navigation').getByRole('link', { name: 'About' }) Expected: \"https://saucelabs.com/\" Received: \"https://saucelabs.com/error/404\" Timeout: 5000ms Call log: - Expect \"toHaveAttribute\" getByRole('navigation').getByRole('link', { name: 'About' }) with timeout 5000ms - waiting for getByRole('navigation').getByRole('link', { name: 'About' }) 14 × locator resolved to <a id=\"about_sidebar_link\" class=\"bm-item menu-item\" data-..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-107"
+      },
+      "decidingFact": "Matches catalogued defect SD-107: problem_user: side menu About links to a Sauce Labs 404 page",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-401",
+      "state": "unmarked",
+      "input": {
+        "test": "shows catalog prices on the inventory",
+        "file": "personas/visual-user.spec.ts",
+        "line": 16,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item-price') Timeout: 5000ms - Expected - 6 + Received + 6 Array [ - \"$29.99\", - \"$9.99\", - \"$15.99\", - \"$49.99\", - \"$7.99\", - \"$15.99\", + \"$36.12\", + \"$8.13\", + \"$88.05\", + \"$36.82\", + \"$22\", + \"$88.19\", ] Call log: - Expect \"toHaveText\" getByTestId('inventory-list').getByTestId('inventory-item-price') with timeout 5000ms - waiting for getByTestId('inventory-list').getByTestId('in..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-401"
+      },
+      "decidingFact": "Matches catalogued defect SD-401: visual_user: inventory prices are random and differ from the catalog",
+      "source": "unmarked"
+    },
+    {
+      "id": "unmarked-sd-402",
+      "state": "unmarked",
+      "input": {
+        "test": "shows the right image for every product",
+        "file": "personas/visual-user.spec.ts",
+        "line": 22,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveAttribute(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', { exact: true }) }).getByRole('img') Expected pattern: /\\/sauce-backpack-1200x1500-[\\w-]+\\.jpg$/ Received string: \"/assets/sl-404-Cq1a9k9X.jpg\" Timeout: 5000ms Call log: - Expect \"toHaveAttribute\" getByTestId('inventory-list').getByTestId('inventory-item').filter({ has: getByTestId('invent..."
+      },
+      "label": {
+        "category": "known-product-bug",
+        "knownBugId": "SD-402"
+      },
+      "decidingFact": "Matches catalogued defect SD-402: visual_user: the Sauce Labs Backpack image is the broken \"sl-404\" image",
+      "source": "unmarked"
+    },
+    {
+      "id": "uncatalogued-1",
+      "state": "uncatalogued",
+      "input": {
+        "test": "removes a product on the inventory page",
+        "file": "personas/error-user.spec.ts",
+        "line": 43,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeHidden() failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: hidden Received: visible Timeout: 5000ms Call log: - Expect \"toBeHidden\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge') 14 × locator resolved to <span class=\"shopping_cart_badge\" data-test=\"shopping-cart-badge\">1</span> - unexpected value \"visible\""
+      },
+      "label": {
+        "category": "new-product-bug"
+      },
+      "decidingFact": "The test expects Remove to work for this persona, the app does not do it, and there is no catalogue entry for the defect.",
+      "source": "uncatalogued"
+    },
+    {
+      "id": "uncatalogued-2",
+      "state": "uncatalogued",
+      "input": {
+        "test": "removes a product on the inventory page",
+        "file": "personas/problem-user.spec.ts",
+        "line": 52,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeHidden() failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-badge') Expected: hidden Received: visible Timeout: 5000ms Call log: - Expect \"toBeHidden\" getByTestId('primary-header').getByTestId('shopping-cart-badge') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-badge') 14 × locator resolved to <span class=\"shopping_cart_badge\" data-test=\"shopping-cart-badge\">1</span> - unexpected value \"visible\""
+      },
+      "label": {
+        "category": "new-product-bug"
+      },
+      "decidingFact": "The test expects Remove to work for this persona, the app does not do it, and there is no catalogue entry for the defect.",
+      "source": "uncatalogued"
+    },
+    {
+      "id": "tax-rate-1",
+      "state": "tax-rate",
+      "input": {
+        "test": "completes a purchase end to end with the correct totals",
+        "file": "e2e/checkout.spec.ts",
+        "line": 11,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('tax-label') Expected: \"Tax: $6.16\" Received: \"Tax: $7.04\" Timeout: 5000ms Call log: - Expect \"toHaveText\" getByTestId('tax-label') with timeout 5000ms - waiting for getByTestId('tax-label') 14 × locator resolved to <div data-test=\"tax-label\" class=\"summary_tax_label\">Tax: $7.04</div> - unexpected value \"Tax: $7.04\""
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "TAX_RATE in src/utils/pricing.ts is 0.07, but the app model (and the constant's own comment) says tax is 8%.",
+      "source": "tax-rate"
+    },
+    {
+      "id": "tax-rate-2",
+      "state": "tax-rate",
+      "input": {
+        "test": "rounds tax correctly for a full cart",
+        "file": "e2e/checkout.spec.ts",
+        "line": 51,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('tax-label') Expected: \"Tax: $9.10\" Received: \"Tax: $10.40\" Timeout: 5000ms Call log: - Expect \"toHaveText\" getByTestId('tax-label') with timeout 5000ms - waiting for getByTestId('tax-label') 14 × locator resolved to <div data-test=\"tax-label\" class=\"summary_tax_label\">Tax: $10.40</div> - unexpected value \"Tax: $10.40\""
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "TAX_RATE in src/utils/pricing.ts is 0.07, but the app model (and the constant's own comment) says tax is 8%.",
+      "source": "tax-rate"
+    },
+    {
+      "id": "stale-badge-1",
+      "state": "stale-badge",
+      "input": {
+        "test": "removing an item updates the list and the badge",
+        "file": "e2e/cart.spec.ts",
+        "line": 29,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-count') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-count') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-count')"
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The header component looks for test id shopping-cart-count; the app model gives the badge as shopping-cart-badge, and the page snapshot shows the badge.",
+      "source": "stale-badge"
+    },
+    {
+      "id": "stale-badge-2",
+      "state": "stale-badge",
+      "input": {
+        "test": "adding a product switches its button to Remove and counts it in the cart",
+        "file": "e2e/inventory.spec.ts",
+        "line": 30,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-count') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-count') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-count')"
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The header component looks for test id shopping-cart-count; the app model gives the badge as shopping-cart-badge, and the page snapshot shows the badge.",
+      "source": "stale-badge"
+    },
+    {
+      "id": "stale-badge-personas-1",
+      "state": "stale-badge",
+      "input": {
+        "test": "adds Sauce Labs Backpack to the cart",
+        "file": "personas/error-user.spec.ts",
+        "line": 32,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-count') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-count') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-count')"
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The failing product (Backpack) is one this persona can add (SD-103 and SD-202 cover only Bolt T-Shirt, Fleece Jacket and Red T-Shirt), and the header component looks for test id shopping-cart-count instead of the app model's shopping-cart-badge.",
+      "source": "stale-badge-personas"
+    },
+    {
+      "id": "stale-badge-personas-2",
+      "state": "stale-badge",
+      "input": {
+        "test": "adds Sauce Labs Backpack to the cart",
+        "file": "personas/problem-user.spec.ts",
+        "line": 43,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('primary-header').getByTestId('shopping-cart-count') Expected: \"1\" Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toHaveText\" getByTestId('primary-header').getByTestId('shopping-cart-count') with timeout 5000ms - waiting for getByTestId('primary-header').getByTestId('shopping-cart-count')"
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The failing product (Backpack) is one this persona can add (SD-103 and SD-202 cover only Bolt T-Shirt, Fleece Jacket and Red T-Shirt), and the header component looks for test id shopping-cart-count instead of the app model's shopping-cart-badge.",
+      "source": "stale-badge-personas"
+    },
+    {
+      "id": "cart-title-1",
+      "state": "cart-title",
+      "input": {
+        "test": "lists added products with quantity and price",
+        "file": "e2e/cart.spec.ts",
+        "line": 9,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('title') Expected: \"Your Basket\" Received: \"Your Cart\" Timeout: 5000ms Call log: - Expect \"toHaveText\" getByTestId('title') with timeout 5000ms - waiting for getByTestId('title') 14 × locator resolved to <span class=\"title\" data-test=\"title\">Your Cart</span> - unexpected value \"Your Cart\""
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "PAGE_TITLES.cart in src/data/messages.ts is 'Your Basket'; the app (and the app model) shows 'Your Cart'.",
+      "source": "cart-title"
+    },
+    {
+      "id": "backpack-price-1",
+      "state": "backpack-price",
+      "input": {
+        "test": "lists added products with quantity and price",
+        "file": "e2e/cart.spec.ts",
+        "line": 9,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('cart-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', { exact: true }) }).getByTestId('inventory-item-price') Expected: \"$28.99\" Received: \"$29.99\" Timeout: 5000ms Call log: - Expect \"toHaveText\" getByTestId('cart-list').getByTestId('inventory-item').filter({ has: getByTestId('inventory-item-name').getByText('Sauce Labs Backpack', { exact: true }) }).g..."
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The backpack's priceCents in src/data/products.ts is 2899; the app (and the app model's catalogue) shows $29.99.",
+      "source": "backpack-price"
+    },
+    {
+      "id": "backpack-price-2",
+      "state": "backpack-price",
+      "input": {
+        "test": "lists every product with its catalog price",
+        "file": "e2e/inventory.spec.ts",
+        "line": 12,
+        "project": "chromium",
+        "message": "Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('inventory-list').getByTestId('inventory-item-price') Timeout: 5000ms - Expected - 1 + Received + 1 @@ -1,7 +1,7 @@ Array [ - \"$28.99\", + \"$29.99\", \"$9.99\", \"$15.99\", \"$49.99\", \"$7.99\", \"$15.99\", Call log: - Expect \"toHaveText\" getByTestId('inventory-list').getByTestId('inventory-item-price') with timeout 5000ms - waiting for getByTestId('inventory-list').getByTestId('inventory-item-price') 14 × locator resolved to 6 elem..."
+      },
+      "label": {
+        "category": "test-bug"
+      },
+      "decidingFact": "The backpack's priceCents in src/data/products.ts is 2899; the app (and the app model's catalogue) shows $29.99.",
+      "source": "backpack-price"
+    },
+    {
+      "id": "unreachable-host-1",
+      "state": "baseline",
+      "input": {
+        "test": "authenticate as standard",
+        "file": "setup/auth.setup.ts",
+        "line": 10,
+        "project": "setup",
+        "message": "Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://www.saucedemo.invalid/ Call log: - navigating to \"https://www.saucedemo.invalid/\", waiting until \"load\""
+      },
+      "label": {
+        "category": "environment"
+      },
+      "decidingFact": "The host does not resolve (net::ERR_NAME_NOT_RESOLVED): the run never reached the app.",
+      "source": "unreachable-host"
+    },
+    {
+      "id": "expired-session-1",
+      "state": "baseline",
+      "input": {
+        "test": "lists every product with its catalog price",
+        "file": "e2e/inventory.spec.ts",
+        "line": 12,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeVisible() failed Locator: getByTestId('inventory-list') Expected: visible Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms - waiting for getByTestId('inventory-list')"
+      },
+      "label": {
+        "category": "environment"
+      },
+      "decidingFact": "A logged-in page never showed its ready marker although the marker's test id is valid, so the page did not load as a logged-in session: an expired or missing .auth/ session, refreshed by running the setup project.",
+      "source": "expired-session"
+    },
+    {
+      "id": "expired-session-2",
+      "state": "baseline",
+      "input": {
+        "test": "every product shows its own image",
+        "file": "e2e/inventory.spec.ts",
+        "line": 24,
+        "project": "chromium",
+        "message": "Error: expect(locator).toBeVisible() failed Locator: getByTestId('inventory-list') Expected: visible Timeout: 5000ms Error: element(s) not found Call log: - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms - waiting for getByTestId('inventory-list')"
+      },
+      "label": {
+        "category": "environment"
+      },
+      "decidingFact": "A logged-in page never showed its ready marker although the marker's test id is valid, so the page did not load as a logged-in session: an expired or missing .auth/ session, refreshed by running the setup project.",
+      "source": "expired-session"
+    }
+  ]
+}
