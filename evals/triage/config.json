@@ -1,0 +1,167 @@
+{
+  "description": "Triage eval. 'states' are code states applied to a fresh export of HEAD (each edit must match exactly once). 'runs' are the Playwright runs that produced the real failures in golden.json (npm run eval:triage:build). 'gate' is what npm run eval:triage enforces.",
+  "states": {
+    "baseline": {
+      "description": "HEAD as committed.",
+      "stripKnownBugMarkers": false,
+      "edits": []
+    },
+    "unmarked": {
+      "description": "Every knownBug() marker removed from the specs, so catalogued defects fail as unexplained regressions.",
+      "stripKnownBugMarkers": true,
+      "edits": []
+    },
+    "uncatalogued": {
+      "description": "Unmarked, and SD-104 and SD-203 removed from the catalogue and the app model: real defects nobody has recorded yet.",
+      "stripKnownBugMarkers": true,
+      "edits": [
+        {
+          "file": "src/data/known-bugs.ts",
+          "find": "  problemRemoveIgnored: {\n    id: 'SD-104',\n    summary: 'problem_user: Remove on the inventory page does nothing',\n  },\n",
+          "replace": ""
+        },
+        {
+          "file": "src/data/known-bugs.ts",
+          "find": "  errorRemoveFails: {\n    id: 'SD-203',\n    summary: 'error_user: Remove on the inventory page throws and keeps the item',\n  },\n",
+          "replace": ""
+        },
+        {
+          "file": "docs/app-exploration.md",
+          "find": "- SD-104: Remove does nothing (inventory page).\n",
+          "replace": ""
+        },
+        {
+          "file": "docs/app-exploration.md",
+          "find": "- SD-203: Remove throws `Error: Failed to remove item from cart.` and keeps the item.\n",
+          "replace": ""
+        }
+      ]
+    },
+    "tax-rate": {
+      "description": "Test bug: the tax rate the tests derive totals from is wrong.",
+      "stripKnownBugMarkers": false,
+      "edits": [
+        {
+          "file": "src/utils/pricing.ts",
+          "find": "export const TAX_RATE = 0.08;",
+          "replace": "export const TAX_RATE = 0.07;"
+        }
+      ]
+    },
+    "stale-badge": {
+      "description": "Test bug: the header component looks for the cart badge under a test id the app does not use.",
+      "stripKnownBugMarkers": false,
+      "edits": [
+        {
+          "file": "src/components/header.component.ts",
+          "find": "root.getByTestId('shopping-cart-badge')",
+          "replace": "root.getByTestId('shopping-cart-count')"
+        }
+      ]
+    },
+    "cart-title": {
+      "description": "Test bug: the expected cart page title in the test data is wrong.",
+      "stripKnownBugMarkers": false,
+      "edits": [
+        {
+          "file": "src/data/messages.ts",
+          "find": "  cart: 'Your Cart',",
+          "replace": "  cart: 'Your Basket',"
+        }
+      ]
+    },
+    "backpack-price": {
+      "description": "Test bug: the catalogue price of the backpack in the test data is wrong.",
+      "stripKnownBugMarkers": false,
+      "edits": [
+        {
+          "file": "src/data/products.ts",
+          "find": "    name: 'Sauce Labs Backpack',\n    priceCents: 2999,",
+          "replace": "    name: 'Sauce Labs Backpack',\n    priceCents: 2899,"
+        }
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "unmarked",
+      "state": "unmarked",
+      "specs": ["tests/e2e", "tests/personas"],
+      "label": { "category": "known-product-bug", "knownBugIdFrom": "baseline" },
+      "onePerKnownBug": true
+    },
+    {
+      "name": "uncatalogued",
+      "state": "uncatalogued",
+      "specs": ["tests/personas"],
+      "grep": "removes a product on the inventory page",
+      "label": { "category": "new-product-bug" },
+      "decidingFact": "The test expects Remove to work for this persona, the app does not do it, and there is no catalogue entry for the defect."
+    },
+    {
+      "name": "tax-rate",
+      "state": "tax-rate",
+      "specs": ["tests/e2e/checkout.spec.ts"],
+      "label": { "category": "test-bug" },
+      "maxCases": 2,
+      "decidingFact": "TAX_RATE in src/utils/pricing.ts is 0.07, but the app model (and the constant's own comment) says tax is 8%."
+    },
+    {
+      "name": "stale-badge",
+      "state": "stale-badge",
+      "specs": ["tests/e2e/inventory.spec.ts", "tests/e2e/cart.spec.ts"],
+      "label": { "category": "test-bug" },
+      "maxCases": 2,
+      "decidingFact": "The header component looks for test id shopping-cart-count; the app model gives the badge as shopping-cart-badge, and the page snapshot shows the badge."
+    },
+    {
+      "name": "stale-badge-personas",
+      "state": "stale-badge",
+      "specs": ["tests/personas/error-user.spec.ts", "tests/personas/problem-user.spec.ts"],
+      "grep": "adds Sauce Labs Backpack to the cart",
+      "label": { "category": "test-bug" },
+      "maxCases": 2,
+      "decidingFact": "The failing product (Backpack) is one this persona can add (SD-103 and SD-202 cover only Bolt T-Shirt, Fleece Jacket and Red T-Shirt), and the header component looks for test id shopping-cart-count instead of the app model's shopping-cart-badge."
+    },
+    {
+      "name": "cart-title",
+      "state": "cart-title",
+      "specs": ["tests/e2e/cart.spec.ts"],
+      "label": { "category": "test-bug" },
+      "maxCases": 1,
+      "decidingFact": "PAGE_TITLES.cart in src/data/messages.ts is 'Your Basket'; the app (and the app model) shows 'Your Cart'."
+    },
+    {
+      "name": "backpack-price",
+      "state": "backpack-price",
+      "specs": ["tests/e2e/inventory.spec.ts", "tests/e2e/cart.spec.ts"],
+      "label": { "category": "test-bug" },
+      "maxCases": 2,
+      "decidingFact": "The backpack's priceCents in src/data/products.ts is 2899; the app (and the app model's catalogue) shows $29.99."
+    },
+    {
+      "name": "unreachable-host",
+      "state": "baseline",
+      "specs": ["tests/e2e/login.spec.ts"],
+      "env": { "BASE_URL": "https://www.saucedemo.invalid" },
+      "label": { "category": "environment" },
+      "maxCases": 1,
+      "decidingFact": "The host does not resolve (net::ERR_NAME_NOT_RESOLVED): the run never reached the app."
+    },
+    {
+      "name": "expired-session",
+      "state": "baseline",
+      "specs": ["tests/e2e/inventory.spec.ts"],
+      "noDeps": true,
+      "staleAuth": true,
+      "label": { "category": "environment" },
+      "maxCases": 2,
+      "decidingFact": "A logged-in page never showed its ready marker although the marker's test id is valid, so the page did not load as a logged-in session: an expired or missing .auth/ session, refreshed by running the setup project."
+    }
+  ],
+  "gate": {
+    "minCategoryAccuracy": 0.9,
+    "minKnownBugIdAccuracy": 0.9,
+    "maxCriticalErrors": 0
+  }
+}
