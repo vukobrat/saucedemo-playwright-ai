@@ -9,7 +9,9 @@ on:
     paths:
       - .claude/agents/triage.md
       - scripts/lib/claude-headless.mjs
-      - scripts/eval/**
+      - scripts/eval/checkout.mjs
+      - scripts/eval/run-triage-eval.mjs
+      - scripts/eval/build-triage-golden.mjs
       - scripts/schemas/triage-case.schema.json
       - evals/triage/**
       - src/mcp/**
