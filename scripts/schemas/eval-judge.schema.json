@@ -1,0 +1,11 @@
+{
+  "title": "Evidence judgement",
+  "description": "Whether a triage answer's evidence states the deciding fact a person wrote for the case.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["pass", "reason"],
+  "properties": {
+    "pass": { "type": "boolean" },
+    "reason": { "type": "string", "description": "One sentence." }
+  }
+}

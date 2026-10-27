@@ -1,13 +1,13 @@
 // Runs Claude Code headless with a JSON Schema and returns the validated output with run metadata.
-// Shared by the CI agent scripts (agent-triage.mjs, agent-review.mjs), so local runs and CI runs
-// use the same command line.
+// Shared by the CI agent scripts (agent-triage.mjs, agent-review.mjs) and the evals, so local
+// runs, CI runs and evals use the same command line.
 import { spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 /** Spawns a command with an empty stdin (so `claude -p` never waits for piped input). */
-function run(command, args, env) {
+function run(command, args, env, cwd) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { env, stdio: ['ignore', 'pipe', 'inherit'] });
+    const child = spawn(command, args, { env, cwd, stdio: ['ignore', 'pipe', 'inherit'] });
     let stdout = '';
     child.stdout.setEncoding('utf8').on('data', (chunk) => {
       stdout += chunk;
@@ -25,13 +25,15 @@ function run(command, args, env) {
  * @param {string} options.schemaFile JSON Schema the final answer must match.
  * @param {string[]} options.args Further CLI flags (agent, model, tools, permissions, caps).
  * @param {NodeJS.ProcessEnv} [options.env] Environment for the claude process.
+ * @param {string} [options.cwd] Working directory for the claude process (default: this one).
  */
-export async function runHeadless({ prompt, schemaFile, args, env = process.env }) {
+export async function runHeadless({ prompt, schemaFile, args, env = process.env, cwd }) {
   const schema = readFileSync(schemaFile, 'utf8');
   const { code, stdout } = await run(
     'claude',
     ['-p', prompt, '--output-format', 'json', '--json-schema', schema, ...args],
     env,
+    cwd,
   );
 
   let result;
