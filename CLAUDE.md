@@ -24,7 +24,7 @@ The verified app model (users, routes, selectors, exact messages, catalog, known
 - Git hooks (Husky): pre-commit runs lint-staged on staged files, pre-push runs the typecheck. Never bypass them with `--no-verify`. Why: they are the cheapest place to catch a broken commit.
 - Parallel work: one `claude --worktree <name>` per agent, under `.claude/worktrees/` (excluded from git, lint and tsc); `.worktreeinclude` copies `.env` and `CLAUDE.local.md` in. Agents running tests at the same time share the machine's worker budget. Why: agents in one checkout overwrite each other's files, index and test results.
 - `npm run agent:triage -- <run-id>` / `npm run agent:review -- <pr-number>` - the CI agents (nightly triage, `ai-review` label), run locally with `gh` and a Claude login. Why: an agent result in CI must be reproducible with one command, like any check.
-- `npm run eval:triage` - the triage agent on the golden set in `evals/triage/`, gated (`-- --repeat 3` for consistency, `--judge` for an evidence check). `eval:triage:build` rebuilds the set from real runs (no model calls); review its labels before committing. Why: an agent change is only an improvement if the eval says so.
+- `npm run eval:triage` - the triage agent on the golden set in `evals/triage/`, gated (`-- --repeat 3` for consistency, `--judge` for an evidence check). `eval:triage:build` rebuilds the set from real runs (no model calls); review its labels before committing. `npm run eval:fix-loop` grades `/fix-test` on what it changes (needs browsers and credentials; run it before changing the skill). Why: an agent change is only an improvement if the eval says so.
 - Never invent a script that is not in `package.json`.
 
 ## Architecture (where code goes)

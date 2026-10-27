@@ -538,3 +538,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - **What worked:** measuring instead of believing (several "obvious" assumptions failed under measurement), layered controls that cover each other's gaps, and agents that return data while code and people act.
 - **What went wrong:** leaks into every experiment with a known answer, permissions wider than intended, evidence read from the wrong place, an eval too easy to rank anything, and an infrastructure failure that looked like a regression. Each was caught by reading transcripts and logs or by a deliberate experiment.
 - **The pattern, as in Phase 0:** mistakes are caught by evidence, not confidence, and most cheaply by checks that already exist when the mistake happens.
+
+---
+
+## Follow-ups
+
+### 2026-10-27 - A fix-loop eval
+
+**Built** - `npm run eval:fix-loop` (`scripts/eval/run-fix-loop-eval.mjs`, `evals/fix-loop/config.json`): `/fix-test` runs on 9 real failures from the triage golden set (five test bugs, two catalogued and one uncatalogued product bug) plus an unreachable host, each in its own isolated checkout with credentials loaded but no copy of `.env`. It is graded on what the loop changed and how the test ends when run again, not on what it reports. A critical error is any red turned green by hiding: a changed assertion line, an edited catalogue, a marker with the wrong id, or a product bug that now passes.
+
+**Concepts**
+
+- **Grade behaviour, not the report.** The checkout is diffed: was the injected bug reverted, did any assertion line change, was a `knownBug()` marker added and with which id, was the catalogue edited, and what does the target do when run again (passed, failed, or failing as expected under a marker)?
+- **Test the grader before the agent.** `--simulate` replaces the loop with a scripted behaviour (revert, do nothing, touch an assertion, restore the marker). Nine simulations, no model calls, found two grader bugs before any agent ran. Re-running the target by line number found nothing once a restored marker and its imports had moved the test, and an anchored `--grep` matched nothing because it matches the full title path.
+- **Result:** `/fix-test` scored 9/9 with no critical error ($1.61): each test bug was fixed in exactly the injected file, the catalogued markers were restored with assertions untouched, and the uncatalogued bug and the outage were left alone.
+- **The variant that should fail did.** A naive "make it pass" prompt (same model, tools and hook) fixed the test bugs too and never flipped an expectation, because the repo's own rules steered it. But on the uncatalogued bug it re-created the deleted catalogue entry, re-documented the defect in the app model and marked the test: the oracle rewritten to match the app. The skill's single rule that a person decides about new `SD-xxx` entries was the difference.
+
+**Interview notes**
+
+- _How would you know a self-healing loop is safe?_ Run it on failures of both kinds in isolated checkouts and grade the diff, not the report: a test bug must be fixed at its cause, and a product bug must stay red, or be marked only with its catalogued id. Make sure the gate fails a naive "make it pass" variant; here, that variant invented a bug entry and rewrote the app model.
