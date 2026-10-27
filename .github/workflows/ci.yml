@@ -59,6 +59,9 @@ jobs:
       - name: Check Playwright versions
         run: npm run check:versions
 
+      - name: Check eval states
+        run: npm run eval:triage:check
+
       # PR and main: smoke on chromium plus the accessibility and visual gates. Nightly and manual
       # dispatch: everything, all browsers.
       - name: Plan test run
