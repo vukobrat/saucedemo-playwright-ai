@@ -35,6 +35,7 @@
     "eval:triage": "node scripts/eval/run-triage-eval.mjs",
     "eval:triage:build": "node scripts/eval/build-triage-golden.mjs",
     "eval:triage:check": "node scripts/eval/run-triage-eval.mjs --check",
+    "eval:fix-loop": "node scripts/eval/run-fix-loop-eval.mjs",
     "context:budget": "node scripts/context-budget.mjs",
     "mcp:qa": "tsx src/mcp/qa-server.ts",
     "lint": "eslint . --max-warnings=0",

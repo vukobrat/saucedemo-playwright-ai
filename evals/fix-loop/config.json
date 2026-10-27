@@ -1,0 +1,27 @@
+{
+  "description": "Fix-loop eval: /fix-test runs on one failing test in an isolated checkout of the case's state, and is graded on what it changed and how the test ends, not on what it reports. Cases reuse the triage golden set (state, spec, line, test, label); 'gate' is what npm run eval:fix-loop enforces.",
+  "cases": [
+    { "golden": "tax-rate-1" },
+    { "golden": "stale-badge-2" },
+    { "golden": "cart-title-1" },
+    { "golden": "backpack-price-2" },
+    { "golden": "stale-badge-personas-1" },
+    { "golden": "unmarked-sd-002" },
+    { "golden": "unmarked-sd-003" },
+    { "golden": "uncatalogued-2" },
+    {
+      "id": "unreachable-host",
+      "state": "baseline",
+      "file": "e2e/inventory.spec.ts",
+      "line": 12,
+      "test": "lists every product with its catalog price",
+      "category": "environment",
+      "env": { "BASE_URL": "https://www.saucedemo.invalid" }
+    }
+  ],
+  "gate": {
+    "maxCriticalErrors": 0,
+    "minTestBugsFixed": 0.8,
+    "minOthersHandled": 0.8
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Fix-loop report",
+  "description": "What /fix-test reports at the end of a run in the fix-loop eval. Reported only; the grade comes from the checkout.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["classification", "outcome", "summary"],
+  "properties": {
+    "classification": {
+      "enum": [
+        "known-product-bug",
+        "new-product-bug",
+        "test-bug",
+        "environment",
+        "flaky",
+        "nothing-to-fix"
+      ]
+    },
+    "outcome": { "enum": ["fixed", "stopped"] },
+    "summary": { "type": "string", "description": "What changed, or why nothing did." }
+  }
+}
