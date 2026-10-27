@@ -477,3 +477,22 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How do you run several coding agents on one repo without chaos?_ One worktree and one branch per agent, copy only the gitignored files each needs, exclude worktrees from the main checkout's tooling, budget CPU, workers and cost, split work by area, and review each branch.
 - _What does a worktree isolate, and what not?_ Files, index, `HEAD` and per-checkout artifacts. Not the object store, not gitignored files (until copied), not the machine, and not the system under test or its data.
 - _What is the subtle danger of a stale selector?_ Positive assertions fail loudly, but negative ones (`toBeHidden`, `toHaveCount(0)`) pass silently, because a locator that matches nothing is always hidden.
+
+### 2026-10-27 - Module 9: headless runs and CI
+
+**Built** - `docs/phase-1/09-headless-ci.md` (lesson) and `docs/phase-1/09-headless-ci-answers.md` (worked answers). `npm run agent:triage -- <run-id>` and `npm run agent:review -- <pr>` on a shared headless runner (`scripts/lib/claude-headless.mjs`) with JSON Schemas; `nightly-triage.yml` (failed nightly, dispatch, or a PR that changes the triage, into the job summary) and `ai-review.yml` (the `ai-review` label, one edited comment). Authenticated with a `CLAUDE_CODE_OAUTH_TOKEN` secret. Before the module: `write-test` and `add-page-object` narrowed to `Bash(npm run *)` (PR #24).
+
+**Concepts**
+
+- Headless means deciding everything up front: toolset (`--tools`, `--strict-mcp-config`), approvals (`dontAsk`), caps (`--max-turns`, `--max-budget-usd`), context (`--append-system-prompt`, `--setting-sources`, `--bare`) and output (`--output-format json --json-schema`, read from `structured_output`).
+- The agent returns data, the pipeline acts: read-only tools, no write token, schema-validated output, and a deterministic step that writes the summary or comment. A prompt-injected agent can then only produce a wrong report.
+- A missing `structured_output` is a failure, never an empty report. Two ways it went missing here: `--agent <name>` (the agent's `tools` list replaced the toolset; fixed by appending the agent's body instead) and a draft-2020-12 `$schema` key the validator rejected.
+- Triage must read the code that ran. One failed run triaged from current `main` produced a hedge ("the 7% rate may be in a different branch"); from the failing commit it named `pricing.ts:4`. `nightly-triage.yml` now checks out `workflow_run.head_sha`.
+- `--setting-sources user` keeps a PR's hooks off the runner (verified with a decoy), and also removes the project's own guardrails; right for a reviewer, wrong for a fix loop.
+- Verified in CI: the PR's own triage job (green, 80 expected, $0.05); a deliberately failing CI run; and a probe PR whose three planted locator violations, all invisible to lint, were caught as must-fix and posted as one comment that a re-run edited.
+
+**Interview notes**
+
+- _How do you run an AI agent in CI safely?_ As a check: pinned CLI, read-only tools, `dontAsk` with an allowlist, caps, only the MCP servers needed, schema output acted on by deterministic code, no write token for the agent, gated triggers, secrets in the CI store, and the same command runnable locally.
+- _Why structured output instead of letting the agent post?_ Judgment and action are separated: the result is machine-checkable, the posting is reviewable code, and injection yields at most a wrong report.
+- _Your CI triage agent was confidently vague. Why?_ Check which code it read. A `workflow_run` job checks out the default branch, not the commit that failed.
