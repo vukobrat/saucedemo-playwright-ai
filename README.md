@@ -12,7 +12,7 @@ Production-grade test automation for [SauceDemo (Swag Labs)](https://www.saucede
 
 **At a glance**
 
-- 130 test cases, 306 runs per full regression (chromium, firefox, webkit) in 4 parallel shards of about 2 minutes each
+- 135 test cases, 321 runs per full regression (chromium, firefox, webkit) in 4 parallel shards of about 2 minutes each
 - Page Object Model with components, typed fixtures, per-persona login via `storageState`
 - 26 catalogued application defects, each asserted as an expected failure with a stable id
 - Accessibility gate (axe, WCAG 2.2 AA) and visual regression with reviewed Linux baselines
@@ -192,10 +192,11 @@ The full rule set, each rule with its reason, is in [`CLAUDE.md`](CLAUDE.md) and
 
 ## Agentic engineering
 
-This repository is built and maintained with AI coding agents (Claude Code) as a deliberate part of the engineering process, with the same review discipline as human contributions:
+This repository is built and maintained with AI coding agents (Claude Code) as a deliberate part of the engineering process, with the same review discipline as human contributions. What agents are trusted with here, what went wrong when they were not checked, and the controls, with measured results: [**Agentic QA strategy**](docs/agentic-qa-strategy.md).
 
 - **Project memory:** a short [`CLAUDE.md`](CLAUDE.md) holds the cross-cutting conventions and guardrails, each with a reason; path-scoped rules in [`.claude/rules/`](.claude/rules/) (page objects, tests, API, visual, CI) load only when an agent works on matching files; the verified app model in [`docs/app-exploration.md`](docs/app-exploration.md) is referenced, not imported, to keep agent context small.
 - **Grounded in the real app:** the Playwright MCP server (pinned version, isolated profile, `data-test` as test id) lets agents verify selectors on the live site instead of guessing.
+- **Agent toolkit:** subagents in [`.claude/agents/`](.claude/agents/) (failure triage, flakiness investigation, locator review, coverage gaps), skills in [`.claude/skills/`](.claude/skills/) (`/write-test`, `/add-page-object`, `/check`, `/fix-test`), and a `qa` MCP server in [`src/mcp/`](src/mcp/) with read-only tools over the known-bug catalogue and CI reports.
 - **Guardrails:** shared permission rules deny reading `.env`, merging pull requests and force pushes; lint and hooks reject the usual ways of making a red check green (suppressions without reasons, hard waits, raw locators); CLAUDE.md forbids weakening assertions, and a Claude Code `PreToolUse` hook blocks agent edits that remove assertions from a spec or add `skip`, `only` or `fixme`.
 - **Evaluation:** the known-bug catalogue turns the deliberately broken personas into labelled failures. `evals/triage/` holds a golden set of real failures (catalogued and uncatalogued defects, injected test bugs, environment faults), and `npm run eval:triage` measures the triage agent on it in isolated checkouts. The **Triage eval** workflow reruns it whenever the agent's instructions or inputs change, and fails when a product bug is called a test bug.
 - **Learning log:** [`docs/ai-agents-learning-log.md`](docs/ai-agents-learning-log.md) records each step, the concepts involved, the mistakes made and how they were caught.
@@ -203,21 +204,27 @@ This repository is built and maintained with AI coding agents (Claude Code) as a
 ## Project structure
 
 ```
-.claude/rules/       path-scoped agent rules: pages, tests, api, visual, ci
-.github/workflows/   ci.yml, docker.yml, visual-baselines.yml (+ dependabot.yml)
-docs/                app model, learning log
-scripts/             Playwright/Docker version check
+.claude/
+  agents/            subagents: triage, flaky investigator, locator reviewer, test-gap analyzer
+  hooks/             PreToolUse hook that blocks test-weakening edits
+  rules/             path-scoped agent rules: pages, tests, api, visual, ci
+  skills/            /write-test, /add-page-object, /check, /fix-test
+.github/workflows/   CI, Docker, visual baselines, nightly triage, AI review, triage eval
+docs/                app model, agentic QA strategy, learning log, Phase 1 lessons
+evals/triage/        eval states, golden set of real failures, a mutant
+scripts/             version check, agent trace, context budget, CI agents, eval tooling
 src/
   api/               DummyJSON clients, zod contracts, error messages
-  components/        header, side menu, product card, cart item
+  components/        header, side menu, footer, product card, cart item
   config/            env.ts (validated environment)
   data/              users, products, sort options, messages, builders, known bugs
   fixtures/          pages, persona auth, data, a11y, api -> merged in index.ts
+  mcp/               qa MCP server: known-bug catalogue and CI reports
   pages/             BasePage, AppPage and seven page objects
   utils/             pricing, knownBug, auth state, seed
 tests/
   setup/             persona login (storageState)
-  e2e/               login, session, inventory, sorting, details, cart, checkout, menu
+  e2e/               login, session, inventory, sorting, details, cart, checkout, menu, footer
   personas/          problem, error, performance glitch, visual users
   a11y/              axe accessibility gate
   visual/            screenshot tests and reviewed baselines

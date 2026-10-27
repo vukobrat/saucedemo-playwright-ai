@@ -514,3 +514,27 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 - _How would you evaluate an agent that triages test failures?_ Real labelled failures, the label kept out of the agent's reach, the real agent in an isolated checkout, deterministic grading, a separate gate for the costly error, repeats, and a CI rerun whenever the agent or its inputs change.
 - _Your eval says 100%. What now?_ Look for leaks in the evidence, calibrate the judge, run variants that should fail, and add cases where the obvious reading is wrong.
 - _Deterministic or LLM-as-judge?_ Deterministic wherever one answer is right, so it can gate. A judge only for free text, calibrated against your own reading, reported rather than gated.
+
+### 2026-10-27 - Module 11: agentic QA strategy
+
+**Built** - [`docs/agentic-qa-strategy.md`](agentic-qa-strategy.md), the strategy for this repository: where agents earn their place (with the measured result for each), the failure modes seen here, layered controls, who decides what, how it is measured, which mechanism for which need, and next steps. `docs/phase-1/11-agentic-qa-strategy.md` (lesson) and `-answers.md` (worked answers, a mock interview, the Phase 1 retrospective). README: the strategy linked, the agent toolkit listed, the project structure and test counts brought up to date.
+
+**Concepts**
+
+- A strategy decides, per task, where an agent's judgment may change an outcome. Value follows three properties: the work is mostly reading, the output is cheap to verify, and a mistake is visible. Changes to what green means (assertions, markers, baselines, permissions) fail the third and stay with people.
+- Errors are asymmetric: red to green ships the bug silently, green to red costs time and is seen. The first gets prevention in layers, the second detection.
+- Trust is earned per task with measurement and kept only while the measurement keeps running.
+- A person in the loop means decision rights at the irreversible points, with evidence that makes each decision quick, not approval of every step.
+- The risk register of both phases shows no mistake caught by the agent's own confidence: all were caught by evidence, code, the harness or a person reading.
+
+**Interview notes**
+
+- _Where do agents add value in QA, and where don't you trust them?_ Reading-heavy, cheaply verified, visibly wrong work (mapping, drafting, triage at 34 in 35, review); never unreviewed changes to what green means, because the expectation flip passes every automated check.
+- _How do you keep a person in the loop without becoming the bottleneck?_ Decision rights only at irreversible points, evidence in every report, code for everything deterministic.
+- _Tell me about a time an agent was confidently wrong._ The shared-page exploration that made four personas look broken; and the triage agent at 100% on clean cases that fell to 1 in 6 on confusable ones, fixed with one sentence and confirmed by the eval.
+
+### Phase 1 retrospective
+
+- **What worked:** measuring instead of believing (several "obvious" assumptions failed under measurement), layered controls that cover each other's gaps, and agents that return data while code and people act.
+- **What went wrong:** leaks into every experiment with a known answer, permissions wider than intended, evidence read from the wrong place, an eval too easy to rank anything, and an infrastructure failure that looked like a regression. Each was caught by reading transcripts and logs or by a deliberate experiment.
+- **The pattern, as in Phase 0:** mistakes are caught by evidence, not confidence, and most cheaply by checks that already exist when the mistake happens.
