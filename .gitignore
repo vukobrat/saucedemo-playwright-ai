@@ -28,6 +28,9 @@ CLAUDE.local.md
 # Headless agent run traces (stream-json); may contain local paths and session ids
 /traces/
 
+# CI agent reports (npm run agent:triage / agent:review); uploaded as workflow artifacts
+/agent-output/
+
 # Personal mentoring brief (local only)
 /docs/mentor-prompt.md
 

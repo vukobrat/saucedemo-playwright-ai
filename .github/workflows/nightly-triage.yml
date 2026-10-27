@@ -1,0 +1,98 @@
+name: Nightly triage
+
+# When the nightly regression run fails, the triage agent classifies its failures and writes the
+# result to this run's job summary. The agent has read-only tools and the qa MCP server; it runs no
+# tests, edits nothing and posts nothing. Same command locally: npm run agent:triage -- <run-id>.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: CI run to triage (the number in the run URL)
+        required: true
+  # A pull request that changes the triage itself proves it against the latest nightly run.
+  pull_request:
+    paths:
+      - .github/workflows/nightly-triage.yml
+      - scripts/agent-triage.mjs
+      - scripts/lib/claude-headless.mjs
+      - scripts/schemas/triage-report.schema.json
+      - .claude/agents/triage.md
+
+permissions:
+  contents: read
+  actions: read # the qa server downloads the run's report artifact
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.id || inputs.run_id || github.ref }}
+
+env:
+  CLAUDE_CODE_VERSION: 2.1.308
+
+jobs:
+  triage:
+    name: Triage
+    # Fork pull requests get no secrets, so they are skipped rather than failed.
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'schedule' &&
+       github.event.workflow_run.conclusion == 'failure') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The agent reads specs and page objects to classify failures, so it must see the code the
+      # failed run tested, not main as it is now. Empty for dispatch and PRs: the default checkout.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci # the qa MCP server runs through tsx
+        env:
+          HUSKY: '0'
+
+      - name: Install Claude Code
+        run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+
+      - name: Choose the run to triage
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          run_id="${INPUT_RUN_ID:-$EVENT_RUN_ID}"
+          if [ -z "$run_id" ]; then
+            run_id=$(gh run list --workflow ci.yml --event schedule --limit 1 \
+              --json databaseId --jq '.[0].databaseId')
+          fi
+          echo "run-id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Triage
+        run: npm run agent:triage -- "$RUN_ID"
+        env:
+          RUN_ID: ${{ steps.pick.outputs.run-id }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Job summary
+        if: ${{ always() && hashFiles('agent-output/triage.md') != '' }}
+        run: cat agent-output/triage.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        with:
+          name: triage-report
+          path: agent-output/
+          if-no-files-found: ignore
+          retention-days: 30

@@ -152,6 +152,7 @@ flowchart LR
 - **Visual baselines** are rendered by a dedicated workflow into an artifact and committed by a person after review. CI never approves its own screenshots.
 - **Docker** workflow builds the image and runs the smoke suite on all browsers whenever image inputs change.
 - **Dependabot** updates npm and GitHub Actions weekly. Playwright is upgraded deliberately together with the Docker image.
+- **Agents in CI:** when the nightly run fails, **Nightly triage** classifies the failures (product bug, test bug, environment, flaky) into the job summary; adding the `ai-review` label to a pull request runs a **locator review** of the page objects it changes and posts one comment. Both run Claude Code headless with read-only tools and schema-validated output, and the workflow, not the agent, writes the result. Locally: `npm run agent:triage -- <run-id>` and `npm run agent:review -- <pr-number>`.
 
 ## Conventions
 

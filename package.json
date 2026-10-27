@@ -30,6 +30,8 @@
     "report": "playwright show-report",
     "check:versions": "node scripts/check-playwright-version.mjs",
     "agent:trace": "node scripts/agent-trace.mjs",
+    "agent:triage": "node scripts/agent-triage.mjs",
+    "agent:review": "node scripts/agent-review.mjs",
     "context:budget": "node scripts/context-budget.mjs",
     "mcp:qa": "tsx src/mcp/qa-server.ts",
     "lint": "eslint . --max-warnings=0",
