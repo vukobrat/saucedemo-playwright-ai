@@ -1,0 +1,81 @@
+# Agentic QA strategy
+
+How this repository uses AI agents in test automation: what they are trusted with, what went wrong when they were not checked, and which controls keep them honest. Every claim below points to a run that measured it, recorded in [`docs/phase-1/`](phase-1/) and the [learning log](ai-agents-learning-log.md).
+
+**In one sentence:** agents read, map, draft and diagnose; deterministic code and people own every decision that changes what "green" means.
+
+## 1. Where agents earn their place
+
+| Work                                 | How it runs here                                                                 | What was measured                                                                                                                                                                                                    | Who decides                    |
+| ------------------------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Mapping the app before writing tests | Playwright MCP; the verified model in [`app-exploration.md`](app-exploration.md) | Selectors, messages and 26 defects verified live, including traps where the obvious locator fails (Phase 0)                                                                                                          | A person reviews the app model |
+| Writing tests and page objects       | `write-test`, `add-page-object` skills                                           | A convention-clean test with the count derived from data, 3/3 on repeat ([M5](phase-1/05-skills-answers.md)); footer coverage verified live, merged as PR #22 ([M8](phase-1/08-worktrees-answers.md))                | PR review                      |
+| Triage of failed runs                | `triage` agent and the `qa` MCP server; the nightly triage workflow              | 34/35 on a golden set of real failures, every known-bug id right, no product bug called a test bug ([M10](phase-1/10-evals-answers.md)); $0.02 to $0.08 per nightly triage ([M9](phase-1/09-headless-ci-answers.md)) | The owner acts on the report   |
+| Review of page objects               | `locator-reviewer` on the `ai-review` label                                      | Three planted violations that lint cannot see, all caught on the right lines, under $0.01 per PR (M9)                                                                                                                | Author and maintainer          |
+| Fixing test bugs                     | `/fix-test`, with explicit exit criteria                                         | Fixed a wrong constant at its cause; restored a missing known-bug marker without touching the assertion ([M7](phase-1/07-fix-loops-answers.md)); repaired selector drift (M8)                                        | PR review                      |
+| Finding coverage gaps                | `test-gap-analyzer` (read-only)                                                  | Ranked the untested Dynamic Catalog first, on evidence ([M4](phase-1/04-subagents-answers.md))                                                                                                                       | A person prioritizes           |
+| Parallel work                        | One worktree per agent                                                           | A fix and new coverage in parallel: 576 s against 943 s back to back, no conflicts (M8)                                                                                                                              | Each branch is reviewed        |
+
+## 2. Where they are risky: seen here, not hypothetical
+
+| Failure mode                     | Where       | What it looked like                                                                                                                                                                  |
+| -------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Confident false findings         | Phase 0     | A shared browser page leaked state and made four personas look broken; a fresh context per user showed the real, narrower defects                                                    |
+| Weakening a test to make it pass | M6, M7      | Changing `'Cart, 1 item'` to the app's wrong `'Cart, 1 items'` passes every hook and lint rule, because no assertion disappears                                                      |
+| The model's priors as the oracle | M10         | Without the catalogue and app model: "SauceDemo never disables Checkout on an empty cart ... so `toBeDisabled()` most likely contradicts the app model", a correct test called wrong |
+| Anchoring on context             | M10         | The known defects of a persona framed a stale selector as a new product bug: 1 in 6 right on the two confusable cases                                                                |
+| Silent false greens              | M8, Phase 0 | A stale selector made every `toBeHidden()` badge check pass vacuously; a skip guard with the wrong condition skipped a visual test on every run                                      |
+| Permission creep                 | M8          | A skill's `allowed-tools: Bash` let a headless agent run `curl` past an allowlist that named only npm scripts                                                                        |
+| Reading the wrong evidence       | M9          | Triage of a failed nightly read today's `main`, not the failing commit, and could only guess where the wrong value came from                                                         |
+| Untrusted input in CI            | M9          | In a pull request, the code, the agent's instructions and even the workflow come from the PR; reviewed code can carry instructions                                                   |
+| Leaks in evaluation              | M7, M10     | Git status, auto memory shared across worktrees, lessons that describe injections, and a code seam each told the agent what it was being tested on                                   |
+| Cost and usage limits            | M10         | The first CI eval ran out of the subscription's usage limit after 25 of 35 cases                                                                                                     |
+
+## 3. Controls, in layers
+
+No single layer is enough; each catches what the others cannot.
+
+| Risk                              | Instruction                                                  | Enforcement                                                                                                   | Detection                                                              | Person                                 |
+| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
+| Weakening tests                   | CLAUDE.md guardrail; `/fix-test` exit criteria               | `PreToolUse` hook (removed assertions, skip/only/fixme, `force`, waits); ESLint on the final state            | The eval's zero gate on "product bug called test bug"                  | PR review of every diff                |
+| Invented selectors and assertions | "Verify on the live app" rule                                | ESLint bans raw locators in specs                                                                             | Locator review; the verified app model as oracle                       | Reviews the app model and new locators |
+| False greens                      | Assert the correct behaviour; mark defects with `knownBug()` | Markers turn red when the bug is fixed                                                                        | Prove every check can fail; read logs, not the green check             | Reads reports when numbers look odd    |
+| Untrusted input in CI             | Agents return data, never act                                | Read-only tools, `dontAsk`, no write token, `--json-schema`, deterministic posting; same-repo and label gates | Schema validation fails the job instead of posting nonsense            | Adds the label after reading the diff  |
+| Permission creep                  | Least privilege per skill and agent                          | Deny rules; scoped `allowed-tools`; auto mode refuses an agent's commits to its own configuration             | Headless probes of what a skill can reach                              | Commits changes to agent configuration |
+| Wrong evidence                    | Triage the code that ran                                     | Checkout of `workflow_run.head_sha`; one worktree per agent                                                   | Vague diagnoses are a signal                                           |                                        |
+| Prompt and model regressions      |                                                              | The triage eval gates PRs that touch the agent or its inputs                                                  | Variants that should fail (no tools: 36%, gate failed)                 | Reviews the golden labels              |
+| Cost                              |                                                              | `--max-turns`, `--max-budget-usd`; path triggers; label gates; small models for mechanical work               | `total_cost_usd` in every report; inconclusive verdict on usage limits | Chooses what is worth a run            |
+
+## 4. A person in the loop: who decides what
+
+- **People decide:** every merge (branch protection; agents cannot run `gh pr merge`); changes to permissions and agent configuration (an `ask` rule, and auto mode refuses to let the agent commit them); new known bugs and their `SD-xxx` ids; golden-set labels; visual baselines; whether a review or eval is worth running.
+- **Agents propose, with evidence:** every report names the line that decides it (an `SD-xxx` id, an assertion diff, a selector in the app model), so a reviewer decides in a minute instead of re-investigating.
+- **Code acts:** gates, schema checks, posting, and every classification that does not need judgment (flaky on retry, expected known-bug failures, stale markers).
+
+## 5. Measuring it
+
+- **Triage eval** (`npm run eval:triage`): 35 reviewed real failures; gate at 90% category and known-bug id accuracy, zero critical errors, in every repeat. Current: 34/35 on Sonnet and on Haiku (the miss is a borderline environment case), about $1.50 per run on Sonnet. Runs in CI when the agent or its inputs change.
+- **Probes, not yet evals:** `/fix-test` (two scenarios), `write-test`, the locator review. Each was verified by a run, none is gated.
+- **Not measured yet:** real failed nightlies over time, and whole-run cases where the pattern across failures matters (an expired session fails every logged-in test).
+
+## 6. Choosing the mechanism
+
+| Need                                | Mechanism              | Here                                                      |
+| ----------------------------------- | ---------------------- | --------------------------------------------------------- |
+| A rule that must hold in every task | Root `CLAUDE.md`       | Guardrails, commands, architecture                        |
+| A rule for one area of the code     | Path-scoped rule       | `.claude/rules/pages.md`, `tests.md`, `ci.md`             |
+| A repeatable procedure              | Skill                  | `write-test`, `add-page-object`, `/check`, `/fix-test`    |
+| Its own context, tools or model     | Subagent               | `triage`, `locator-reviewer` (Haiku), `test-gap-analyzer` |
+| Something that must never happen    | Hook or deny rule      | `block-test-weakening`, `Read(./.env)` deny               |
+| Data or actions from another system | MCP server             | `qa` (known bugs, CI reports), Playwright                 |
+| Work with nobody watching           | Headless with a schema | Nightly triage, AI review                                 |
+| Several agents at once              | Worktrees              | `.claude/worktrees/`, `.worktreeinclude`                  |
+| Knowing whether any of it works     | Eval                   | The triage eval                                           |
+
+## 7. Next steps
+
+1. **Harder eval cases:** whole-run cases, real failed nightlies labelled after the fact, and more cases where the obvious reading is wrong. The current set is close to saturated.
+2. **Evals for the other agents:** `/fix-test` (the two Module 7 scenarios are the seed), `write-test` and the locator review.
+3. **The CI triage model:** Haiku matched Sonnet at about a tenth of the cost, on a set too easy to tell them apart. Decide after step 1.
+4. **Review for untrusted contributors:** run the tooling from the base branch and treat the pull request's checkout as data only.
+5. **Coverage:** the Dynamic Catalog, the gap the analyzer ranked first.
