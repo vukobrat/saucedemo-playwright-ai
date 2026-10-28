@@ -8,7 +8,8 @@
 // Usage: npm run eval:triage:runs [-- --repeat 3] [--only <case-id-prefix>] [--concurrency 3]
 //          [--model <id>] [--instructions <file>]
 //          [--simulate perfect|titles|green|test-bugs|counts]   (tests the grader, no model calls)
-//        npm run eval:triage:check   (no model calls: every saved report still matches its labels)
+//        npm run eval:triage:check   (no model calls: every saved report still matches its labels,
+//                                     and the qa server reads it as the eval does)
 // Needs: `claude` signed in. No browsers and no GitHub access: the reports are in the repository.
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -52,13 +53,50 @@ const repeats = Number(options.repeat);
 const config = loadConfig();
 const { cases: allCases, gate } = loadRunCases();
 
+/** Sorted `file::title` keys, once per spec. */
+const keys = (tests) => [...new Set(tests.map((t) => `${t.file}::${t.title ?? t.test}`))].sort();
+
+/** Fails unless two lists of tests name the same specs; the error lists the difference. */
+function assertSame(caseId, what, fromServer, fromEval) {
+  const server = keys(fromServer);
+  const own = keys(fromEval);
+  const onlyServer = server.filter((key) => !own.includes(key));
+  const onlyEval = own.filter((key) => !server.includes(key));
+  if (onlyServer.length > 0 || onlyEval.length > 0) {
+    throw new Error(
+      `Case "${caseId}": the qa server and the eval disagree on ${what}. ` +
+        `Only the server: ${onlyServer.join(', ') || 'none'}. Only the eval: ${onlyEval.join(', ') || 'none'}`,
+    );
+  }
+}
+
 if (options.check) {
-  // A rebuilt report or an edited label can stop matching; catch it in the PR that caused it.
+  // The qa server's classifier is TypeScript; npm run eval:triage:check runs this under tsx.
+  const { classifyReport } = await import('../../src/mcp/ci-report.ts');
   for (const c of allCases) {
     if (!(c.state in config.states)) throw new Error(`Case "${c.id}" has an unknown state`);
-    labelTests(c, readReport(c));
+    // A rebuilt report or an edited label can stop matching; catch it in the PR that caused it.
+    const report = readReport(c);
+    const labelled = labelTests(c, report);
+    // The server and this eval read a report independently, so on every saved run they must
+    // agree on what needs action, or one of them is wrong.
+    const server = classifyReport(report);
+    assertSame(
+      c.id,
+      'the tests that need action',
+      [...server.regressions, ...server.flaky, ...server.knownBugFixedProbably],
+      labelled,
+    );
+    assertSame(
+      c.id,
+      'the known-bug tests that passed',
+      server.knownBugFixedProbably,
+      labelled.filter((t) => t.outcome === 'passed-known-bug'),
+    );
   }
-  console.log(`${String(allCases.length)} whole-run cases match their saved reports`);
+  console.log(
+    `${String(allCases.length)} whole-run cases match their saved reports and the qa server`,
+  );
   process.exit(0);
 }
 

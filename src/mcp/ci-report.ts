@@ -111,6 +111,9 @@ function* walk(
  * Classify every test in a Playwright JSON report. Assumes the normal run mode (EXPOSE_KNOWN_BUGS
  * off), where a known-bug test carries `expectedStatus: "failed"`. The EXPOSE mode, where those
  * tests are surfaced as real failures, is reported separately as `knownBugExposed`.
+ *
+ * A known-bug test is unexpected when it passes, but also when it times out: its marker expects
+ * "failed", not "timedOut". Only a pass suggests the bug is fixed; a timeout is a regression.
  */
 export function classifyReport(report: PlaywrightJsonReport): Classification {
   const regressions: FailureEntry[] = [];
@@ -133,8 +136,11 @@ export function classifyReport(report: PlaywrightJsonReport): Classification {
     if (id) {
       // A known-bug test: its expected outcome encodes whether the bug should still be failing.
       if (test.expectedStatus === 'failed') {
-        if (test.status === 'unexpected') {
+        const passed = test.results?.at(-1)?.status === 'passed';
+        if (test.status === 'unexpected' && passed) {
           knownBugFixedProbably.push({ id, test: name, file, project }); // Passed; maybe fixed.
+        } else if (test.status === 'unexpected') {
+          regressions.push({ test: name, file, line, project, message: cleanMessage(test) });
         } else if (test.status === 'expected') {
           knownBugExpected += 1; // Still failing as designed; the suite is green.
         }
