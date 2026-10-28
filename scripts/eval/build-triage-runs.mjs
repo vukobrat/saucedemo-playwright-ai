@@ -1,7 +1,8 @@
 // Builds the saved reports of the whole-run triage eval (evals/triage/run-cases.json) and checks
 // each case's labels against its report. A case from a real CI run downloads that run's JSON report
 // artifact; GitHub keeps it for 14 days, so a saved one is kept, never rebuilt. A local case runs
-// its specs in an isolated checkout of its state. Reports are trimmed to what triage reads. The
+// its specs in an isolated checkout of its state, and a fixed-bug case edits another case's saved
+// report (see withFixedBug). Reports are trimmed to what triage reads. The
 // labels are proposals until a person has reviewed the summary this prints.
 //
 // Usage: npm run eval:triage:runs:build [-- --only <case-id>]   (no model calls)
@@ -12,7 +13,14 @@ import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { createCheckout, loadConfig, runPlaywright } from './checkout.mjs';
-import { expectedKnownBugFailures, labelTests, loadRunCases, reportPath } from './run-cases.mjs';
+import {
+  expectedKnownBugFailures,
+  labelTests,
+  loadRunCases,
+  readReport,
+  reportPath,
+  walk,
+} from './run-cases.mjs';
 
 // The checkouts have no .env; load it as src/config/env.ts would, exported variables first.
 if (existsSync('.env')) process.loadEnvFile('.env');
@@ -75,6 +83,27 @@ function downloadCiReport(runId) {
   }
 }
 
+/**
+ * The app cannot be fixed on demand, so a fixed known bug is the one synthesized report: another
+ * case's report in which one marked test ends as a fix would make it, passing on every retry in
+ * every project.
+ */
+function withFixedBug(c, allCases) {
+  const report = structuredClone(readReport(allCases.find((other) => other.id === c.source.from)));
+  const { file, title } = c.source.fixedTest;
+  let flipped = 0;
+  for (const { spec, test } of walk(report.suites)) {
+    if (spec.file !== file || spec.title !== title) continue;
+    test.status = 'unexpected'; // a knownBug() test expects to fail
+    test.results = test.results.map(() => ({ status: 'passed' }));
+    flipped += 1;
+  }
+  if (flipped === 0) throw new Error(`Case "${c.id}": no test ${file} "${title}" to fix`);
+  report.stats.expected -= flipped;
+  report.stats.unexpected += flipped;
+  return report;
+}
+
 function runLocally(c, config) {
   const checkout = createCheckout(c.state, config.states[c.state]);
   try {
@@ -84,8 +113,15 @@ function runLocally(c, config) {
   }
 }
 
+function build(c, allCases, config) {
+  if (c.source.ciRun) return downloadCiReport(c.source.ciRun);
+  if (c.source.fixedTest) return withFixedBug(c, allCases);
+  return runLocally(c, config);
+}
+
 const config = loadConfig();
-const cases = loadRunCases().cases.filter((c) => !options.only || c.id === options.only);
+const allCases = loadRunCases().cases;
+const cases = allCases.filter((c) => !options.only || c.id === options.only);
 mkdirSync(path.dirname(reportPath(cases[0])), { recursive: true });
 
 for (const c of cases) {
@@ -93,7 +129,7 @@ for (const c of cases) {
   if (c.source.ciRun && existsSync(file)) {
     console.log(`${c.id}: kept the saved report of CI run ${String(c.source.ciRun)}`);
   } else {
-    const report = c.source.ciRun ? downloadCiReport(c.source.ciRun) : runLocally(c, config);
+    const report = build(c, allCases, config);
     const text = `${JSON.stringify(trim(report), null, 2)}\n`;
     // The repository is public: a machine's paths must not end up in a saved report.
     for (const local of [homedir(), tmpdir(), path.resolve(tmpdir())]) {

@@ -20,7 +20,8 @@ export function readReport(c) {
   return JSON.parse(readFileSync(reportPath(c), 'utf8'));
 }
 
-function* walk(suites) {
+/** Every test of a report with its spec. */
+export function* walk(suites) {
   for (const suite of suites ?? []) {
     for (const spec of suite.specs ?? []) {
       for (const test of spec.tests ?? []) yield { spec, test };
