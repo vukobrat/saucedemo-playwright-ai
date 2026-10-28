@@ -38,6 +38,8 @@
     "eval:triage:runs": "node scripts/eval/run-triage-runs-eval.mjs",
     "eval:triage:runs:build": "node scripts/eval/build-triage-runs.mjs",
     "eval:fix-loop": "node scripts/eval/run-fix-loop-eval.mjs",
+    "eval:review": "node scripts/eval/run-review-eval.mjs",
+    "eval:review:check": "node scripts/eval/run-review-eval.mjs --check",
     "context:budget": "node scripts/context-budget.mjs",
     "mcp:qa": "tsx src/mcp/qa-server.ts",
     "lint": "eslint . --max-warnings=0",

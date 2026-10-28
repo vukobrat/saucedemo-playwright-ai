@@ -1,0 +1,321 @@
+{
+  "description": "Review eval: the AI review's own prompt and command line (scripts/lib/review-run.mjs) on small pull requests to page objects and components, each an isolated checkout of HEAD with the case's edits. 'files' are the pull request's changed files. A label anchors on a code snippet that occurs on exactly one line of the edited file. 'violations' must be flagged as must-fix or should-fix; 'exceptions' are correct code that looks wrong and must not be. Every planted change passes ESLint (npm run eval:review -- --check --lint): lint cannot see these, which is why the review exists.",
+  "cases": [
+    {
+      "id": "clean-catalog",
+      "description": "Control: the Dynamic Catalog page objects as merged in PR #31.",
+      "files": [
+        "src/components/catalog-card.component.ts",
+        "src/components/side-menu.component.ts",
+        "src/pages/lazy-load-catalog.page.ts",
+        "src/pages/slider-catalog.page.ts",
+        "src/pages/spinner-catalog.page.ts"
+      ],
+      "edits": [],
+      "violations": [],
+      "exceptions": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.openButton = page.getByRole('button', { name: 'Open Menu' });",
+          "why": "Verified exception: the open-menu test id sits on a covered <img>."
+        },
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.logoutButton = this.nav.getByRole('button', { name: 'Logout' });",
+          "why": "Verified exception: side menu items are <a role=\"button\">."
+        },
+        {
+          "file": "src/components/catalog-card.component.ts",
+          "at": "this.name = root.getByTestId(/-name$/);",
+          "why": "Test ids differ per page by prefix only; the suffix is the shared contract."
+        }
+      ]
+    },
+    {
+      "id": "clean-footer-login",
+      "description": "Control: the footer (PR #22) and the login page, whose raw-string login() is documented and deliberate.",
+      "files": ["src/components/footer.component.ts", "src/pages/login.page.ts"],
+      "edits": [],
+      "violations": [],
+      "exceptions": [
+        {
+          "file": "src/pages/login.page.ts",
+          "at": "async login(username: string, password: string): Promise<void> {",
+          "why": "Raw values on purpose, for negative cases such as empty fields; loginAs(user) is the typed method."
+        }
+      ]
+    },
+    {
+      "id": "clean-shopping",
+      "description": "Control: inventory, product card, cart and header as they are.",
+      "files": [
+        "src/pages/inventory.page.ts",
+        "src/components/product-card.component.ts",
+        "src/pages/cart.page.ts",
+        "src/components/header.component.ts"
+      ],
+      "edits": [],
+      "violations": [],
+      "exceptions": [
+        {
+          "file": "src/components/product-card.component.ts",
+          "at": "this.detailsLink = root.getByTestId(/^item-\\d+-title-link$/);",
+          "why": "Verified exception: image and title links share one accessible name."
+        }
+      ]
+    },
+    {
+      "id": "css-class",
+      "description": "The cart's item names by CSS class.",
+      "files": ["src/pages/cart.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/cart.page.ts",
+          "find": "    this.itemNames = list.getByTestId('inventory-item-name');",
+          "replace": "    this.itemNames = list.locator('.inventory_item_name');"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/cart.page.ts",
+          "at": "list.locator('.inventory_item_name')",
+          "rule": "CSS class selector instead of the test id"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "xpath",
+      "description": "The overview total by XPath on a class.",
+      "files": ["src/pages/checkout-overview.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/checkout-overview.page.ts",
+          "find": "    this.total = page.getByTestId('total-label');",
+          "replace": "    this.total = page.locator('xpath=//div[@class=\"summary_total_label\"]');"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/checkout-overview.page.ts",
+          "at": "summary_total_label",
+          "rule": "XPath instead of the test id"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "menu-test-ids",
+      "description": "A 'use test ids consistently' refactor of the menu buttons, dropping the comment that explains the exception.",
+      "files": ["src/components/side-menu.component.ts"],
+      "edits": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "find": "    // The data-test ids \"open-menu\" and \"close-menu\" sit on images covered by these buttons.\n    this.openButton = page.getByRole('button', { name: 'Open Menu' });\n    this.closeButton = page.getByRole('button', { name: 'Close Menu' });",
+          "replace": "    this.openButton = page.getByTestId('open-menu');\n    this.closeButton = page.getByTestId('close-menu');"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "page.getByTestId('open-menu')",
+          "rule": "Verified trap: the open-menu test id is on an <img> covered by the button"
+        },
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "page.getByTestId('close-menu')",
+          "rule": "Verified trap: the close-menu test id is on an <img> covered by the button"
+        }
+      ],
+      "exceptions": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.logoutButton = this.nav.getByRole('button', { name: 'Logout' });",
+          "why": "Verified exception: side menu items are <a role=\"button\">."
+        }
+      ]
+    },
+    {
+      "id": "logout-link",
+      "description": "Logout addressed as a link, like About next to it.",
+      "files": ["src/components/side-menu.component.ts"],
+      "edits": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "find": "    this.logoutButton = this.nav.getByRole('button', { name: 'Logout' });",
+          "replace": "    this.logoutButton = this.nav.getByRole('link', { name: 'Logout' });"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "getByRole('link', { name: 'Logout' })",
+          "rule": "Verified trap: side menu items are <a role=\"button\">, so the link role matches nothing"
+        }
+      ],
+      "exceptions": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.aboutLink = this.nav.getByRole('link', { name: 'About' });",
+          "why": "About is the one real link in the menu."
+        },
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.openButton = page.getByRole('button', { name: 'Open Menu' });",
+          "why": "Verified exception: the open-menu test id sits on a covered <img>."
+        }
+      ]
+    },
+    {
+      "id": "menu-open-by-test-id",
+      "description": "An isOpen() helper that checks a menu item's visibility by test id.",
+      "files": ["src/components/side-menu.component.ts"],
+      "edits": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "find": "  async close(): Promise<void> {\n    await this.closeButton.click();\n  }\n",
+          "replace": "  async close(): Promise<void> {\n    await this.closeButton.click();\n  }\n\n  /** Whether the menu is open: its Logout item is only visible then. */\n  async isOpen(): Promise<boolean> {\n    return this.nav.getByTestId('logout-sidebar-link').isVisible();\n  }\n"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.nav.getByTestId('logout-sidebar-link').isVisible()",
+          "rule": "Verified trap: closed menu items sit off-screen but count as visible, so this is always true"
+        }
+      ],
+      "exceptions": [
+        {
+          "file": "src/components/side-menu.component.ts",
+          "at": "this.logoutButton = this.nav.getByRole('button', { name: 'Logout' });",
+          "why": "Verified exception: side menu items are <a role=\"button\">."
+        }
+      ]
+    },
+    {
+      "id": "details-link-by-role",
+      "description": "A 'prefer roles' cleanup of the product card's details link, dropping the comment that explains the test id.",
+      "files": ["src/components/product-card.component.ts"],
+      "edits": [
+        {
+          "file": "src/components/product-card.component.ts",
+          "find": "  /**\n   * Image and title are both `<a role=\"button\">` named \"View details for <name>\", so the\n   * accessible name is ambiguous; the title link's test id is not.\n   */\n  readonly detailsLink: Locator;",
+          "replace": "  readonly detailsLink: Locator;"
+        },
+        {
+          "file": "src/components/product-card.component.ts",
+          "find": "    this.detailsLink = root.getByTestId(/^item-\\d+-title-link$/);",
+          "replace": "    this.detailsLink = root.getByRole('button', { name: /^View details for / });"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/components/product-card.component.ts",
+          "at": "root.getByRole('button', { name: /^View details for / })",
+          "rule": "Verified exception broken: image and title share the name, so the locator matches two elements"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "slug-test-id",
+      "description": "Add to cart through slug-built test ids instead of the product card.",
+      "files": ["src/pages/inventory.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/inventory.page.ts",
+          "find": "    for (const product of products) {\n      await this.product(product).addToCart();\n    }",
+          "replace": "    for (const product of products) {\n      const slug = product.name.toLowerCase().replaceAll(' ', '-');\n      await this.page.getByTestId(`add-to-cart-${slug}`).click();\n    }"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/inventory.page.ts",
+          "at": ["const slug = product.name", "getByTestId(`add-to-cart-${slug}`)"],
+          "rule": "Products are addressed by name through the product card, not by slug-built ids"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "assertion-in-page",
+      "description": "The cart's checkout() asserts the next page's URL.",
+      "files": ["src/pages/cart.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/cart.page.ts",
+          "find": "import type { Locator, Page } from '@playwright/test';",
+          "replace": "import { expect, type Locator, type Page } from '@playwright/test';"
+        },
+        {
+          "file": "src/pages/cart.page.ts",
+          "find": "  async checkout(): Promise<void> {\n    await this.checkoutButton.click();\n  }",
+          "replace": "  async checkout(): Promise<void> {\n    await this.checkoutButton.click();\n    await expect(this.page).toHaveURL(/checkout-step-one/);\n  }"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/cart.page.ts",
+          "at": "await expect(this.page).toHaveURL(/checkout-step-one/);",
+          "rule": "No assertions in page objects except expectLoaded()"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "retry-on-failure",
+      "description": "The checkout form retries Continue after a reload when the click fails.",
+      "files": ["src/pages/checkout-information.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/checkout-information.page.ts",
+          "find": "  async submit(customer: Customer): Promise<void> {\n    await this.enterDetails(customer);\n    await this.continueButton.click();\n  }",
+          "replace": "  async submit(customer: Customer): Promise<void> {\n    await this.enterDetails(customer);\n    try {\n      await this.continueButton.click();\n    } catch {\n      // The form sometimes loses its values on slow runs: reload, fill it again and retry once.\n      await this.page.reload();\n      await this.enterDetails(customer);\n      await this.continueButton.click();\n    }\n  }"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/checkout-information.page.ts",
+          "at": ["    try {", "await this.page.reload();"],
+          "rule": "No retries or try/catch to handle broken UI"
+        }
+      ],
+      "exceptions": []
+    },
+    {
+      "id": "branch-and-raw-string",
+      "description": "Two files: a conditional cleanup on the product page and a name-based cart lookup.",
+      "files": ["src/pages/product-details.page.ts", "src/pages/cart.page.ts"],
+      "edits": [
+        {
+          "file": "src/pages/product-details.page.ts",
+          "find": "  async remove(): Promise<void> {\n    await this.removeButton.click();\n  }",
+          "replace": "  async remove(): Promise<void> {\n    await this.removeButton.click();\n  }\n\n  /** Takes the product out of the cart if it is in, so a test can start clean. */\n  async ensureNotInCart(): Promise<void> {\n    if (await this.removeButton.isVisible()) {\n      await this.removeButton.click();\n    }\n  }"
+        },
+        {
+          "file": "src/pages/cart.page.ts",
+          "find": "  async continueShopping(): Promise<void> {",
+          "replace": "  itemByName(name: string): CartItemComponent {\n    return new CartItemComponent(\n      this.items.filter({\n        has: this.page.getByTestId('inventory-item-name').getByText(name, { exact: true }),\n      }),\n    );\n  }\n\n  async continueShopping(): Promise<void> {"
+        }
+      ],
+      "violations": [
+        {
+          "file": "src/pages/product-details.page.ts",
+          "at": "if (await this.removeButton.isVisible()) {",
+          "rule": "No if branches on UI state in page objects"
+        },
+        {
+          "file": "src/pages/cart.page.ts",
+          "at": "itemByName(name: string): CartItemComponent {",
+          "rule": "Methods take typed data (Product), not raw strings"
+        }
+      ],
+      "exceptions": []
+    }
+  ],
+  "gate": {
+    "maxCriticalErrors": 0,
+    "minRecall": 0.9,
+    "maxFalsePositivesPerRun": 1
+  }
+}
