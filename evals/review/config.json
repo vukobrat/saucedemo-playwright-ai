@@ -284,13 +284,13 @@
     },
     {
       "id": "branch-and-raw-string",
-      "description": "Two files: a conditional cleanup on the product page and a name-based cart lookup.",
+      "description": "Two files: a second click when Add to cart seems not to react, and a name-based cart lookup.",
       "files": ["src/pages/product-details.page.ts", "src/pages/cart.page.ts"],
       "edits": [
         {
           "file": "src/pages/product-details.page.ts",
-          "find": "  async remove(): Promise<void> {\n    await this.removeButton.click();\n  }",
-          "replace": "  async remove(): Promise<void> {\n    await this.removeButton.click();\n  }\n\n  /** Takes the product out of the cart if it is in, so a test can start clean. */\n  async ensureNotInCart(): Promise<void> {\n    if (await this.removeButton.isVisible()) {\n      await this.removeButton.click();\n    }\n  }"
+          "find": "  async addToCart(): Promise<void> {\n    await this.addToCartButton.click();\n  }",
+          "replace": "  async addToCart(): Promise<void> {\n    await this.addToCartButton.click();\n    // The first click sometimes does not register: click again if the button is still there.\n    if (await this.addToCartButton.isVisible()) {\n      await this.addToCartButton.click();\n    }\n  }"
         },
         {
           "file": "src/pages/cart.page.ts",
@@ -301,8 +301,8 @@
       "violations": [
         {
           "file": "src/pages/product-details.page.ts",
-          "at": "if (await this.removeButton.isVisible()) {",
-          "rule": "No if branches on UI state in page objects"
+          "at": "if (await this.addToCartButton.isVisible()) {",
+          "rule": "No if branch to handle broken UI: a click that does not register is a bug to see"
         },
         {
           "file": "src/pages/cart.page.ts",
