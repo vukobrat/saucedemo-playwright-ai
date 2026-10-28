@@ -24,7 +24,12 @@
         "additionalProperties": false,
         "required": ["tests", "category", "evidence", "action"],
         "properties": {
-          "tests": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "tests": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Every test of this cause, one per item, as analyze_ci_run names it (file:line title). Never a count or a pattern such as 'all 5 in cart.spec.ts': the owner needs to see which tests, and a failure left out of the report is invisible."
+          },
           "category": {
             "enum": ["known-product-bug", "new-product-bug", "test-bug", "environment", "flaky"]
           },

@@ -21,6 +21,7 @@ if (!/^\d+$/.test(runId ?? '')) {
 }
 
 const OUT_DIR = 'agent-output';
+const MAX_TESTS_SHOWN = 8;
 
 // The qa server is defined once, in .mcp.json.
 const { mcpServers } = JSON.parse(readFileSync('.mcp.json', 'utf8'));
@@ -52,7 +53,13 @@ if (output.failures.length > 0) {
     const category = failure.knownBugId
       ? `${failure.category} (${failure.knownBugId})`
       : failure.category;
-    const tests = failure.tests.map((test) => `\`${cell(test)}\``).join('<br>');
+    // A mass failure lists every test; the summary shows the first few, triage.json has them all.
+    const shown = failure.tests.slice(0, MAX_TESTS_SHOWN).map((test) => `\`${cell(test)}\``);
+    const more = failure.tests.length - shown.length;
+    if (more > 0) {
+      shown.push(`and ${String(more)} more (all in triage.json, artifact triage-report)`);
+    }
+    const tests = shown.join('<br>');
     lines.push(
       `| ${cell(category)} | ${tests} | ${cell(failure.evidence)} | ${cell(failure.action)} |`,
     );
