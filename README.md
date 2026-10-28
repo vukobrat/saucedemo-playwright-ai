@@ -14,7 +14,7 @@ Production-grade test automation for [SauceDemo (Swag Labs)](https://www.saucede
 
 - 135 test cases, 321 runs per full regression (chromium, firefox, webkit) in 4 parallel shards of about 2 minutes each
 - Page Object Model with components, typed fixtures, per-persona login via `storageState`
-- 26 catalogued application defects, each asserted as an expected failure with a stable id
+- 31 catalogued application defects, each asserted as an expected failure with a stable id
 - Accessibility gate (axe, WCAG 2.2 AA) and visual regression with reviewed Linux baselines
 - Typed API layer with runtime contracts (zod) against a public demo API
 - Key conventions enforced by lint, git hooks and CI, not only written down
@@ -56,26 +56,26 @@ flowchart TB
 
 ## Test strategy
 
-| Project                           | What                                                         | Browsers         | Runs on                          |
-| --------------------------------- | ------------------------------------------------------------ | ---------------- | -------------------------------- |
-| `setup`                           | Logs in each persona through the UI and saves `storageState` | chromium         | every run, every shard           |
-| `chromium` / `firefox` / `webkit` | Functional e2e and persona specs                             | all three        | smoke on PRs, everything nightly |
-| `a11y`                            | axe WCAG 2.0/2.1/2.2 A+AA, zero violations on 9 page states  | chromium         | every PR                         |
-| `visual`                          | Screenshot comparison against Linux baselines                | bundled Chromium | every PR                         |
-| `api`                             | DummyJSON auth, products and carts contracts                 | none (HTTP)      | nightly (third-party API)        |
+| Project                           | What                                                                             | Browsers         | Runs on                          |
+| --------------------------------- | -------------------------------------------------------------------------------- | ---------------- | -------------------------------- |
+| `setup`                           | Logs in each persona through the UI and saves `storageState`                     | chromium         | every run, every shard           |
+| `chromium` / `firefox` / `webkit` | Functional e2e and persona specs                                                 | all three        | smoke on PRs, everything nightly |
+| `a11y`                            | axe WCAG 2.0/2.1/2.2 A+AA on 12 page states, zero violations beyond 2 known bugs | chromium         | every PR                         |
+| `visual`                          | Screenshot comparison against Linux baselines                                    | bundled Chromium | every PR                         |
+| `api`                             | DummyJSON auth, products and carts contracts                                     | none (HTTP)      | nightly (third-party API)        |
 
 **Tags:** `@smoke` (critical path), `@regression`, `@persona`, `@a11y`, `@visual`, `@api`. ESLint rejects tests without a tag or with an unknown one.
 
 **Personas.** SauceDemo ships deliberately broken users. Each defect is catalogued in [`src/data/known-bugs.ts`](src/data/known-bugs.ts) with a stable id, and the test asserts the _correct_ behavior under `knownBug()`:
 
-| Ids             | Area                                                                                       | Count |
-| --------------- | ------------------------------------------------------------------------------------------ | ----- |
-| SD-0xx          | standard user (stale buttons, cart accessible name, empty-cart checkout, whitespace names) | 4     |
-| SD-1xx / SD-2xx | `problem_user` / `error_user` (images, sorting, cart, checkout)                            | 13    |
-| SD-3xx          | `performance_glitch_user` (login and sort budgets)                                         | 2     |
-| SD-4xx          | `visual_user` (random prices, broken image, layout)                                        | 3     |
-| SD-5xx          | accessibility best practices                                                               | 2     |
-| DJ-0xx          | DummyJSON API (500 instead of 401, inconsistent field names)                               | 2     |
+| Ids             | Area                                                                                                                | Count |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- | ----- |
+| SD-0xx          | standard user (stale buttons, cart accessible name, empty-cart checkout, whitespace names, duplicate catalog entry) | 5     |
+| SD-1xx / SD-2xx | `problem_user` / `error_user` (images, sorting, cart, checkout)                                                     | 13    |
+| SD-3xx          | `performance_glitch_user` (login and sort budgets)                                                                  | 2     |
+| SD-4xx          | `visual_user` (random prices, broken image, layout)                                                                 | 3     |
+| SD-5xx          | accessibility: best practices; Dynamic Catalog contrast, target size and an unstoppable slider                      | 6     |
+| DJ-0xx          | DummyJSON API (500 instead of 401, inconsistent field names)                                                        | 2     |
 
 The suite stays green while a bug exists and turns red when it is fixed, so markers cannot rot. `EXPOSE_KNOWN_BUGS=true` turns the markers off and produces real, labelled failures with traces: a ground-truth dataset for evaluating triage tooling.
 
