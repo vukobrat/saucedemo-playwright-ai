@@ -3,7 +3,14 @@
   "description": "What the triage agent returns for one CI run (claude -p --json-schema).",
   "type": "object",
   "additionalProperties": false,
-  "required": ["runId", "verdict", "summary", "expectedKnownBugFailures", "failures"],
+  "required": [
+    "runId",
+    "verdict",
+    "summary",
+    "expectedKnownBugFailures",
+    "staleMarkers",
+    "failures"
+  ],
   "properties": {
     "runId": { "type": "string", "description": "The GitHub Actions run id that was triaged." },
     "verdict": {
@@ -15,6 +22,11 @@
       "type": "integer",
       "minimum": 0,
       "description": "Tests that failed as expected under a knownBug() marker."
+    },
+    "staleMarkers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "SD-xxx or DJ-xxx ids whose knownBug() markers should be removed because the bug looks fixed: its test passed, and its check could have failed. A pass explained by another cause, such as a stale locator, is not a fix. Empty when there is none."
     },
     "failures": {
       "type": "array",

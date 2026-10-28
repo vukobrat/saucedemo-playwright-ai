@@ -7,7 +7,7 @@
 //
 // Usage: npm run eval:triage:runs [-- --repeat 3] [--only <case-id-prefix>] [--concurrency 3]
 //          [--model <id>] [--instructions <file>]
-//          [--simulate perfect|titles|green|test-bugs|counts]   (tests the grader, no model calls)
+//          [--simulate perfect|titles|green|test-bugs|counts|fixed-markers]   (tests the grader)
 //        npm run eval:triage:check   (no model calls: every saved report still matches its labels,
 //                                     and the qa server reads it as the eval does)
 // Needs: `claude` signed in. No browsers and no GitHub access: the reports are in the repository.
@@ -132,7 +132,8 @@ async function triage(c, dir) {
 /**
  * Scripted reports for testing the grader without model calls: the labels themselves (perfect),
  * the same with bare titles (titles), every run called green (green), every cause called a test
- * bug (test-bugs), or each cause summarized as a count instead of its tests (counts).
+ * bug (test-bugs), each cause summarized as a count instead of its tests (counts), or every
+ * known-bug test that passed called fixed (fixed-markers).
  */
 function simulate(behaviour, c, labelled, report) {
   const failures = c.groups.map((group, index) => {
@@ -149,16 +150,30 @@ function simulate(behaviour, c, labelled, report) {
     };
   });
   const green = behaviour === 'green';
+  const passedIds = labelled
+    .filter((t) => t.outcome === 'passed-known-bug')
+    .map((t) => t.knownBugId);
   return {
     runId: c.runId,
     verdict: green ? 'green' : c.verdicts[0],
     summary: `Simulated: ${behaviour}.`,
     expectedKnownBugFailures: expectedKnownBugFailures(report),
+    staleMarkers: behaviour === 'fixed-markers' ? passedIds : (c.staleMarkers ?? []),
     failures: green ? [] : failures,
   };
 }
 
 const describe = (failure) => [failure.category, failure.knownBugId].filter(Boolean).join(' ');
+
+/** Whether a reported cause is right for a label group: its category (and id), or one it accepts. */
+function accepts(label, failure) {
+  if (failure.category === label.category) {
+    return !label.knownBugId || failure.knownBugId === label.knownBugId;
+  }
+  return label.accept?.includes(failure.category) ?? false;
+}
+
+const idSet = (ids) => [...new Set(ids)].sort().join(', ');
 
 function grade(c, labelled, answer) {
   const critical = [];
@@ -168,12 +183,7 @@ function grade(c, labelled, answer) {
   const tests = labelled.map((test) => {
     const label = c.groups[test.group];
     const listedIn = answer.failures.filter((f) => f.tests.some((entry) => names(entry, test)));
-    const right =
-      listedIn.length > 0 &&
-      listedIn.every(
-        (f) =>
-          f.category === label.category && (!label.knownBugId || f.knownBugId === label.knownBugId),
-      );
+    const right = listedIn.length > 0 && listedIn.every((f) => accepts(label, f));
     // The costly mistakes: a real defect missing from the report, or one that invites "fixing" a
     // correct test.
     if (PRODUCT_BUGS.has(label.category) && listedIn.length === 0) {
@@ -192,6 +202,8 @@ function grade(c, labelled, answer) {
   });
   return {
     verdictRight: c.verdicts.includes(answer.verdict),
+    // The call the owner acts on: which markers to remove, and no others.
+    markersRight: idSet(answer.staleMarkers) === idSet(c.staleMarkers ?? []),
     tests,
     groupScores,
     notListed: tests.filter((t) => t.listedAs.length === 0).length,
@@ -221,12 +233,24 @@ for (const stateName of [...new Set(cases.map((c) => c.state))]) {
           error = failure instanceof Error ? failure.message : String(failure);
         }
         const graded = answer ? grade(c, labelled, answer) : undefined;
-        const ok = graded && graded.verdictRight && graded.groupScores.every((s) => s === 1);
+        const ok =
+          graded?.verdictRight && graded.markersRight && graded.groupScores.every((s) => s === 1);
         console.error(
           `${ok ? 'ok  ' : 'MISS'} ${c.id} #${String(repeat + 1)}: ${answer?.verdict ?? error}`,
         );
         const expected = expectedKnownBugFailures(report);
-        return { id: c.id, repeat, verdicts: c.verdicts, expected, answer, error, meta, ...graded };
+        const markers = c.staleMarkers ?? [];
+        return {
+          id: c.id,
+          repeat,
+          verdicts: c.verdicts,
+          markers,
+          expected,
+          answer,
+          error,
+          meta,
+          ...graded,
+        };
       })),
     );
   } finally {
@@ -248,6 +272,7 @@ const perRepeat = Array.from({ length: repeats }, (_, repeat) => {
   return {
     total: rows.length,
     verdictRight: answered.filter((r) => r.verdictRight).length,
+    markersRight: answered.filter((r) => r.markersRight).length,
     testAccuracy: scores.length === 0 ? 1 : sum(scores, (s) => s) / scores.length,
     actionTests: sum(answered, (r) => r.tests.length),
     notListed: sum(answered, (r) => r.notListed),
@@ -259,6 +284,7 @@ const perRepeat = Array.from({ length: repeats }, (_, repeat) => {
 const passed = perRepeat.every(
   (m) =>
     m.verdictRight / m.total >= gate.minVerdictAccuracy &&
+    m.markersRight / m.total >= gate.minMarkerAccuracy &&
     m.testAccuracy >= gate.minTestAccuracy &&
     m.critical <= gate.maxCriticalErrors,
 );
@@ -272,6 +298,7 @@ const lines = [
   `## Whole-run triage eval: ${String(cases.length)} CI runs x ${String(repeats)} repeat(s)`,
   '',
   `**Gate: ${verdict}** (verdict right >= ${String(100 * gate.minVerdictAccuracy)}%, ` +
+    `stale-marker calls right >= ${String(100 * gate.minMarkerAccuracy)}%, ` +
     `tests classified right >= ${String(100 * gate.minTestAccuracy)}% per label group, ` +
     `critical errors <= ${String(gate.maxCriticalErrors)}, in every repeat). ` +
     (options.simulate
@@ -290,20 +317,22 @@ const lines = [
   `| Metric | ${columns((_, i) => `Repeat ${String(i + 1)}`)} |`,
   `| --- | ${columns(() => '---')} |`,
   `| Verdict right | ${columns((m) => percent(m.verdictRight, m.total))} |`,
+  `| Stale-marker calls right (which markers to remove, and no others) | ${columns((m) => percent(m.markersRight, m.total))} |`,
   `| Tests classified right (mean per label group) | ${columns((m) => `${String(Math.round(100 * m.testAccuracy))}%`)} |`,
   `| Tests needing action that the report leaves out | ${columns((m) => `${String(m.notListed)} of ${String(m.actionTests)}`)} |`,
   `| Critical errors (false green, product bug left out or called a test bug) | ${columns((m) => String(m.critical))} |`,
   `| No answer (not the agent's judgment) | ${columns((m) => String(m.noAnswer))} |`,
   `| Estimated cost | ${columns((m) => `$${m.costUsd.toFixed(2)}`)} |`,
   '',
-  '| Run | Verdict (label) | Right per label group | Left out | Known-bug count (agent / report) | Cost |',
-  '| --- | --- | --- | --- | --- | --- |',
+  '| Run | Verdict (label) | Stale markers (label) | Right per label group | Left out | Known-bug count (agent / report) | Cost |',
+  '| --- | --- | --- | --- | --- | --- | --- |',
   ...results.map((r) => {
     const run = `${r.id} #${String(r.repeat + 1)}`;
-    if (!r.answer) return `| ${run} | no answer | | | | |`;
+    if (!r.answer) return `| ${run} | no answer | | | | | |`;
     const groups = r.groupScores.map((s) => `${String(Math.round(100 * s))}%`).join(', ') || '-';
+    const markers = `${idSet(r.answer.staleMarkers) || 'none'} (${idSet(r.markers) || 'none'})`;
     return (
-      `| ${run} | ${r.answer.verdict} (${r.verdicts.join(' or ')}) | ${groups} | ` +
+      `| ${run} | ${r.answer.verdict} (${r.verdicts.join(' or ')}) | ${markers} | ${groups} | ` +
       `${String(r.notListed)} of ${String(r.tests.length)} | ` +
       `${String(r.answer.expectedKnownBugFailures)} / ${String(r.expected)} | ` +
       `$${r.meta.costUsd.toFixed(2)} |`

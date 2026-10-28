@@ -30,7 +30,11 @@ export function* walk(suites) {
   }
 }
 
-const isKnownBug = (test) => test.annotations?.some((a) => a.type === 'known-bug') ?? false;
+/** The SD-xxx or DJ-xxx id of a test's knownBug() marker, if it has one. */
+const knownBugId = (test) => {
+  const annotation = test.annotations?.find((a) => a.type === 'known-bug');
+  return /\b(SD-\d+|DJ-\d+)\b/.exec(annotation?.description ?? '')?.[1];
+};
 
 /**
  * The tests of a report that need an owner action, once per spec however many projects ran it:
@@ -46,7 +50,7 @@ export function actionTests(report) {
     const passed = test.results?.at(-1)?.status === 'passed';
     let outcome = 'failed';
     if (test.status === 'flaky') outcome = 'flaky';
-    else if (isKnownBug(test) && test.expectedStatus === 'failed' && passed) {
+    else if (knownBugId(test) && test.expectedStatus === 'failed' && passed) {
       outcome = 'passed-known-bug';
     }
 
@@ -56,6 +60,7 @@ export function actionTests(report) {
       line: spec.line,
       title: spec.title,
       outcome,
+      knownBugId: knownBugId(test),
     };
     if (outcome === 'failed') entry.outcome = 'failed'; // a real failure anywhere outweighs a flake
     tests.set(key, entry);
@@ -67,7 +72,7 @@ export function actionTests(report) {
 export function expectedKnownBugFailures(report) {
   let count = 0;
   for (const { test } of walk(report.suites)) {
-    if (isKnownBug(test) && test.expectedStatus === 'failed' && test.status === 'expected') {
+    if (knownBugId(test) && test.expectedStatus === 'failed' && test.status === 'expected') {
       count += 1;
     }
   }

@@ -46,6 +46,9 @@ const lines = [
   `**Verdict: ${VERDICTS[output.verdict]}.** ${output.summary}`,
   '',
   `Expected known-bug failures: ${String(output.expectedKnownBugFailures)}.`,
+  ...(output.staleMarkers.length > 0
+    ? ['', `**Stale knownBug() markers to remove:** ${output.staleMarkers.join(', ')}.`]
+    : []),
 ];
 if (output.failures.length > 0) {
   lines.push('', '| Category | Tests | Evidence | Action |', '| --- | --- | --- | --- |');
