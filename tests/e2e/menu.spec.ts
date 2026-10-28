@@ -1,6 +1,7 @@
 import { test, expect } from '@fixtures';
+import { ALL_CATALOG_VARIANTS } from '@data/dynamic-catalog';
 import { KNOWN_BUGS } from '@data/known-bugs';
-import { LINKS } from '@data/messages';
+import { LINKS, PAGE_TITLES } from '@data/messages';
 import { PRODUCTS } from '@data/products';
 import { knownBug } from '@utils/known-bug';
 
@@ -29,6 +30,36 @@ test.describe('Side menu', { tag: '@regression' }, () => {
     await cartPage.menu.goToAllItems();
 
     await inventoryPage.expectLoaded();
+  });
+
+  test('Dynamic Catalog expands a submenu of catalog pages', async ({ inventoryPage }) => {
+    const { menu } = inventoryPage;
+
+    await menu.expandDynamicCatalog();
+
+    await expect(menu.dynamicCatalogButton).toHaveAttribute('aria-expanded', 'true');
+    for (const variant of ALL_CATALOG_VARIANTS) {
+      await expect(menu.dynamicCatalogItem(variant)).toBeVisible();
+    }
+  });
+
+  test('Dynamic Catalog opens each catalog page', async ({
+    inventoryPage,
+    lazyLoadCatalogPage,
+    spinnerCatalogPage,
+    sliderCatalogPage,
+  }) => {
+    await inventoryPage.menu.openDynamicCatalog('lazyLoad');
+    await lazyLoadCatalogPage.expectLoaded();
+    await expect(lazyLoadCatalogPage.title).toHaveText(PAGE_TITLES.lazyLoadCatalog);
+
+    await lazyLoadCatalogPage.menu.openDynamicCatalog('spinner');
+    await spinnerCatalogPage.expectLoaded();
+    await expect(spinnerCatalogPage.title).toHaveText(PAGE_TITLES.spinnerCatalog);
+
+    await spinnerCatalogPage.menu.openDynamicCatalog('slider');
+    await sliderCatalogPage.expectLoaded();
+    await expect(sliderCatalogPage.title).toHaveText(PAGE_TITLES.sliderCatalog);
   });
 
   test('About points to the Sauce Labs website', async ({ inventoryPage }) => {
