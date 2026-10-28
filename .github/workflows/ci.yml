@@ -62,6 +62,9 @@ jobs:
       - name: Check eval states
         run: npm run eval:triage:check
 
+      - name: Check review cases
+        run: npm run eval:review:check
+
       # PR and main: smoke on chromium plus the accessibility and visual gates. Nightly and manual
       # dispatch: everything, all browsers.
       - name: Plan test run

@@ -598,3 +598,23 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you test UI driven by timers?_ Control time instead of waiting for it. Install a fake clock before the page loads, assert the first state, run the clock past the deadline the source defines, then assert the next state. It is fast and deterministic and needs no sleeps, but some tools, like axe, need real timers.
 - _Is an automated accessibility scan enough?_ No. Here axe found contrast, target size and landmarks, but missed a carousel that cannot be paused, a level A failure. A functional test catches it.
+
+### 2026-10-29 - A review eval
+
+**Built** - `npm run eval:review` (`scripts/eval/run-review-eval.mjs`, `evals/review/config.json`). The AI review's prompt and flags moved to `scripts/lib/review-run.mjs`, so the eval runs exactly what the `ai-review` workflow runs. 13 small pull requests, each an isolated checkout of `HEAD` with its edits: 10 plant 12 violations, and 3 are clean controls. The violations are a CSS class, XPath, the two menu test-id traps, Logout as a link, a visibility check by test id, a details link by role, slug-built ids, an assertion, a retry, an `if` that handles broken UI, and a raw-string method. Labels anchor on code, not line numbers. A violation counts only when it is flagged must-fix or should-fix. Correct code that looks wrong, such as a verified exception, must never be flagged, because the author would "fix" it into a bug. The Review eval workflow runs it three times per case when the reviewer, the rules or the page objects change, and the quality job checks that the cases still apply.
+
+**Concepts**
+
+- **Plant only what lint passes.** `--check --lint` runs ESLint on every planted change in its checkout, and a probe confirmed it rejects a planted `nth()` there. A case that lint already rejects measures nothing the review adds.
+- **Test the grader first, a third time.** Four scripted reviews scored exactly as predicted. "Perfect" passed. "Hedged" (every violation flagged only as judgment) and "silent" failed. "Flag every locator line" caught 8 of 12, missed the 4 that are not locators, flagged all 8 exceptions and made 103 false positives. Findings go to the nearest label, because Logout and About sit on adjacent lines.
+- **The baseline caught 92% and failed the gate.** In 3 repeats on Haiku it flagged the documented raw-string `login()` twice, made 3 false positives, and one run passed both menu test-id traps as "the documented open/close test ids". The causes were in the instructions, not the model:
+  1. The `login()` exception lived only in a code comment, and the reviewer applied the rule as written. `pages.md` now lists it.
+  2. The agent kept its own copy of the exceptions. That copy had drifted (it lacked `login()`), and its wording ("do not flag them as problems: the Open/Close menu buttons by role (the test ids ...)") read backwards. The agent now points to `pages.md` and states each exception as the correct code, with the change that undoes it as a must-fix.
+  3. One "false positive" was right: `card(index)` addresses cards by position, and its comment said what it does but not why, which `pages.md` asks for. The comment now explains why.
+  4. One label was wrong. The planted `if` was test setup, which the rule ("to handle broken UI") does not cover, and one run hedged on exactly that point. The case now plants an `if` that does handle broken UI.
+- **Result:** 36 of 36 caught in 3 repeats, no correct code flagged, 1 false positive in 39 reviews, $0.07 for all of them. The one false positive is a must-fix that the product card's `getByRole('img')` matches nothing, inferred from the rules' description of the DOM and disproved by passing tests: a reviewer that reads but cannot run will sometimes reason wrongly about the DOM.
+
+**Interview notes**
+
+- _How do you evaluate an AI code reviewer?_ Plant violations that the linter passes in realistic small pull requests, add clean controls, and label correct code that looks wrong. Grade recall on confident findings only, and make flagging correct code the critical error: it is the one that turns a review into a bug. Read every unexpected finding before calling it a false positive; here one was a real gap in the code, and one was a wrong label.
+- _Why would a reviewer miss a trap it was told about?_ It kept its own copy of the rules. Copies drift, and a list phrased as "do not flag: X (because Y)" can be read as "Y is allowed". One source and positive wording fixed both.

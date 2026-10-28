@@ -30,7 +30,11 @@ export class LazyLoadCatalogPage extends AppPage {
     await this.page.goto(this.pathname);
   }
 
-  /** The card at a position in the list, counted from 0. */
+  /**
+   * The card at a position in the list, counted from 0. Position is a card's only identity: the
+   * list repeats its catalog endlessly, so names are not unique, and a card that has not scrolled
+   * into view shows no name at all. The app's test ids are positional for the same reason.
+   */
   card(index: number): CatalogCardComponent {
     return new CatalogCardComponent(this.page.getByTestId(`lazy-load-item-${index}`));
   }
