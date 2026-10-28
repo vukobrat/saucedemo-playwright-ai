@@ -16,6 +16,8 @@ export function triageRunPrompt(runId) {
     'when the report alone does not decide the category.',
     'Tests that failed as expected under a knownBug() marker are not failures: count them in',
     'expectedKnownBugFailures. A known-bug test that passed means its marker may be stale.',
+    'Every other test the report names goes in failures, under its cause, even when the action',
+    'for it is to leave it alone.',
     'You cannot run tests or edit files in this run. Return the report in the required shape.',
   ].join(' ');
 }

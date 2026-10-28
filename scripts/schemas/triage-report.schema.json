@@ -18,7 +18,7 @@
     },
     "failures": {
       "type": "array",
-      "description": "Failures that need an owner action, grouped by cause.",
+      "description": "Every test analyze_ci_run reports (regressions, flaky tests, known-bug tests that passed), grouped by cause, each cause with its owner action. A pass that is explained by another cause belongs to that cause's group. Known-bug tests that failed as expected are not listed: they are counted in expectedKnownBugFailures.",
       "items": {
         "type": "object",
         "additionalProperties": false,
