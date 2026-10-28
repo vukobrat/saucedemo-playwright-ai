@@ -46,7 +46,7 @@ The app has near-complete `data-test` coverage. Configure `testIdAttribute: 'dat
 
 - **Login:** `username`, `password`, `login-button`, `error` (`<h3 role="alert">`), `error-button` (dismiss, accessible name "Dismiss error"). Inputs get class `error` while an error is shown.
 - **Header:** `primary-header` holds `open-menu`, `close-menu` and `shopping-cart-link` (`role="button"`, accessible name "Cart, empty", "Cart, 1 items", "Cart, 2 items", ...) with `shopping-cart-badge` (absent when the cart is empty). The page `title` sits in the secondary header, outside `header-container`; the product details page has no title.
-- **Side menu:** a `navigation` whose items are `<a role="button">`: `inventory-sidebar-link` ("All Items"), `dynamic-catalog-sidebar-link`, `logout-sidebar-link` ("Logout"), `reset-sidebar-link` ("Reset App State"). Only `about-sidebar-link` is a real link (href `https://saucelabs.com/`). Close button: role button "Close Menu".
+- **Side menu:** a `navigation` whose items are `<a role="button">`: `inventory-sidebar-link` ("All Items"), `dynamic-catalog-sidebar-link` ("Dynamic Catalog", a disclosure button, see [Dynamic Catalog](#dynamic-catalog)), `logout-sidebar-link` ("Logout"), `reset-sidebar-link` ("Reset App State"). Only `about-sidebar-link` is a real link (href `https://saucelabs.com/`). Close button: role button "Close Menu".
 - **Inventory:** `product-sort-container` (`<select>`, `aria-label="Sort products"`, role combobox), `active-option`, `inventory-list`, `inventory-item` (x6), `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `item-<id>-title-link`, `item-<id>-img-link`, `add-to-cart-<slug>` / `remove-<slug>`. Both item links are `<a role="button" aria-label="View details for <name>">`.
 - **Product details:** `back-to-products` (button "Back to products"), `inventory-item`, `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `add-to-cart` / `remove` (no slug on this page).
 - **Cart:** `cart-list`, `inventory-item`, `item-quantity`, `inventory-item-name`, `inventory-item-price`, `remove-<slug>`, `continue-shopping`, `checkout`.
@@ -137,21 +137,25 @@ Ids refer to `src/data/known-bugs.ts`.
 - SD-002: The cart button's accessible name is "Cart, 1 items" for a single item (grammar defect visible to screen reader users).
 - SD-003: Checkout works with an empty cart: the overview shows "Total: $0.00" and Finish completes the order.
 - SD-004: A last name of only spaces passes checkout validation.
+- SD-005: The Dynamic Catalog Lazy Load list has "Test.allTheThings() T-Shirt (Red) (L)" twice in every cycle (two catalog entries, ids 13 and 14, share the name), so one cycle holds 22 entries instead of 21.
 
-## Dynamic Catalog (currently untested)
+## Dynamic Catalog
 
-Side menu "Dynamic Catalog" expands a submenu (`dynamic-catalog-submenu`) with three variants:
+Verified on 2026-10-28 with the Playwright MCP server and the app's own source (timings and batch size). Three read-only views of the catalog: no cart buttons, no links to product details.
 
-- **Lazy Load** (`dynamic-catalog-lazy-load-link`): container `dynamic-catalog-lazy-load-container` with a scroll sentinel `dynamic-catalog-lazy-load-sentinel`.
-- **Spinner** (`dynamic-catalog-spinner-link`): `dynamic-catalog-spinner` (`role="status"`) is replaced by `dynamic-catalog-spinner-grid` once loaded.
-- **Slider** (`dynamic-catalog-slider-link`): carousel `dynamic-catalog-slider-container` with items (`-slider-item`, `-item-name`, `-item-price`, `-item-img`) and six dots `dynamic-catalog-slider-dot-0..5`.
-
-Item-level selectors of these pages were not mapped yet.
+- **Menu:** "Dynamic Catalog" is a disclosure button (`aria-expanded`, `aria-controls="dynamic_catalog_submenu"`). The submenu `dynamic-catalog-submenu` exists in the DOM only while expanded and holds three `<a role="button">` items: "Lazy Load", "Spinner", "Slider" (`dynamic-catalog-lazy-load-link`, `-spinner-link`, `-slider-link`). It starts collapsed on every page, also after navigating from it.
+- **Card:** all three pages render the same card: `<prefix>-img` (`alt` = name), `<prefix>-name`, `<prefix>-price` (`$9.99`). The prefix is `spinner-item-<product id>` on the Spinner page, `lazy-load-item-<position>` on the Lazy Load page and `dynamic-catalog-slider-item` on the Slider page.
+- **Spinner** (`/dynamic-catalog-spinner.html`, title "Dynamic Catalog - Spinner"): inside `dynamic-catalog-spinner-container`, a spinner `dynamic-catalog-spinner` (`role="status"`, `aria-label="Loading"`) shows for a random 0.5 to 3 s (`500 + Math.random() * 2500` ms; measured 0.7 to 2.9 s), then `dynamic-catalog-spinner-grid` replaces it with the six catalog products in id order, at their catalog prices.
+- **Slider** (`/dynamic-catalog-slider.html`, title "Dynamic Catalog - Slider"): `dynamic-catalog-slider-container` shows one product (`dynamic-catalog-slider-item`), starting with the first by id, and a dot list `dynamic-catalog-slider-dots` with six `<button>`s `dynamic-catalog-slider-dot-<0..5>`, named "Show <product name>", the current one `aria-current="true"`. A `setInterval` of 2000 ms advances to the next product and wraps after the last. A dot click shows its product but does not restart the interval, and nothing pauses it: not hover, not focus, not `prefers-reduced-motion` (SD-505).
+- **Lazy Load** (`/dynamic-catalog-lazy-load.html`, title "Dynamic Catalog - Lazy Load"): `dynamic-catalog-lazy-load-container` holds cards `lazy-load-item-<position>`. A card shows a placeholder `lazy-load-item-<n>-placeholder` ("Loading…") until it scrolls into view, then renders within about 50 ms. The sentinel `dynamic-catalog-lazy-load-sentinel` after the list appends 6 cards each time it enters the viewport (an `IntersectionObserver`), so on load the list grows until it fills the viewport (12 cards at 1280x720, of which 4 are placeholders). The list never ends: it cycles through 22 entries (still 300 cards after 40 scrolls). An entry is a product, and the Bolt T-Shirt, Fleece Jacket and Red T-Shirt come in sizes XS to XXL ("Sauce Labs Fleece Jacket (XS)"), each at its product's catalog price.
+- **Testing timers:** `page.clock` (`src/utils/clock.ts`) pauses the Spinner and Slider timers, so a test sees each state for as long as it needs and moves on with `page.clock.runFor()`. axe cannot scan a page whose clock is paused: it needs running timers.
 
 ## Accessibility (axe 4.14, measured 2026-10-21)
 
-- WCAG 2.0, 2.1 and 2.2 A/AA: zero violations on login (also with an error), inventory (also with the menu open), product details, cart, checkout information, overview and complete.
-- axe best-practice rules: SD-501 `page-has-heading-one` fails on every page (no `<h1>`); SD-502 `region` fails on the login page.
+- WCAG 2.0, 2.1 and 2.2 A/AA: zero violations on login (also with an error), inventory (also with the menu open), product details, cart, checkout information, overview and complete, and on the Dynamic Catalog Spinner page (loaded).
+- Dynamic Catalog WCAG failures (measured 2026-10-28): SD-503 `color-contrast` (1.4.3) on the Lazy Load "Loading…" placeholders, `#767676` on `#f4f4f4` = 4.12:1, below 4.5:1. SD-504 `target-size` (2.5.8) on the six Slider dots, 10x10 px with 16 px between them, below 24 px. Apart from these, both pages pass.
+- Not detectable by axe, SD-505 (WCAG 2.2.2, level A): the Slider rotates every 2 s and nothing stops it. The test follows the ARIA carousel pattern, where rotation stops while keyboard focus is inside the carousel.
+- axe best-practice rules: SD-501 `page-has-heading-one` fails on every page (no `<h1>`); SD-502 `region` fails on the login page; SD-506 the three Dynamic Catalog pages have no `main` landmark (`landmark-one-main`), so their content is also outside every landmark (`region`). The other logged-in pages pass both rules.
 - Not detectable by axe: the "Cart, 1 items" accessible name (SD-002) is grammatically wrong but present, so automated scans pass it. Functional assertions on accessible names cover such cases.
 
 ## API under test: DummyJSON (verified 2026-10-21)

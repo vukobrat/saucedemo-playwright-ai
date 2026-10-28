@@ -26,6 +26,11 @@ export const KNOWN_BUGS = {
     id: 'SD-004',
     summary: 'Checkout accepts a last name made only of spaces',
   },
+  lazyLoadDuplicateEntry: {
+    id: 'SD-005',
+    summary:
+      'Dynamic Catalog Lazy Load lists "Test.allTheThings() T-Shirt (Red) (L)" twice in every cycle',
+  },
 
   // problem_user
   problemBrokenImages: {
@@ -109,7 +114,8 @@ export const KNOWN_BUGS = {
       'visual_user: inventory page differs from the reference rendering (cart icon position)',
   },
 
-  // accessibility best practices (axe "best-practice" rules; WCAG 2.2 AA itself passes)
+  // accessibility: axe best-practice rules (SD-501, SD-502, SD-506) and WCAG 2.2 failures, all
+  // on the Dynamic Catalog pages (SD-503 to SD-505)
   a11yNoLevelOneHeading: {
     id: 'SD-501',
     summary: 'No page has a level-one heading (axe page-has-heading-one)',
@@ -117,6 +123,25 @@ export const KNOWN_BUGS = {
   a11yLoginContentOutsideLandmarks: {
     id: 'SD-502',
     summary: 'Login page content is not inside landmarks (axe region)',
+  },
+  a11yLazyLoadPlaceholderContrast: {
+    id: 'SD-503',
+    summary:
+      'Dynamic Catalog Lazy Load "Loading…" placeholders have a 4.12:1 contrast ratio, below 4.5:1 (WCAG 1.4.3, axe color-contrast)',
+  },
+  a11ySliderDotTargetSize: {
+    id: 'SD-504',
+    summary:
+      'Dynamic Catalog Slider dots are 10 by 10 px targets, below 24 by 24 px (WCAG 2.5.8, axe target-size)',
+  },
+  a11ySliderCannotBePaused: {
+    id: 'SD-505',
+    summary:
+      'Dynamic Catalog Slider keeps rotating while a dot has keyboard focus and has no pause control (WCAG 2.2.2)',
+  },
+  a11yDynamicCatalogNoMainLandmark: {
+    id: 'SD-506',
+    summary: 'Dynamic Catalog pages have no main landmark (axe landmark-one-main, region)',
   },
 
   // DummyJSON API

@@ -580,3 +580,21 @@ Entry format: **Built** (what changed in the repo), **Concepts** (what the step 
 
 - _How do you evaluate an agent that reads a whole CI run?_ Replay real runs from saved reports through the exact production command, in a checkout of the code that ran. Label every test that needs action, and grade completeness as well as categories: a report that gets every verdict right can still leave out four failures in five.
 - _Where do agent failures come from?_ Here, mostly from the tools. A deterministic summary that misread a timeout, cut a list silently and told the agent what to decide caused more misses than the model did. Grade the tool's output independently, and keep judgment out of code.
+
+### 2026-10-28 - Dynamic Catalog coverage
+
+**Built** - The gap `test-gap-analyzer` ranked first in Module 4, covered the way the `add-page-object` and `write-test` skills prescribe: every selector verified live first. Page objects for the three pages (`src/pages/{lazy-load,spinner,slider}-catalog.page.ts`) share one card component, the side menu gained the "Dynamic Catalog" submenu, and `src/data/dynamic-catalog.ts` holds the variants, timings and the expected Lazy Load catalog. 18 new tests: 12 functional (`tests/e2e/dynamic-catalog.spec.ts`, two in `menu.spec.ts`) and 6 accessibility. They pass 3 of 3 repeats in Chrome. Five new known bugs, each confirmed with `EXPOSE_KNOWN_BUGS=true` to fail on its documented symptom.
+
+**Concepts**
+
+- **Read the source when the UI is timed.** The live app showed a spinner that lasted 0.7 to 2.9 s and a slider that moved every 2 s. The bundled source gave the exact rules: `500 + Math.random() * 2500` ms, a 2000 ms `setInterval` that a dot click does not restart, and batches of 6 from an `IntersectionObserver`. Without that, an assertion right after a dot click races the next tick.
+- **Time is a test input.** `page.clock` (`src/utils/clock.ts`) pauses the page's timers before it loads, so the spinner stays until the test runs the clock and the slider moves exactly on `runFor(2000)`. That gives determinism without `waitForTimeout`. One limit appeared at once: axe needs running timers, and three scans on a paused page hung until the test timeout.
+- **Rendering can depend on the viewport.** A Lazy Load card renders only inside the viewport, and the list grows until it fills it. The tests wait until the end of the list is out of view, so the count is stable. To read a whole catalog cycle, they use a 3000 px tall viewport rather than scroll each card. ESLint's `no-nth-methods` rejected the first draft's `.first()`, and the simpler design was to take the last loaded card and assert its placeholder as the precondition.
+- **Coverage finds defects.** Of the five new ones, only the duplicate catalog entry (SD-005) is functional. axe found two WCAG 2.2 AA failures: placeholder contrast of 4.12:1 (SD-503) and 10 px slider dots (SD-504). It also found the missing `main` landmark (SD-506). It could not see the worst one: the slider moves forever and nothing stops it (SD-505, WCAG 2.2.2, level A), which only a functional test catches.
+- **Do not mark a whole scan as a known bug.** An expected-failure scan also hides every new violation on that page. The gate skips only the known rule on that page, and a separate known-bug test checks that rule on its own.
+- **The hook held twice, for a person to decide.** `block-test-weakening` stopped the rewrite of a throwaway probe spec and the deletion of a new a11y test that could never pass (the spinner's loading state needs a paused clock, which stops axe). Both were legitimate edits it cannot tell from weakening. The probe got a new file, and Marko deleted the test himself.
+
+**Interview notes**
+
+- _How do you test UI driven by timers?_ Control time instead of waiting for it. Install a fake clock before the page loads, assert the first state, run the clock past the deadline the source defines, then assert the next state. It is fast and deterministic and needs no sleeps, but some tools, like axe, need real timers.
+- _Is an automated accessibility scan enough?_ No. Here axe found contrast, target size and landmarks, but missed a carousel that cannot be paused, a level A failure. A functional test catches it.

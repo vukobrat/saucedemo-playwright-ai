@@ -4,8 +4,11 @@ import { CheckoutCompletePage } from '@pages/checkout-complete.page';
 import { CheckoutInformationPage } from '@pages/checkout-information.page';
 import { CheckoutOverviewPage } from '@pages/checkout-overview.page';
 import { InventoryPage } from '@pages/inventory.page';
+import { LazyLoadCatalogPage } from '@pages/lazy-load-catalog.page';
 import { LoginPage } from '@pages/login.page';
 import { ProductDetailsPage } from '@pages/product-details.page';
+import { SliderCatalogPage } from '@pages/slider-catalog.page';
+import { SpinnerCatalogPage } from '@pages/spinner-catalog.page';
 
 export interface PageFixtures {
   loginPage: LoginPage;
@@ -15,6 +18,9 @@ export interface PageFixtures {
   checkoutInformationPage: CheckoutInformationPage;
   checkoutOverviewPage: CheckoutOverviewPage;
   checkoutCompletePage: CheckoutCompletePage;
+  lazyLoadCatalogPage: LazyLoadCatalogPage;
+  spinnerCatalogPage: SpinnerCatalogPage;
+  sliderCatalogPage: SliderCatalogPage;
 }
 
 /** Page objects, created lazily per test for the test's own `page`. */
@@ -39,5 +45,14 @@ export const test = base.extend<PageFixtures>({
   },
   checkoutCompletePage: async ({ page }, use) => {
     await use(new CheckoutCompletePage(page));
+  },
+  lazyLoadCatalogPage: async ({ page }, use) => {
+    await use(new LazyLoadCatalogPage(page));
+  },
+  spinnerCatalogPage: async ({ page }, use) => {
+    await use(new SpinnerCatalogPage(page));
+  },
+  sliderCatalogPage: async ({ page }, use) => {
+    await use(new SliderCatalogPage(page));
   },
 });
