@@ -139,7 +139,7 @@ export function buildServer({ reportsDir }: ServerOptions = {}): McpServer {
     {
       description:
         'Summarize one CI run as real regressions, flaky tests, and known bugs that unexpectedly ' +
-        'passed (probably fixed), each joined to its SD-/DJ- id, so a known failure is not ' +
+        'passed (maybe fixed), each joined to its SD-/DJ- id, so a known failure is not ' +
         'mistaken for a regression. Reads the JSON report artifact for a run id, or a local ' +
         'report file. Default is the latest scheduled run on main.',
       inputSchema: z.object({
@@ -185,10 +185,22 @@ export function buildServer({ reportsDir }: ServerOptions = {}): McpServer {
           `${full.counts.regressions} regression(s), ${full.counts.flaky} flaky, ` +
             `${full.counts.knownBugExpected} known bug(s) still failing as expected, ` +
             `${full.counts.knownBugFixedProbably} known bug(s) now passing (maybe fixed).`,
+          // A cut list must say so, or the failures after the cut are silently missing.
+          ...(truncated
+            ? [
+                `Each list is cut at ${String(limit)} entries: call again with a larger limit ` +
+                  '(up to 200) to see the rest.',
+              ]
+            : []),
           ...regressions.items.map(
             (r) => `REGRESSION ${r.file}:${r.line} ${r.test} - ${r.message}`,
           ),
-          ...fixed.items.map((b) => `FIXED? ${b.id} ${b.test} (remove the knownBug marker)`),
+          // Whether the bug is fixed is a judgment: a check that cannot fail passes too.
+          ...fixed.items.map(
+            (b) =>
+              `FIXED? ${b.id} ${b.test} (passed despite its knownBug marker: fixed, or its check ` +
+              'can no longer fail)',
+          ),
           ...exposed.items.map((b) => `EXPOSED ${b.id} ${b.test}`),
         ];
 
