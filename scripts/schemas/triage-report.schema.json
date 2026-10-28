@@ -3,7 +3,14 @@
   "description": "What the triage agent returns for one CI run (claude -p --json-schema).",
   "type": "object",
   "additionalProperties": false,
-  "required": ["runId", "verdict", "summary", "expectedKnownBugFailures", "failures"],
+  "required": [
+    "runId",
+    "verdict",
+    "summary",
+    "expectedKnownBugFailures",
+    "staleMarkers",
+    "failures"
+  ],
   "properties": {
     "runId": { "type": "string", "description": "The GitHub Actions run id that was triaged." },
     "verdict": {
@@ -16,15 +23,25 @@
       "minimum": 0,
       "description": "Tests that failed as expected under a knownBug() marker."
     },
+    "staleMarkers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "SD-xxx or DJ-xxx ids whose knownBug() markers should be removed because the bug looks fixed: its test passed, and its check could have failed. A pass explained by another cause, such as a stale locator, is not a fix. Empty when there is none."
+    },
     "failures": {
       "type": "array",
-      "description": "Failures that need an owner action, grouped by cause.",
+      "description": "Every test analyze_ci_run reports (regressions, flaky tests, known-bug tests that passed), grouped by cause, each cause with its owner action. A pass that is explained by another cause belongs to that cause's group. Known-bug tests that failed as expected are not listed: they are counted in expectedKnownBugFailures.",
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["tests", "category", "evidence", "action"],
         "properties": {
-          "tests": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "tests": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Every test of this cause, one per item, as analyze_ci_run names it (file:line title). Never a count or a pattern such as 'all 5 in cart.spec.ts': the owner needs to see which tests, and a failure left out of the report is invisible."
+          },
           "category": {
             "enum": ["known-product-bug", "new-product-bug", "test-bug", "environment", "flaky"]
           },

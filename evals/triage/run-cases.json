@@ -1,0 +1,132 @@
+{
+  "description": "Whole-run triage eval. Each case is one CI run, replayed through the nightly triage's prompt and command line with its saved report (reports/<id>.json). 'state' is the code that produced the run (a state in config.json). 'source' is how the report was made: a real CI run (ciRun), labelled after the fact, a local run of the state's specs, or, for the one bug the app cannot fix on demand, another case's report with one known-bug test passing (fixedTest). 'runId' is the id the replay asks about; local runs have none, so theirs are made up. 'groups' are the reviewed labels: every test in the report that needs an owner action (failed without a knownBug() marker, passed despite one, or flaky) matches exactly one group; 'accept' names other categories that are as right for a group (a vacuous pass of a catalogued bug is its test bug, or that bug, as long as the marker stays). 'staleMarkers' are the ids whose markers the report must name for removal, and no others (none when absent). 'gate' is what npm run eval:triage:runs enforces.",
+  "cases": [
+    {
+      "id": "nightly-green",
+      "runId": "40652266924",
+      "state": "baseline",
+      "source": { "ciRun": 40652266924 },
+      "note": "The real nightly on 5dc880e: every project and browser, 336 tests, 80 known-bug tests failing as expected, nothing else.",
+      "verdicts": ["green"],
+      "groups": []
+    },
+    {
+      "id": "known-bug-fixed",
+      "runId": "40755310462",
+      "state": "baseline",
+      "source": {
+        "from": "nightly-green",
+        "fixedTest": {
+          "file": "e2e/cart.spec.ts",
+          "title": "the cart button announces a single item"
+        }
+      },
+      "note": "Synthesized, because the app cannot be fixed on demand: the real nightly with the SD-002 test passing on every retry in every browser, as it would once the app says 'Cart, 1 item'. Keeps the vacuous-pass rule from making every pass look vacuous.",
+      "verdicts": ["needs-attention"],
+      "staleMarkers": ["SD-002"],
+      "groups": [
+        {
+          "category": "known-product-bug",
+          "knownBugId": "SD-002",
+          "match": { "outcome": "passed-known-bug" },
+          "decidingFact": "The SD-002 test passed in every browser, and its accessible-name check on the cart button, a locator the app model lists, can fail: the bug is probably fixed, and its marker is stale."
+        }
+      ]
+    },
+    {
+      "id": "nightly-tax-rate",
+      "runId": "40522247763",
+      "state": "tax-rate",
+      "source": { "ciRun": 40522247763 },
+      "note": "A real smoke run of scratch/m09-failing-run (50e1659), whose only difference from main was TAX_RATE = 0.07.",
+      "verdicts": ["needs-attention"],
+      "groups": [
+        {
+          "category": "test-bug",
+          "match": {},
+          "decidingFact": "TAX_RATE in src/utils/pricing.ts is 0.07; the app model says tax is 8%."
+        }
+      ]
+    },
+    {
+      "id": "expired-session",
+      "runId": "40718392047",
+      "state": "baseline",
+      "source": { "specs": ["tests/e2e", "tests/personas"], "noDeps": true, "staleAuth": true },
+      "note": "Saved sessions that no longer log anyone in, as when a run outlives the 10-minute session: every logged-in test fails, the login tests pass.",
+      "verdicts": ["needs-attention", "infrastructure"],
+      "groups": [
+        {
+          "category": "environment",
+          "match": {},
+          "decidingFact": "Logged-in pages never showed their ready marker although its test id is valid; the login tests, which log in themselves, passed: the saved sessions are expired or missing."
+        }
+      ]
+    },
+    {
+      "id": "outage",
+      "runId": "40720581133",
+      "state": "baseline",
+      "source": {
+        "specs": ["tests/e2e", "tests/personas"],
+        "env": { "BASE_URL": "https://www.saucedemo.invalid" }
+      },
+      "note": "The app's host does not resolve: the setup project fails, and every test that depends on it never runs.",
+      "verdicts": ["infrastructure", "needs-attention"],
+      "groups": [
+        {
+          "category": "environment",
+          "match": {},
+          "decidingFact": "The host does not resolve (net::ERR_NAME_NOT_RESOLVED): the run never reached the app."
+        }
+      ]
+    },
+    {
+      "id": "stale-badge",
+      "runId": "40731164829",
+      "state": "stale-badge",
+      "source": { "specs": ["tests/e2e", "tests/personas"] },
+      "note": "One stale test id in the header component, used by e2e and persona specs alike.",
+      "verdicts": ["needs-attention"],
+      "groups": [
+        {
+          "category": "test-bug",
+          "match": { "outcome": "failed" },
+          "decidingFact": "The header component looks for test id shopping-cart-count; the app model gives the badge as shopping-cart-badge."
+        },
+        {
+          "category": "test-bug",
+          "accept": ["known-product-bug"],
+          "match": { "outcome": "passed-known-bug" },
+          "decidingFact": "These known bugs are not fixed: their final toBeHidden() check on the stale badge locator passes because nothing matches it."
+        }
+      ]
+    },
+    {
+      "id": "two-causes",
+      "runId": "40742907516",
+      "state": "tax-rate-uncatalogued",
+      "source": { "specs": ["tests/e2e", "tests/personas"] },
+      "note": "Two unrelated causes in one run, among the usual expected known-bug failures.",
+      "verdicts": ["needs-attention"],
+      "groups": [
+        {
+          "category": "test-bug",
+          "match": { "files": ["e2e/checkout.spec.ts", "personas/visual-user.spec.ts"] },
+          "decidingFact": "TAX_RATE in src/utils/pricing.ts is 0.07; the app model says tax is 8%. The visual_user total is the catalog prices plus 8%, so it is this test bug, not that persona's price defect (SD-401 is on the inventory page)."
+        },
+        {
+          "category": "new-product-bug",
+          "match": { "titles": ["removes a product on the inventory page"] },
+          "decidingFact": "Remove does not work for this persona, the test correctly expects it to, and no catalogue entry covers it."
+        }
+      ]
+    }
+  ],
+  "gate": {
+    "minVerdictAccuracy": 1,
+    "minMarkerAccuracy": 1,
+    "minTestAccuracy": 0.9,
+    "maxCriticalErrors": 0
+  }
+}

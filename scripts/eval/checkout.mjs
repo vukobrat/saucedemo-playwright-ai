@@ -2,9 +2,12 @@
 // export in a neutrally named temp directory, so the agent under evaluation sees no git status,
 // no history, no auto memory of this repository and no hint in its working directory's name.
 // Files that would give the answers away (the golden set, this tooling, the lessons that describe
-// past injections) are removed before the state's edits are applied.
-import { execFileSync } from 'node:child_process';
+// past injections) are removed before the state's edits are applied. The builders run the suite in
+// such a checkout with runPlaywright.
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
+  existsSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -84,6 +87,34 @@ export function createCheckout(stateName, state) {
       rmSync(dir, { recursive: true, force: true });
     },
   };
+}
+
+/**
+ * Runs specs of a checkout on chromium and returns the Playwright JSON report. Needs the test
+ * credentials in this process's environment and installed browsers.
+ * @param {string} dir A checkout from createCheckout.
+ * @param {{ name: string, specs: string[], grep?: string, noDeps?: boolean, staleAuth?: boolean, env?: Record<string, string> }} run
+ */
+export function runPlaywright(dir, run) {
+  const reportFile = path.join(dir, 'eval-report.json');
+  const args = ['playwright', 'test', ...run.specs, '--project=chromium', '--workers=2'];
+  args.push('--reporter=json');
+  if (run.grep) args.push('--grep', run.grep);
+  if (run.noDeps) args.push('--no-deps');
+  if (run.staleAuth) {
+    // A saved session that no longer logs anyone in, as after the 10-minute cookie expires.
+    mkdirSync(path.join(dir, '.auth'), { recursive: true });
+    for (const persona of ['standard', 'problem', 'error', 'performanceGlitch', 'visual']) {
+      writeFileSync(path.join(dir, '.auth', `${persona}.json`), '{"cookies":[],"origins":[]}\n');
+    }
+  }
+  spawnSync('npx', args, {
+    cwd: dir,
+    env: { ...process.env, ...run.env, PLAYWRIGHT_JSON_OUTPUT_FILE: reportFile },
+    stdio: 'ignore',
+  });
+  if (!existsSync(reportFile)) throw new Error(`Run "${run.name}" produced no report`);
+  return JSON.parse(readFileSync(reportFile, 'utf8'));
 }
 
 export function loadConfig() {

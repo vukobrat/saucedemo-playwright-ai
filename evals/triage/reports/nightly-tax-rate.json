@@ -1,0 +1,784 @@
+{
+  "stats": {
+    "startTime": "2026-10-27T14:34:37.509Z",
+    "duration": 35406.115966796875,
+    "expected": 32,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "errors": [],
+  "suites": [
+    {
+      "title": "setup/auth.setup.ts",
+      "file": "setup/auth.setup.ts",
+      "specs": [
+        {
+          "title": "authenticate as standard",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as problem",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as performanceGlitch",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as error",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as visual",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as standard",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as problem",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as performanceGlitch",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as error",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "authenticate as visual",
+          "file": "setup/auth.setup.ts",
+          "line": 10,
+          "tests": [
+            {
+              "projectName": "setup",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/cart.spec.ts",
+      "file": "e2e/cart.spec.ts",
+      "suites": [
+        {
+          "title": "Cart",
+          "file": "e2e/cart.spec.ts",
+          "specs": [
+            {
+              "title": "lists added products with quantity and price",
+              "file": "e2e/cart.spec.ts",
+              "line": 9,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/checkout.spec.ts",
+      "file": "e2e/checkout.spec.ts",
+      "suites": [
+        {
+          "title": "Checkout",
+          "file": "e2e/checkout.spec.ts",
+          "specs": [
+            {
+              "title": "completes a purchase end to end with the correct totals",
+              "file": "e2e/checkout.spec.ts",
+              "line": 11,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "2696736820"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('tax-label')\nExpected: \u001b[32m\"Tax: $\u001b[7m6.16\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Tax: $\u001b[7m7.04\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('tax-label') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('tax-label')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-test=\"tax-label\" class=\"summary_tax_label\">Tax: $7.04</div>\u001b[22m\n\u001b[2m       - unexpected value \"Tax: $7.04\"\u001b[22m\n"
+                      }
+                    },
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('tax-label')\nExpected: \u001b[32m\"Tax: $\u001b[7m6.16\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Tax: $\u001b[7m7.04\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('tax-label') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('tax-label')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-test=\"tax-label\" class=\"summary_tax_label\">Tax: $7.04</div>\u001b[22m\n\u001b[2m       - unexpected value \"Tax: $7.04\"\u001b[22m\n"
+                      }
+                    },
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('tax-label')\nExpected: \u001b[32m\"Tax: $\u001b[7m6.16\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Tax: $\u001b[7m7.04\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('tax-label') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('tax-label')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-test=\"tax-label\" class=\"summary_tax_label\">Tax: $7.04</div>\u001b[22m\n\u001b[2m       - unexpected value \"Tax: $7.04\"\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/inventory.spec.ts",
+      "file": "e2e/inventory.spec.ts",
+      "suites": [
+        {
+          "title": "Inventory",
+          "file": "e2e/inventory.spec.ts",
+          "specs": [
+            {
+              "title": "lists every product with its catalog price",
+              "file": "e2e/inventory.spec.ts",
+              "line": 12,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adding a product switches its button to Remove and counts it in the cart",
+              "file": "e2e/inventory.spec.ts",
+              "line": 30,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/login.spec.ts",
+      "file": "e2e/login.spec.ts",
+      "suites": [
+        {
+          "title": "Login",
+          "file": "e2e/login.spec.ts",
+          "specs": [
+            {
+              "title": "standard user logs in and lands on the products page",
+              "file": "e2e/login.spec.ts",
+              "line": 46,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/session.spec.ts",
+      "file": "e2e/session.spec.ts",
+      "suites": [
+        {
+          "title": "Session",
+          "file": "e2e/session.spec.ts",
+          "specs": [
+            {
+              "title": "logout ends the session",
+              "file": "e2e/session.spec.ts",
+              "line": 20,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a11y/accessibility.spec.ts",
+      "file": "a11y/accessibility.spec.ts",
+      "suites": [
+        {
+          "title": "Accessibility: WCAG 2.2 AA",
+          "file": "a11y/accessibility.spec.ts",
+          "specs": [
+            {
+              "title": "inventory",
+              "file": "a11y/accessibility.spec.ts",
+              "line": 30,
+              "tests": [
+                {
+                  "projectName": "a11y",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "inventory with the side menu open",
+              "file": "a11y/accessibility.spec.ts",
+              "line": 37,
+              "tests": [
+                {
+                  "projectName": "a11y",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "product details",
+              "file": "a11y/accessibility.spec.ts",
+              "line": 45,
+              "tests": [
+                {
+                  "projectName": "a11y",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suites": [
+            {
+              "title": "logged out",
+              "file": "a11y/accessibility.spec.ts",
+              "specs": [
+                {
+                  "title": "login page",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 18,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "login page showing an error",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 22,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "purchase flow",
+              "file": "a11y/accessibility.spec.ts",
+              "specs": [
+                {
+                  "title": "cart",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 58,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "checkout information",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 65,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "checkout overview",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 72,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "faker-seed",
+                          "description": "2101963320"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "checkout complete",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 85,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "faker-seed",
+                          "description": "1697412277"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Accessibility: best practices",
+          "file": "a11y/accessibility.spec.ts",
+          "specs": [
+            {
+              "title": "every page has a level-one heading",
+              "file": "a11y/accessibility.spec.ts",
+              "line": 105,
+              "tests": [
+                {
+                  "projectName": "a11y",
+                  "expectedStatus": "failed",
+                  "status": "expected",
+                  "annotations": [
+                    {
+                      "type": "known-bug",
+                      "description": "SD-501: No page has a level-one heading (axe page-has-heading-one)"
+                    },
+                    {
+                      "type": "fail",
+                      "description": "SD-501: No page has a level-one heading (axe page-has-heading-one)"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"page-has-heading-one: Page should contain a level-one heading (1 elements)\",\u001b[39m\n\u001b[31m+ ]\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suites": [
+            {
+              "title": "logged out",
+              "file": "a11y/accessibility.spec.ts",
+              "specs": [
+                {
+                  "title": "login page content is inside landmarks",
+                  "file": "a11y/accessibility.spec.ts",
+                  "line": 130,
+                  "tests": [
+                    {
+                      "projectName": "a11y",
+                      "expectedStatus": "failed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "known-bug",
+                          "description": "SD-502: Login page content is not inside landmarks (axe region)"
+                        },
+                        {
+                          "type": "fail",
+                          "description": "SD-502: Login page content is not inside landmarks (axe region)"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"region: All page content should be contained by landmarks (1 elements)\",\u001b[39m\n\u001b[31m+ ]\u001b[39m"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "visual/visual.spec.ts",
+      "file": "visual/visual.spec.ts",
+      "suites": [
+        {
+          "title": "Visual regression",
+          "file": "visual/visual.spec.ts",
+          "specs": [
+            {
+              "title": "inventory",
+              "file": "visual/visual.spec.ts",
+              "line": 24,
+              "tests": [
+                {
+                  "projectName": "visual",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "product details",
+              "file": "visual/visual.spec.ts",
+              "line": 34,
+              "tests": [
+                {
+                  "projectName": "visual",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "cart with two items",
+              "file": "visual/visual.spec.ts",
+              "line": 44,
+              "tests": [
+                {
+                  "projectName": "visual",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "checkout overview",
+              "file": "visual/visual.spec.ts",
+              "line": 56,
+              "tests": [
+                {
+                  "projectName": "visual",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "573648739"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suites": [
+            {
+              "title": "logged out",
+              "file": "visual/visual.spec.ts",
+              "specs": [
+                {
+                  "title": "login page",
+                  "file": "visual/visual.spec.ts",
+                  "line": 16,
+                  "tests": [
+                    {
+                      "projectName": "visual",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "as visual_user",
+              "file": "visual/visual.spec.ts",
+              "specs": [
+                {
+                  "title": "inventory matches the reference rendering",
+                  "file": "visual/visual.spec.ts",
+                  "line": 78,
+                  "tests": [
+                    {
+                      "projectName": "visual",
+                      "expectedStatus": "failed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "known-bug",
+                          "description": "SD-403: visual_user: inventory page differs from the reference rendering (cart icon position)"
+                        },
+                        {
+                          "type": "fail",
+                          "description": "SD-403: visual_user: inventory page differs from the reference rendering (cart icon position)"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  34829 pixels (ratio 0.03 of all image pixels) are different.\n\n  Snapshot: inventory.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(inventory.png)\" with timeout 5000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 34829 pixels (ratio 0.03 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 34829 pixels (ratio 0.03 of all image pixels) are different.\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

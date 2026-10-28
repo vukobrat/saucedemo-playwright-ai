@@ -5,10 +5,9 @@
 //
 // Usage: npm run eval:triage:build      (no model calls; about ten minutes of Playwright runs)
 // Needs: the test credentials (.env or exported variables) and installed browsers.
-import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import path from 'node:path';
-import { createCheckout, loadConfig } from './checkout.mjs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, writeFileSync } from 'node:fs';
+import { createCheckout, loadConfig, runPlaywright } from './checkout.mjs';
 
 // The checkouts have no .env. Load it into this process, as src/config/env.ts would, so the test
 // runs get the credentials without a copy of the file; exported variables still take precedence.
@@ -36,28 +35,6 @@ function knownBugOf(test) {
   const annotation = test.annotations?.find((a) => a.type === 'known-bug');
   const match = /^(SD-\d+|DJ-\d+): (.*)$/.exec(annotation?.description ?? '');
   return match ? { id: match[1], summary: match[2] } : undefined;
-}
-
-function runPlaywright(dir, run) {
-  const reportFile = path.join(dir, 'eval-report.json');
-  const args = ['playwright', 'test', ...run.specs, '--project=chromium', '--workers=2'];
-  args.push('--reporter=json');
-  if (run.grep) args.push('--grep', run.grep);
-  if (run.noDeps) args.push('--no-deps');
-  if (run.staleAuth) {
-    // A saved session that no longer logs anyone in, as after the 10-minute cookie expires.
-    mkdirSync(path.join(dir, '.auth'), { recursive: true });
-    for (const persona of ['standard', 'problem', 'error', 'performanceGlitch', 'visual']) {
-      writeFileSync(path.join(dir, '.auth', `${persona}.json`), '{"cookies":[],"origins":[]}\n');
-    }
-  }
-  spawnSync('npx', args, {
-    cwd: dir,
-    env: { ...process.env, ...run.env, PLAYWRIGHT_JSON_OUTPUT_FILE: reportFile },
-    stdio: 'ignore',
-  });
-  if (!existsSync(reportFile)) throw new Error(`Run "${run.name}" produced no report`);
-  return JSON.parse(readFileSync(reportFile, 'utf8'));
 }
 
 /** Unexpected failures without a known-bug marker: what the qa server reports as regressions. */

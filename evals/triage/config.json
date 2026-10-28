@@ -80,6 +80,47 @@
           "replace": "    name: 'Sauce Labs Backpack',\n    priceCents: 2899,"
         }
       ]
+    },
+    "tax-rate-uncatalogued": {
+      "description": "Two causes in one run: the tax-rate test bug, and SD-104 and SD-203 removed from the catalogue, the app model and the two specs that mark them. Every other knownBug() marker stays.",
+      "stripKnownBugMarkers": false,
+      "edits": [
+        {
+          "file": "src/utils/pricing.ts",
+          "find": "export const TAX_RATE = 0.08;",
+          "replace": "export const TAX_RATE = 0.07;"
+        },
+        {
+          "file": "src/data/known-bugs.ts",
+          "find": "  problemRemoveIgnored: {\n    id: 'SD-104',\n    summary: 'problem_user: Remove on the inventory page does nothing',\n  },\n",
+          "replace": ""
+        },
+        {
+          "file": "src/data/known-bugs.ts",
+          "find": "  errorRemoveFails: {\n    id: 'SD-203',\n    summary: 'error_user: Remove on the inventory page throws and keeps the item',\n  },\n",
+          "replace": ""
+        },
+        {
+          "file": "docs/app-exploration.md",
+          "find": "- SD-104: Remove does nothing (inventory page).\n",
+          "replace": ""
+        },
+        {
+          "file": "docs/app-exploration.md",
+          "find": "- SD-203: Remove throws `Error: Failed to remove item from cart.` and keeps the item.\n",
+          "replace": ""
+        },
+        {
+          "file": "tests/personas/problem-user.spec.ts",
+          "find": "    knownBug(KNOWN_BUGS.problemRemoveIgnored);\n",
+          "replace": ""
+        },
+        {
+          "file": "tests/personas/error-user.spec.ts",
+          "find": "    knownBug(KNOWN_BUGS.errorRemoveFails);\n",
+          "replace": ""
+        }
+      ]
     }
   },
   "runs": [
