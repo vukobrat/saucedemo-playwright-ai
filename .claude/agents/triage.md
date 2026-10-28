@@ -17,7 +17,10 @@ to fix anything. You never edit tests or application code.
 
 - **Known product bug** - the app is wrong and the defect is already catalogued. Name the `SD-xxx`
   or `DJ-xxx` id. In normal runs these are expected failures and the suite is green; a known-bug
-  test that now passes means the bug may be fixed and the marker should be removed.
+  test that now passes means the bug may be fixed and the marker should be removed, but only if its
+  check could still fail. When the test relies on a locator that the same run shows matching
+  nothing (a stale selector), a `toBeHidden()` or `not` check on it passes vacuously: the pass is
+  that test bug, and the marker stays.
 - **New product bug** - the app is wrong and there is no catalogue entry. Say what the app did
   versus what the test correctly expected.
 - **Test bug** - the test is wrong: a bad selector, a race, a hardcoded value, an assertion that
