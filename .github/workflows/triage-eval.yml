@@ -1,18 +1,25 @@
 name: Triage eval
 
-# Regression eval for the triage agent: runs it on the golden set (evals/triage/golden.json) and
-# fails when the gate in evals/triage/config.json fails. It runs when anything the agent's answers
-# depend on changes: its instructions, the qa server, the catalogue, the app model or the eval.
-# Same command locally: npm run eval:triage.
+# Regression evals for the triage agent: on single failures (evals/triage/golden.json, gated by
+# evals/triage/config.json) and on whole CI runs replayed through the nightly triage's own command
+# (evals/triage/run-cases.json). Fails when either gate fails. It runs when anything the agent's
+# answers depend on changes: its instructions, the nightly prompt, the qa server, the catalogue,
+# the app model or the evals. Same commands locally: npm run eval:triage, npm run eval:triage:runs.
 on:
   pull_request:
     paths:
       - .claude/agents/triage.md
       - scripts/lib/claude-headless.mjs
+      - scripts/lib/triage-run.mjs
       - scripts/eval/checkout.mjs
+      - scripts/eval/pool.mjs
       - scripts/eval/run-triage-eval.mjs
       - scripts/eval/build-triage-golden.mjs
+      - scripts/eval/run-triage-runs-eval.mjs
+      - scripts/eval/build-triage-runs.mjs
+      - scripts/eval/run-cases.mjs
       - scripts/schemas/triage-case.schema.json
+      - scripts/schemas/triage-report.schema.json
       - evals/triage/**
       - src/mcp/**
       - src/data/known-bugs.ts
@@ -59,15 +66,27 @@ jobs:
       - name: Install Claude Code
         run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
 
-      - name: Eval
+      - name: Eval on single failures
         run: npm run eval:triage -- --repeat "$REPEAT"
         env:
           REPEAT: ${{ inputs.repeat || '1' }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-      - name: Job summary
+      # Runs even when the first eval failed: the two measure different things.
+      - name: Eval on whole runs
+        if: ${{ !cancelled() }}
+        run: npm run eval:triage:runs -- --repeat "$REPEAT"
+        env:
+          REPEAT: ${{ inputs.repeat || '1' }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+      - name: Job summary (single failures)
         if: ${{ always() && hashFiles('eval-output/triage-latest.md') != '' }}
         run: cat eval-output/triage-latest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Job summary (whole runs)
+        if: ${{ always() && hashFiles('eval-output/triage-runs-latest.md') != '' }}
+        run: cat eval-output/triage-runs-latest.md >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ always() }}
