@@ -21,7 +21,13 @@ export const PAGE_TITLES = {
   checkoutInformation: 'Checkout: Your Information',
   checkoutOverview: 'Checkout: Overview',
   checkoutComplete: 'Checkout: Complete!',
+  lazyLoadCatalog: 'Dynamic Catalog - Lazy Load',
+  spinnerCatalog: 'Dynamic Catalog - Spinner',
+  sliderCatalog: 'Dynamic Catalog - Slider',
 } as const;
+
+/** What a Lazy Load card shows until it scrolls into view. */
+export const CATALOG_CARD_PLACEHOLDER = 'Loading…';
 
 /** Expected targets of links in the app (content, not environment configuration). */
 export const LINKS = {
