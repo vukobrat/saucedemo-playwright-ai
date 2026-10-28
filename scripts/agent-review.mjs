@@ -7,7 +7,8 @@
 // read access to pull requests (GH_TOKEN in CI), used here only to list the changed files.
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { agentInstructions, runHeadless } from './lib/claude-headless.mjs';
+import { runHeadless } from './lib/claude-headless.mjs';
+import { REVIEW_SCHEMA, reviewArgs, reviewPrompt } from './lib/review-run.mjs';
 
 const pr = process.argv[2];
 if (!/^\d+$/.test(pr ?? '')) {
@@ -39,27 +40,10 @@ if (changed.length === 0) {
   delete env.GITHUB_TOKEN;
 
   ({ output: review, meta } = await runHeadless({
-    prompt: [
-      `Review these files, changed in pull request #${pr}, against .claude/rules/pages.md:`,
-      `${changed.join(', ')}.`,
-      'Report only problems in these files, each with its line, and return the review in the',
-      'required shape.',
-    ].join(' '),
-    schemaFile: 'scripts/schemas/locator-review.schema.json',
+    prompt: reviewPrompt(pr, changed),
+    schemaFile: REVIEW_SCHEMA,
     env,
-    args: [
-      ['--append-system-prompt', agentInstructions('locator-reviewer')],
-      // The agent's own model: a mechanical rule check does not need a larger one.
-      ['--model', 'claude-haiku-5-5'],
-      // Ignore the checkout's own .claude/settings.json: a pull request must not be able to add a
-      // hook that runs on this runner.
-      ['--setting-sources', 'user'],
-      ['--tools', 'Read,Grep,Glob'],
-      ['--strict-mcp-config'],
-      ['--permission-mode', 'dontAsk'],
-      ['--max-turns', '15'],
-      ['--max-budget-usd', '1'],
-    ].flat(),
+    args: reviewArgs(),
   }));
 }
 
