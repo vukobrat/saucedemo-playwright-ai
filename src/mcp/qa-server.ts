@@ -1,12 +1,18 @@
 /**
  * The `qa` MCP server: read-only tools that answer "is this failure a known bug?" and "what did a
  * CI run actually do?" for this repo. Consumers are the maintainer in chat, the triage subagent
- * (Module 4) and the nightly CI triage (Module 9).
+ * (Module 4), the nightly CI triage (Module 9) and the whole-run triage eval.
  *
  * It is launched over stdio (see `.mcp.json`), so stdout carries only the protocol: this file
  * never writes to stdout. GitHub access is through the ambient `gh` login; no token is read into
  * a result. Report text and error messages are treated as untrusted data.
+ *
+ * `--reports-dir <dir>` answers `analyze_ci_run` for a run id from a saved report,
+ * `<dir>/<runId>.json`, instead of downloading it: the eval replays real runs that way, through the
+ * same prompt and tool calls as CI.
  */
+import { join } from 'node:path';
+import { parseArgs } from 'node:util';
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { z } from 'zod';
@@ -54,7 +60,12 @@ function withSummary(entries: KnownBugEntry[], summaries: Map<string, string>) {
   return entries.map((entry) => ({ ...entry, summary: summaries.get(entry.id) ?? '' }));
 }
 
-export function buildServer(): McpServer {
+export interface ServerOptions {
+  /** Directory of saved reports named `<runId>.json`, read instead of downloading a run's. */
+  readonly reportsDir?: string | undefined;
+}
+
+export function buildServer({ reportsDir }: ServerOptions = {}): McpServer {
   const server = new McpServer({ name: 'qa', version: '0.1.0' });
 
   server.registerTool(
@@ -153,8 +164,12 @@ export function buildServer(): McpServer {
             runId ?? (await listRuns({ branch: 'main', event: 'schedule', limit: 1 }))[0]?.id;
           if (id === undefined) return errorResult('No scheduled run on main found to analyze.');
           resolvedRunId = id;
-          report = await downloadReport(id);
-          url = await runUrl(id);
+          if (reportsDir !== undefined) {
+            report = readReportFile(join(reportsDir, `${String(id)}.json`));
+          } else {
+            report = await downloadReport(id);
+            url = await runUrl(id);
+          }
         }
 
         const full = classifyReport(report);
@@ -236,4 +251,5 @@ export function buildServer(): McpServer {
   return server;
 }
 
-serveStdio(buildServer);
+const { values: cli } = parseArgs({ options: { 'reports-dir': { type: 'string' } } });
+serveStdio(() => buildServer({ reportsDir: cli['reports-dir'] }));
