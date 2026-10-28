@@ -6,7 +6,13 @@
 // Needs: `claude` on PATH and signed in (CLAUDE_CODE_OAUTH_TOKEN in CI), and `gh` signed in with
 // read access to Actions (GH_TOKEN in CI), which the qa server uses to download the run's report.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { agentInstructions, cell, repoLink, runHeadless } from './lib/claude-headless.mjs';
+import { cell, repoLink, runHeadless } from './lib/claude-headless.mjs';
+import {
+  TRIAGE_MODEL,
+  TRIAGE_REPORT_SCHEMA,
+  triageRunArgs,
+  triageRunPrompt,
+} from './lib/triage-run.mjs';
 
 const runId = process.argv[2];
 if (!/^\d+$/.test(runId ?? '')) {
@@ -15,36 +21,14 @@ if (!/^\d+$/.test(runId ?? '')) {
 }
 
 const OUT_DIR = 'agent-output';
-// Pinned for reproducible CI behaviour; triage reads one report, so the full model is not needed.
-const MODEL = 'claude-sonnet-5-5';
 
-// Only the qa server, defined once in .mcp.json; reading a report needs no browser.
+// The qa server is defined once, in .mcp.json.
 const { mcpServers } = JSON.parse(readFileSync('.mcp.json', 'utf8'));
-const mcpConfig = JSON.stringify({ mcpServers: { qa: mcpServers.qa } });
-
-const prompt = [
-  `Triage run ${runId} of this repository's CI workflow.`,
-  `Call analyze_ci_run with run id ${runId}. Check failures you cannot place against the`,
-  'catalogue with find_known_bug, and read specs, page objects or docs/app-exploration.md only',
-  'when the report alone does not decide the category.',
-  'Tests that failed as expected under a knownBug() marker are not failures: count them in',
-  'expectedKnownBugFailures. A known-bug test that passed means its marker may be stale.',
-  'You cannot run tests or edit files in this run. Return the report in the required shape.',
-].join(' ');
 
 const { output, meta } = await runHeadless({
-  prompt,
-  schemaFile: 'scripts/schemas/triage-report.schema.json',
-  args: [
-    ['--append-system-prompt', agentInstructions('triage')],
-    ['--model', MODEL],
-    ['--tools', 'Read,Grep,Glob'],
-    ['--strict-mcp-config', '--mcp-config', mcpConfig],
-    ['--allowedTools', 'mcp__qa__analyze_ci_run,mcp__qa__find_known_bug,mcp__qa__list_ci_runs'],
-    ['--permission-mode', 'dontAsk'],
-    ['--max-turns', '25'],
-    ['--max-budget-usd', '3'],
-  ].flat(),
+  prompt: triageRunPrompt(runId),
+  schemaFile: TRIAGE_REPORT_SCHEMA,
+  args: triageRunArgs({ qaServer: mcpServers.qa }),
 });
 
 const VERDICTS = {
@@ -76,7 +60,7 @@ if (output.failures.length > 0) {
 }
 lines.push(
   '',
-  `<sub>Triage agent (${MODEL}), headless with read-only tools: ${String(meta.turns)} turns, ` +
+  `<sub>Triage agent (${TRIAGE_MODEL}), headless with read-only tools: ${String(meta.turns)} turns, ` +
     `$${meta.costUsd.toFixed(2)} estimated, ${String(Math.round(meta.durationMs / 1000))} s.</sub>`,
 );
 
