@@ -1,0 +1,2148 @@
+{
+  "stats": {
+    "startTime": "2026-10-28T17:11:41.485Z",
+    "duration": 692795.343,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 82,
+    "flaky": 0
+  },
+  "errors": [],
+  "suites": [
+    {
+      "title": "e2e/cart.spec.ts",
+      "file": "e2e/cart.spec.ts",
+      "suites": [
+        {
+          "title": "Cart",
+          "file": "e2e/cart.spec.ts",
+          "specs": [
+            {
+              "title": "lists added products with quantity and price",
+              "file": "e2e/cart.spec.ts",
+              "line": 9,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "removing an item updates the list and the badge",
+              "file": "e2e/cart.spec.ts",
+              "line": 29,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "an empty cart shows no items and no badge",
+              "file": "e2e/cart.spec.ts",
+              "line": 40,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "continue shopping returns to the inventory",
+              "file": "e2e/cart.spec.ts",
+              "line": 48,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the cart button announces several items",
+              "file": "e2e/cart.spec.ts",
+              "line": 56,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('primary-header').getByRole('button', { name: /^Cart,/ })\nExpected: \u001b[32m\"Cart, empty\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByTestId('primary-header').getByRole('button', { name: /^Cart,/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('primary-header').getByRole('button', { name: /^Cart,/ })\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the cart button announces a single item",
+              "file": "e2e/cart.spec.ts",
+              "line": 65,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "failed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "known-bug",
+                      "description": "SD-002: Cart button is announced as \"Cart, 1 items\" instead of \"Cart, 1 item\""
+                    },
+                    {
+                      "type": "fail",
+                      "description": "SD-002: Cart button is announced as \"Cart, 1 items\" instead of \"Cart, 1 item\""
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/checkout-validation.spec.ts",
+      "file": "e2e/checkout-validation.spec.ts",
+      "suites": [
+        {
+          "title": "Checkout validation",
+          "file": "e2e/checkout-validation.spec.ts",
+          "specs": [
+            {
+              "title": "requires the first name",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 35,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "requires the last name",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 35,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "requires the postal code",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 35,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "reports the first missing field when the form is empty",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 43,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the error message can be dismissed",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects a last name made only of spaces",
+              "file": "e2e/checkout-validation.spec.ts",
+              "line": 60,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/checkout.spec.ts",
+      "file": "e2e/checkout.spec.ts",
+      "suites": [
+        {
+          "title": "Checkout",
+          "file": "e2e/checkout.spec.ts",
+          "specs": [
+            {
+              "title": "completes a purchase end to end with the correct totals",
+              "file": "e2e/checkout.spec.ts",
+              "line": 11,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "2696736820"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rounds tax correctly for a full cart",
+              "file": "e2e/checkout.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "2778105692"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "cancel on the information step returns to the cart and keeps it",
+              "file": "e2e/checkout.spec.ts",
+              "line": 70,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "cancel on the overview returns to the inventory and keeps the cart",
+              "file": "e2e/checkout.spec.ts",
+              "line": 85,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "462692814"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "a completed order empties the cart",
+              "file": "e2e/checkout.spec.ts",
+              "line": 102,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "3782189127"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the order can be downloaded as a PDF",
+              "file": "e2e/checkout.spec.ts",
+              "line": 122,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "annotations": [
+                    {
+                      "type": "faker-seed",
+                      "description": "3043285940"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "checkout is unavailable for an empty cart",
+              "file": "e2e/checkout.spec.ts",
+              "line": 144,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "failed",
+                  "status": "expected",
+                  "annotations": [
+                    {
+                      "type": "known-bug",
+                      "description": "SD-003: Checkout is allowed with an empty cart; a $0.00 order can be completed"
+                    },
+                    {
+                      "type": "fail",
+                      "description": "SD-003: Checkout is allowed with an empty cart; a $0.00 order can be completed"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Checkout' })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" getByRole('button', { name: 'Checkout' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Checkout' })\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/footer.spec.ts",
+      "file": "e2e/footer.spec.ts",
+      "suites": [
+        {
+          "title": "Footer",
+          "file": "e2e/footer.spec.ts",
+          "specs": [
+            {
+              "title": "shows the social links in order",
+              "file": "e2e/footer.spec.ts",
+              "line": 9,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('footer').getByRole('list').getByRole('link')\nTimeout: 5000ms\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   \"X\",\u001b[39m\n\u001b[32m-   \"Facebook\",\u001b[39m\n\u001b[32m-   \"LinkedIn\",\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('footer').getByRole('list').getByRole('link') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('footer').getByRole('list').getByRole('link')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "X opens the Sauce Labs profile in a new tab",
+              "file": "e2e/footer.spec.ts",
+              "line": 18,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('footer').getByRole('link', { name: 'X', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('footer').getByRole('link', { name: 'X', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('footer').getByRole('link', { name: 'X', exact: true })\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Facebook opens the Sauce Labs profile in a new tab",
+              "file": "e2e/footer.spec.ts",
+              "line": 18,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('footer').getByRole('link', { name: 'Facebook', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('footer').getByRole('link', { name: 'Facebook', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('footer').getByRole('link', { name: 'Facebook', exact: true })\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "LinkedIn opens the Sauce Labs profile in a new tab",
+              "file": "e2e/footer.spec.ts",
+              "line": 18,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('footer').getByRole('link', { name: 'LinkedIn', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('footer').getByRole('link', { name: 'LinkedIn', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('footer').getByRole('link', { name: 'LinkedIn', exact: true })\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "copyright shows the year of the browser clock",
+              "file": "e2e/footer.spec.ts",
+              "line": 30,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('footer').getByTestId('footer-copy')\nExpected: \u001b[32m\"© 2031 Sauce Labs. All Rights Reserved. Terms of Service | Privacy Policy\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('footer').getByTestId('footer-copy') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('footer').getByTestId('footer-copy')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/inventory.spec.ts",
+      "file": "e2e/inventory.spec.ts",
+      "suites": [
+        {
+          "title": "Inventory",
+          "file": "e2e/inventory.spec.ts",
+          "specs": [
+            {
+              "title": "lists every product with its catalog price",
+              "file": "e2e/inventory.spec.ts",
+              "line": 12,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "every product shows its own image",
+              "file": "e2e/inventory.spec.ts",
+              "line": 24,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adding a product switches its button to Remove and counts it in the cart",
+              "file": "e2e/inventory.spec.ts",
+              "line": 30,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the cart badge counts several products",
+              "file": "e2e/inventory.spec.ts",
+              "line": 44,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "removing a product restores its button and clears the badge",
+              "file": "e2e/inventory.spec.ts",
+              "line": 50,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "the cart survives a page reload",
+              "file": "e2e/inventory.spec.ts",
+              "line": 60,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/login.spec.ts",
+      "file": "e2e/login.spec.ts",
+      "suites": [
+        {
+          "title": "Login",
+          "file": "e2e/login.spec.ts",
+          "specs": [
+            {
+              "title": "standard user logs in and lands on the products page",
+              "file": "e2e/login.spec.ts",
+              "line": 46,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects an empty username with a clear error",
+              "file": "e2e/login.spec.ts",
+              "line": 58,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects an empty password with a clear error",
+              "file": "e2e/login.spec.ts",
+              "line": 58,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects a wrong password with a clear error",
+              "file": "e2e/login.spec.ts",
+              "line": 58,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects an unknown username with a clear error",
+              "file": "e2e/login.spec.ts",
+              "line": 58,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "rejects a locked out user with a clear error",
+              "file": "e2e/login.spec.ts",
+              "line": 58,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "error message can be dismissed",
+              "file": "e2e/login.spec.ts",
+              "line": 66,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "protected pages redirect to login with an explanation",
+              "file": "e2e/login.spec.ts",
+              "line": 75,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "status": "passed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/menu.spec.ts",
+      "file": "e2e/menu.spec.ts",
+      "suites": [
+        {
+          "title": "Side menu",
+          "file": "e2e/menu.spec.ts",
+          "specs": [
+            {
+              "title": "opens and closes",
+              "file": "e2e/menu.spec.ts",
+              "line": 13,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "All Items returns to the inventory from another page",
+              "file": "e2e/menu.spec.ts",
+              "line": 23,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "About points to the Sauce Labs website",
+              "file": "e2e/menu.spec.ts",
+              "line": 34,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Reset App State empties the cart",
+              "file": "e2e/menu.spec.ts",
+              "line": 40,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Reset App State restores the product buttons immediately",
+              "file": "e2e/menu.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/product-details.spec.ts",
+      "file": "e2e/product-details.spec.ts",
+      "suites": [
+        {
+          "title": "Product details",
+          "file": "e2e/product-details.spec.ts",
+          "specs": [
+            {
+              "title": "opens the details of Sauce Labs Backpack from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of Sauce Labs Bike Light from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of Sauce Labs Bolt T-Shirt from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of Sauce Labs Fleece Jacket from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of Sauce Labs Onesie from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of Test.allTheThings() T-Shirt (Red) from the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 8,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adding and removing on the details page updates the cart",
+              "file": "e2e/product-details.spec.ts",
+              "line": 23,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "back to products returns to the inventory",
+              "file": "e2e/product-details.spec.ts",
+              "line": 37,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "an unknown product id shows a not-found page",
+              "file": "e2e/product-details.spec.ts",
+              "line": 48,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-item').getByTestId('inventory-item-name')\nExpected: \u001b[32m\"ITEM NOT FOUND\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('inventory-item').getByTestId('inventory-item-name') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-item').getByTestId('inventory-item-name')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/session.spec.ts",
+      "file": "e2e/session.spec.ts",
+      "suites": [
+        {
+          "title": "Session",
+          "file": "e2e/session.spec.ts",
+          "specs": [
+            {
+              "title": "logout ends the session",
+              "file": "e2e/session.spec.ts",
+              "line": 20,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "timedOut",
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suites": [
+            {
+              "title": "as standard",
+              "file": "e2e/session.spec.ts",
+              "specs": [
+                {
+                  "title": "saved session opens the products page without logging in",
+                  "file": "e2e/session.spec.ts",
+                  "line": 10,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "as problem",
+              "file": "e2e/session.spec.ts",
+              "specs": [
+                {
+                  "title": "saved session opens the products page without logging in",
+                  "file": "e2e/session.spec.ts",
+                  "line": 10,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "as performanceGlitch",
+              "file": "e2e/session.spec.ts",
+              "specs": [
+                {
+                  "title": "saved session opens the products page without logging in",
+                  "file": "e2e/session.spec.ts",
+                  "line": 10,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "as error",
+              "file": "e2e/session.spec.ts",
+              "specs": [
+                {
+                  "title": "saved session opens the products page without logging in",
+                  "file": "e2e/session.spec.ts",
+                  "line": 10,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "as visual",
+              "file": "e2e/session.spec.ts",
+              "specs": [
+                {
+                  "title": "saved session opens the products page without logging in",
+                  "file": "e2e/session.spec.ts",
+                  "line": 10,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/sorting.spec.ts",
+      "file": "e2e/sorting.spec.ts",
+      "suites": [
+        {
+          "title": "Sorting",
+          "file": "e2e/sorting.spec.ts",
+          "specs": [
+            {
+              "title": "products are sorted by name A to Z by default",
+              "file": "e2e/sorting.spec.ts",
+              "line": 13,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "sorts by Name (A to Z)",
+              "file": "e2e/sorting.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "sorts by Name (Z to A)",
+              "file": "e2e/sorting.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "sorts by Price (low to high)",
+              "file": "e2e/sorting.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "sorts by Price (high to low)",
+              "file": "e2e/sorting.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "personas/error-user.spec.ts",
+      "file": "personas/error-user.spec.ts",
+      "suites": [
+        {
+          "title": "error_user",
+          "file": "personas/error-user.spec.ts",
+          "specs": [
+            {
+              "title": "sorts products by name Z to A",
+              "file": "personas/error-user.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Backpack to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 32,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Bike Light to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 32,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Onesie to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 32,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Bolt T-Shirt to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 40,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Fleece Jacket to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 40,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Test.allTheThings() T-Shirt (Red) to the cart",
+              "file": "personas/error-user.spec.ts",
+              "line": 40,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "removes a product on the inventory page",
+              "file": "personas/error-user.spec.ts",
+              "line": 49,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suites": [
+            {
+              "title": "checkout",
+              "file": "personas/error-user.spec.ts",
+              "specs": [
+                {
+                  "title": "accepts typing in the last name field",
+                  "file": "personas/error-user.spec.ts",
+                  "line": 65,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "requires the last name",
+                  "file": "personas/error-user.spec.ts",
+                  "line": 74,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "completes the order with Finish",
+                  "file": "personas/error-user.spec.ts",
+                  "line": 82,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "personas/performance-glitch-user.spec.ts",
+      "file": "personas/performance-glitch-user.spec.ts",
+      "suites": [
+        {
+          "title": "performance_glitch_user",
+          "file": "personas/performance-glitch-user.spec.ts",
+          "suites": [
+            {
+              "title": "login",
+              "file": "personas/performance-glitch-user.spec.ts",
+              "specs": [
+                {
+                  "title": "reaches the products page despite the delay",
+                  "file": "personas/performance-glitch-user.spec.ts",
+                  "line": 24,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "slow",
+                          "description": "Login and sorting are delayed by about 5 seconds by design"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "passed"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "logs in within 2000 ms",
+                  "file": "personas/performance-glitch-user.spec.ts",
+                  "line": 30,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "failed",
+                      "status": "expected",
+                      "annotations": [
+                        {
+                          "type": "slow",
+                          "description": "Login and sorting are delayed by about 5 seconds by design"
+                        },
+                        {
+                          "type": "known-bug",
+                          "description": "SD-301: performance_glitch_user: login takes about 5 seconds"
+                        },
+                        {
+                          "type": "fail",
+                          "description": "SD-301: performance_glitch_user: login takes about 5 seconds"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2000\u001b[39m\nReceived:   \u001b[31m5466.579247\u001b[39m"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "inventory",
+              "file": "personas/performance-glitch-user.spec.ts",
+              "specs": [
+                {
+                  "title": "sorts correctly despite the delay",
+                  "file": "personas/performance-glitch-user.spec.ts",
+                  "line": 49,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "annotations": [
+                        {
+                          "type": "slow",
+                          "description": "Login and sorting are delayed by about 5 seconds by design"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "title": "sorts within 1000 ms",
+                  "file": "personas/performance-glitch-user.spec.ts",
+                  "line": 58,
+                  "tests": [
+                    {
+                      "projectName": "chromium",
+                      "expectedStatus": "passed",
+                      "status": "unexpected",
+                      "annotations": [
+                        {
+                          "type": "slow",
+                          "description": "Login and sorting are delayed by about 5 seconds by design"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "status": "failed",
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  15000ms\n"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "personas/problem-user.spec.ts",
+      "file": "personas/problem-user.spec.ts",
+      "suites": [
+        {
+          "title": "problem_user",
+          "file": "personas/problem-user.spec.ts",
+          "specs": [
+            {
+              "title": "shows the right image for every product",
+              "file": "personas/problem-user.spec.ts",
+              "line": 21,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "sorts products by name Z to A",
+              "file": "personas/problem-user.spec.ts",
+              "line": 32,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Backpack to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 43,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Bike Light to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 43,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Onesie to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 43,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Bolt T-Shirt to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Sauce Labs Fleece Jacket to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "adds Test.allTheThings() T-Shirt (Red) to the cart",
+              "file": "personas/problem-user.spec.ts",
+              "line": 51,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "removes a product on the inventory page",
+              "file": "personas/problem-user.spec.ts",
+              "line": 60,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "opens the details of the selected product",
+              "file": "personas/problem-user.spec.ts",
+              "line": 70,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "keeps first and last name separate at checkout",
+              "file": "personas/problem-user.spec.ts",
+              "line": 81,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "About points to the Sauce Labs website",
+              "file": "personas/problem-user.spec.ts",
+              "line": 97,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "personas/visual-user.spec.ts",
+      "file": "personas/visual-user.spec.ts",
+      "suites": [
+        {
+          "title": "visual_user",
+          "file": "personas/visual-user.spec.ts",
+          "specs": [
+            {
+              "title": "shows catalog prices on the inventory",
+              "file": "personas/visual-user.spec.ts",
+              "line": 18,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "shows the right image for every product",
+              "file": "personas/visual-user.spec.ts",
+              "line": 26,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: predicate to succeed\nReceived: \u001b[31m\"https://www.saucedemo.com/\"\u001b[39m\nTimeout:  5000ms\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "charges catalog prices at checkout",
+              "file": "personas/visual-user.spec.ts",
+              "line": 37,
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "expectedStatus": "passed",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "status": "failed",
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('inventory-list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('inventory-list') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('inventory-list')\u001b[22m\n"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
