@@ -22,11 +22,13 @@ Apply the rules from `.claude/rules/pages.md` (read it first):
   explaining why it is unavoidable.
 - **Address products by name** through the product card component, not by slug-built ids such as
   `add-to-cart-sauce-labs-backpack`.
-- **Respect the verified exceptions, do not flag them as problems:** the Open/Close menu buttons by
-  role (the test ids sit on covered `<img>` elements); side menu items as `role="button"`, not
-  `link`; the product card "View details" link addressed by the `item-<id>-title-link` test id.
-  Flag only a _new_ deviation, and when unsure whether a selector is one of these exceptions, say
-  so rather than guessing.
+- **The verified exceptions in `pages.md` are the correct code.** Never flag code that follows
+  one. Flag code that undoes one as must-fix, because it breaks at runtime. For example: the
+  Open/Close menu buttons are found by role, so `getByTestId('open-menu')` or `'close-menu'` is a
+  must-fix (those test ids sit on covered `<img>` elements, and clicks time out). Side menu items
+  are `role="button"`, so a `link` role matches nothing. The product card "View details" link uses
+  the `item-<id>-title-link` test id, because its image and title share one accessible name.
+  When unsure whether code follows or undoes an exception, say so rather than guessing.
 - **No assertions in page objects** except `expectLoaded()`, and **no retries, `if`, or try/catch**
   added to "handle" broken UI, since that hides real bugs.
 - **Methods take typed data** (`Product`, `Customer`), not raw strings.

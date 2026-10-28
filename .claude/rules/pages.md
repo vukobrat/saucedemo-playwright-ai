@@ -22,5 +22,6 @@ Verified exceptions, do not "fix" these back:
 - Side menu items are `<a role="button">`: use `getByRole('button', { name: 'Logout' })`, not `link`. Role locators only match while the menu is open, which is what we want; the test ids report closed items as visible.
 - Product card "View details" links: both image and title are `role="button"` with the same name; use the `item-<id>-title-link` test id.
 - Products: address them by name through the product card component, not by slug-built ids such as `add-to-cart-sauce-labs-backpack`.
+- `LoginPage.login(username, password)` takes raw strings: negative tests submit empty or unknown values that no `User` holds. Valid users log in through the typed `loginAs(user)`.
 
 Before adding a locator, verify it on the live app with the Playwright MCP server (`browser_snapshot`, `browser_evaluate`, `ariaSnapshot()`), and check the cause, not just the symptom. Why: never assume a selector; this app has several traps, and one of them was first documented with the wrong cause.
