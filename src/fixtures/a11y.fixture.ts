@@ -9,6 +9,11 @@ export interface A11yScanOptions {
   readonly tags?: readonly string[];
   /** Run only these rule ids instead of whole tags. */
   readonly rules?: readonly string[];
+  /**
+   * Skip these rule ids. Only for a rule that a known bug already fails on this page, and that a
+   * separate `knownBug()` test checks on its own.
+   */
+  readonly disabledRules?: readonly string[];
 }
 
 export interface A11yFixtures {
@@ -25,8 +30,8 @@ export const test = base.extend<A11yFixtures>({
   a11y: async ({ page }, use, testInfo) => {
     let scanCount = 0;
     await use({
-      async scan({ tags = WCAG_TAGS, rules } = {}) {
-        const builder = new AxeBuilder({ page });
+      async scan({ tags = WCAG_TAGS, rules, disabledRules = [] } = {}) {
+        const builder = new AxeBuilder({ page }).disableRules([...disabledRules]);
         const configured = rules ? builder.withRules([...rules]) : builder.withTags([...tags]);
         const { violations } = await configured.analyze();
         scanCount += 1;
