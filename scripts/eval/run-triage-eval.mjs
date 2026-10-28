@@ -12,6 +12,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { agentInstructions, runHeadless } from '../lib/claude-headless.mjs';
 import { createCheckout, loadConfig } from './checkout.mjs';
+import { pool } from './pool.mjs';
 
 const MODEL = 'claude-sonnet-5-5'; // the CI triage model
 const JUDGE_MODEL = 'claude-haiku-5-5';
@@ -122,20 +123,6 @@ function grade(c, answer) {
     // The costly mistake: a real app defect called a test bug invites "fixing" a correct test.
     critical: PRODUCT_BUGS.has(label.category) && answer?.category === 'test-bug',
   };
-}
-
-/** Runs tasks with at most `limit` in flight. */
-async function pool(items, limit, work) {
-  const results = new Array(items.length);
-  let next = 0;
-  const lane = async () => {
-    while (next < items.length) {
-      const index = next++;
-      results[index] = await work(items[index]);
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, lane));
-  return results;
 }
 
 const results = [];
