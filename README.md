@@ -64,7 +64,7 @@ flowchart TB
 | `visual`                          | Screenshot comparison against Linux baselines                                    | bundled Chromium | every PR                         |
 | `api`                             | DummyJSON auth, products and carts contracts                                     | none (HTTP)      | nightly (third-party API)        |
 
-**Tags:** `@smoke` (critical path), `@regression`, `@persona`, `@a11y`, `@visual`, `@api`. ESLint rejects tests without a tag or with an unknown one.
+**Tags:** one suite tag per test (`@regression`, `@persona`, `@a11y`, `@visual`, `@api`), plus `@smoke` on critical paths, which puts them in the PR gate. ESLint rejects tests without a tag or with an unknown one.
 
 **Personas.** SauceDemo ships deliberately broken users. Each defect is catalogued in [`src/data/known-bugs.ts`](src/data/known-bugs.ts) with a stable id, and the test asserts the _correct_ behavior under `knownBug()`:
 

@@ -33,8 +33,9 @@ code, not a sketch. Never weaken the suite to make something pass.
    `tests/`.
 2. **Import from `@fixtures` only:** `import { test, expect } from '@fixtures';`. Pull page objects
    from the fixture arguments, data from `@data/*`.
-3. **Tag every spec** with exactly one suite tag: `@smoke`, `@regression`, `@persona`, `@a11y`,
-   `@visual` or `@api`. `@smoke` is the PR gate; use it only for critical paths.
+3. **Tag every test** with exactly one suite tag: `@regression`, `@persona`, `@a11y`, `@visual`
+   or `@api`, usually once on the `describe`. `@smoke` is not a suite but the PR gate: add it on
+   top of the suite tag for a critical path only, never instead of it.
 4. **Derive expected values from typed data** (catalog prices, `pricing.ts`), never hardcode totals.
    Random data comes from builders fed the per-test `faker` fixture.
 5. **Web-first assertions only** (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no
