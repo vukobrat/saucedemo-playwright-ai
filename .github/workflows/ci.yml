@@ -65,6 +65,9 @@ jobs:
       - name: Check review cases
         run: npm run eval:review:check
 
+      - name: Check write-test cases
+        run: npm run eval:write-test:check
+
       # PR and main: smoke on chromium plus the accessibility and visual gates. Nightly and manual
       # dispatch: everything, all browsers.
       - name: Plan test run
