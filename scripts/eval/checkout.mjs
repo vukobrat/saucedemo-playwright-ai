@@ -63,8 +63,9 @@ function applyEdit(dir, stateName, edit) {
 }
 
 /**
- * @param {string} stateName A key of `states` in evals/triage/config.json.
- * @param {{ stripKnownBugMarkers: boolean, edits: { file: string, find: string, replace: string }[] }} state
+ * @param {string} stateName A key of `states` in evals/triage/config.json, or an eval case's id.
+ * @param {{ stripKnownBugMarkers: boolean, edits: { file: string, find: string, replace: string }[], remove?: string[] }} state
+ *   `remove`: files deleted from the checkout, such as the specs a write-test case holds out.
  * @returns {{ dir: string, cleanup: () => void }}
  */
 export function createCheckout(stateName, state) {
@@ -78,6 +79,12 @@ export function createCheckout(stateName, state) {
   for (const leak of LEAK_PATHS) rmSync(path.join(dir, leak), { recursive: true, force: true });
   if (state.stripKnownBugMarkers) stripKnownBugMarkers(dir);
   for (const edit of state.edits) applyEdit(dir, stateName, edit);
+  for (const file of state.remove ?? []) {
+    if (!existsSync(path.join(dir, file))) {
+      throw new Error(`State "${stateName}" is stale: ${file} does not exist`);
+    }
+    rmSync(path.join(dir, file));
+  }
   // The qa MCP server and Playwright run through this checkout's tooling.
   symlinkSync(path.join(REPO, 'node_modules'), path.join(dir, 'node_modules'));
 

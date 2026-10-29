@@ -40,6 +40,8 @@
     "eval:fix-loop": "node scripts/eval/run-fix-loop-eval.mjs",
     "eval:review": "node scripts/eval/run-review-eval.mjs",
     "eval:review:check": "node scripts/eval/run-review-eval.mjs --check",
+    "eval:write-test": "node scripts/eval/run-write-test-eval.mjs",
+    "eval:write-test:check": "node scripts/eval/run-write-test-eval.mjs --check",
     "context:budget": "node scripts/context-budget.mjs",
     "mcp:qa": "tsx src/mcp/qa-server.ts",
     "lint": "eslint . --max-warnings=0",
