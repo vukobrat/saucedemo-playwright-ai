@@ -97,7 +97,11 @@ function playwright(dir, args, env = {}) {
   );
   if (!existsSync(reportFile))
     throw new Error(`Playwright wrote no report: ${firstLine(run.stderr)}`);
-  return JSON.parse(readFileSync(reportFile, 'utf8'));
+  const report = JSON.parse(readFileSync(reportFile, 'utf8'));
+  // The agent works in this checkout after the first listing: leave nothing behind for it to find,
+  // such as a file that format:check flags.
+  rmSync(reportFile);
+  return report;
 }
 
 const keyOf = (spec, titles) => [...titles, spec.title].join(' > ');
@@ -481,6 +485,22 @@ function simulate(behaviour, c, dir) {
   } else if (behaviour !== 'nothing') throw new Error(`Unknown --simulate behaviour: ${behaviour}`);
 }
 
+/**
+ * What a session in this repository may do without asking while /write-test runs: the project's
+ * allow rules, which Claude Code ignores in an untrusted directory such as this checkout, and the
+ * skill's allowed-tools. Nothing is added by hand, so a command the skill needs but does not grant
+ * is denied here, as it would wait for a person's approval there.
+ */
+function allowedTools(dir) {
+  const settings = JSON.parse(readFileSync(path.join(dir, '.claude/settings.json'), 'utf8'));
+  const skill = readFileSync(path.join(dir, '.claude/skills/write-test/SKILL.md'), 'utf8');
+  const fromSkill = (/^allowed-tools:\s*(.+)$/m.exec(skill)?.[1] ?? '')
+    .split(/,\s*(?![^(]*\))/)
+    .map((tool) => tool.trim())
+    .filter(Boolean);
+  return [...new Set([...settings.permissions.allow, ...fromSkill])].join(',');
+}
+
 function prompt(c) {
   if (!options.naive) return `/write-test ${c.behaviour}`;
   return (
@@ -516,10 +536,7 @@ async function runJob({ c, run }) {
             ],
             ['--strict-mcp-config'],
             ['--permission-mode', 'dontAsk'],
-            [
-              '--allowedTools',
-              'Read,Grep,Glob,Edit,Write,Bash(npm run *),Bash(EXPOSE_KNOWN_BUGS=true npm run *)',
-            ],
+            ['--allowedTools', allowedTools(dir)],
             ['--max-turns', '50'],
             ['--max-budget-usd', '3'],
           ].flat(),
