@@ -5,7 +5,7 @@ description: >-
   tags, typed data, web-first assertions, and the knownBug marker for defects. Use when asked to
   add a test, cover a feature or flow, or write a spec in tests/.
 argument-hint: <what to test, e.g. "cart badge updates when removing an item">
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash(npm run *)
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash(npm run *), Bash(EXPOSE_KNOWN_BUGS=true npm run *)
 ---
 
 # Write a Playwright test
@@ -51,9 +51,12 @@ code, not a sketch. Never weaken the suite to make something pass.
 Run, and make them pass, for the spec you added:
 
 ```bash
-npm run lint && npm run typecheck && npm run test:local -- <spec> --repeat-each=3
+npm run lint && npm run typecheck && npm run format:check && npm run test:local -- <spec> --repeat-each=3
 ```
 
 `--repeat-each=3` proves the test is not flaky. On this machine the local run is chromium only.
+Run these as written, without pipes or other commands chained in: this skill pre-approves `npm run`
+commands only (also with `EXPOSE_KNOWN_BUGS=true`), and anything else waits for a person's approval,
+or is denied in a headless run. Read code with Read, Grep and Glob, not with shell commands.
 Report what you added, why each assertion is there, and the command output. If a new behaviour is a
 known bug, say so and name the `SD-xxx` id.
