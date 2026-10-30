@@ -1,0 +1,75 @@
+{
+  "description": "Write-test eval: /write-test covers one behaviour in an isolated checkout of HEAD from which the specs that already cover it are removed ('hold'), and is graded on the checkout, not on its report. A behaviour the app gets right names a 'mutant': a persona whose catalogued defect breaks it, so the new tests must fail when they run as that persona. A behaviour the app gets wrong names its 'knownBug' (catalogue key, or 'new' when the case's edits remove the defect from the catalogue and the app model), so the new tests must carry that marker and fail with EXPOSE_KNOWN_BUGS=true. 'folder' and 'tag' are where the tests belong (any test may also carry @smoke). 'gate' is what npm run eval:write-test enforces.",
+  "cases": [
+    {
+      "id": "sort-by-price",
+      "behaviour": "Sorting the inventory by price, low to high and high to low, orders the products by their catalog prices.",
+      "persona": "standard",
+      "folder": "tests/e2e",
+      "tag": "@regression",
+      "hold": ["tests/e2e/sorting.spec.ts"],
+      "mutant": { "persona": "problem", "defect": "SD-102" }
+    },
+    {
+      "id": "remove-on-inventory",
+      "behaviour": "Removing a product on the inventory page turns its button back into Add to cart and clears the cart badge.",
+      "persona": "standard",
+      "folder": "tests/e2e",
+      "tag": "@regression",
+      "hold": ["tests/e2e/inventory.spec.ts"],
+      "mutant": { "persona": "error", "defect": "SD-203" }
+    },
+    {
+      "id": "complete-order",
+      "behaviour": "Finish on the checkout overview completes the order and shows the order confirmation.",
+      "persona": "standard",
+      "folder": "tests/e2e",
+      "tag": "@regression",
+      "hold": ["tests/e2e/checkout.spec.ts"],
+      "mutant": { "persona": "error", "defect": "SD-206" }
+    },
+    {
+      "id": "reset-buttons",
+      "behaviour": "Reset App State in the side menu turns every product's Remove button back into Add to cart immediately, while the inventory page stays open.",
+      "persona": "standard",
+      "folder": "tests/e2e",
+      "tag": "@regression",
+      "hold": ["tests/e2e/menu.spec.ts"],
+      "knownBug": "resetAppStateStaleButtons"
+    },
+    {
+      "id": "problem-checkout-names",
+      "behaviour": "As problem_user, the checkout information form keeps the first and last name exactly as the customer types them.",
+      "persona": "problem",
+      "folder": "tests/personas",
+      "tag": "@persona",
+      "hold": ["tests/personas/problem-user.spec.ts"],
+      "knownBug": "problemLastNameOverwritesFirstName"
+    },
+    {
+      "id": "error-finish-uncatalogued",
+      "behaviour": "As error_user, Finish on the checkout overview completes the order and shows the order confirmation.",
+      "persona": "error",
+      "folder": "tests/personas",
+      "tag": "@persona",
+      "hold": ["tests/personas/error-user.spec.ts"],
+      "edits": [
+        {
+          "file": "src/data/known-bugs.ts",
+          "find": "  errorFinishDoesNothing: {\n    id: 'SD-206',\n    summary: 'error_user: Finish throws and the order is never completed',\n  },\n",
+          "replace": ""
+        },
+        {
+          "file": "docs/app-exploration.md",
+          "find": "- SD-206: Finish does nothing and stays on the overview (`TypeError: wa.cesetRart is not a function`).\n",
+          "replace": ""
+        }
+      ],
+      "knownBug": "new"
+    }
+  ],
+  "gate": {
+    "maxCriticalErrors": 0,
+    "minCorrect": 0.8
+  }
+}

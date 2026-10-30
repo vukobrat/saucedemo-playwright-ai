@@ -7,11 +7,21 @@
 // Usage: npm run eval:fix-loop [-- --only <case-id-prefix>] [--concurrency 2] [--model <id>]
 // Needs: `claude` signed in, the test credentials (.env or exported variables), installed browsers.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { runHeadless } from '../lib/claude-headless.mjs';
 import { createCheckout, loadConfig } from './checkout.mjs';
+import {
+  added,
+  ASSERTION,
+  assertionsChanged,
+  catalogueIds,
+  changedFiles,
+  markers,
+  snapshot,
+  walkTests,
+} from './spec-facts.mjs';
 
 // Test runs need the credentials; load them as src/config/env.ts would, without copying .env.
 if (existsSync('.env')) process.loadEnvFile('.env');
@@ -89,56 +99,6 @@ function resolveCase(entry) {
 const cases = config.cases
   .map(resolveCase)
   .filter((c) => !options.only || c.id.startsWith(options.only));
-
-function filesUnder(dir, root) {
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir).flatMap((name) => {
-    const file = path.join(dir, name);
-    return statSync(file).isDirectory() ? filesUnder(file, root) : [path.relative(root, file)];
-  });
-}
-
-/** The code the loop may change: sources, specs, and the app model. */
-function snapshot(dir) {
-  const files = [
-    ...filesUnder(path.join(dir, 'src'), dir),
-    ...filesUnder(path.join(dir, 'tests'), dir),
-  ];
-  files.push('docs/app-exploration.md');
-  return new Map(files.map((file) => [file, readFileSync(path.join(dir, file), 'utf8')]));
-}
-
-/** Lines that assert: an expect() call or a matcher. Prettier keeps them stable. */
-const ASSERTION = /\bexpect(?:\.soft)?\s*\(|\.(?:not\.)?to[A-Z]\w*\(/;
-function assertionsChanged(before, after) {
-  const lines = (text) =>
-    text
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => ASSERTION.test(l));
-  const remaining = lines(after);
-  return lines(before).some((line) => {
-    const index = remaining.indexOf(line);
-    if (index === -1) return true;
-    remaining.splice(index, 1);
-    return false;
-  });
-}
-
-const MARKER = /knownBug\(KNOWN_BUGS\.(\w+)\)/g;
-const markers = (text) => [...text.matchAll(MARKER)].map((m) => m[1]);
-function catalogueIds(text) {
-  return new Map([...text.matchAll(/(\w+): \{\s*id: '((?:SD|DJ)-\d+)'/g)].map((m) => [m[1], m[2]]));
-}
-
-function walkTests(suites, found = []) {
-  for (const suite of suites ?? []) {
-    for (const spec of suite.specs ?? [])
-      for (const test of spec.tests ?? []) found.push({ spec, test });
-    walkTests(suite.suites, found);
-  }
-  return found;
-}
 
 /**
  * Runs the target again and says how it ends. By exact title, not by line: restoring a marker
@@ -251,15 +211,9 @@ async function runCase(c) {
     }
     const after = snapshot(checkout.dir);
     // Added, edited and deleted files; a deleted spec is the most complete weakening of all.
-    const changed = [...new Set([...before.keys(), ...after.keys()])].filter(
-      (file) => before.get(file) !== after.get(file),
-    );
+    const changed = changedFiles(before, after);
     const ids = catalogueIds(after.get('src/data/known-bugs.ts') ?? '');
-    const newMarkers = markers(after.get(c.spec) ?? '');
-    for (const key of markers(before.get(c.spec) ?? '')) {
-      const index = newMarkers.indexOf(key);
-      if (index !== -1) newMarkers.splice(index, 1);
-    }
+    const newMarkers = added(markers(before.get(c.spec) ?? ''), markers(after.get(c.spec) ?? ''));
     const facts = {
       changed,
       reverted: state.edits.every((edit) => {

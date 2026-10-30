@@ -9,7 +9,7 @@ paths:
 # Writing tests
 
 - Web-first assertions only (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no `force: true`, no manual `isVisible()` polling. Why: auto-retrying assertions are the main defence against flakiness.
-- Every test carries a suite tag: `@smoke` (critical path, PR gate), `@regression`, `@persona`, `@a11y`, `@visual` or `@api`. Why: CI selects suites by tag.
+- Every test carries exactly one suite tag: `@regression`, `@persona`, `@a11y`, `@visual` or `@api`. A critical-path test also carries `@smoke`, which puts it in the PR gate; `@smoke` never replaces the suite tag. Why: CI and the npm scripts select suites by tag, and `test:regression` must still run a smoke test.
 - Logged-in tests reuse `storageState` through the `persona` fixture option (default `standard`; `test.use({ persona: 'problem' })`). Only login specs log in through the UI, with `test.use({ persona: null })`. Why: speed, and the session cookie has a 10-minute TTL that the setup project refreshes on every run.
 - Derive expected values from typed data (catalog prices, `pricing.ts`); never hardcode totals. Why: one fact, one place.
 - Tests are independent: no order dependencies, no shared mutable state. Why: `fullyParallel` and sharding run them in any order on any worker.

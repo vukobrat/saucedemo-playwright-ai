@@ -1,0 +1,24 @@
+{
+  "title": "Write-test report",
+  "description": "What /write-test reports at the end of a run in the write-test eval. Reported only; the grade comes from the checkout.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["outcome", "summary", "specFiles", "knownBugIds"],
+  "properties": {
+    "outcome": { "enum": ["written", "stopped"] },
+    "summary": {
+      "type": "string",
+      "description": "What the new tests check and why, or why no test was written."
+    },
+    "specFiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Spec files added or changed."
+    },
+    "knownBugIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "SD ids of the known bugs the new tests are marked with, including new ones."
+    }
+  }
+}
